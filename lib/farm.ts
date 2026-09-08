@@ -126,6 +126,26 @@ export function addCost(entry: Omit<CostEntry, "id">): CostEntry[] {
  * diseases belonging to the old crop. Clearing them is the honest move; keeping
  * "12 qtl of Rashi" against a tomato farm would produce confident nonsense.
  */
+/**
+ * Wipe every trace of this device's farm — profile, cost book, cached plans and
+ * the recorded price history. Used by "Delete farm data" in Settings, which is
+ * why it is deliberately thorough: a half-cleared store would leave the next
+ * sign-in reading a previous farm's numbers, which is the class of bug that put
+ * a mature plantation's revenue in front of a new grower.
+ */
+export function clearFarmData(): void {
+  if (typeof window === "undefined") return;
+  try {
+    for (const key of Object.keys(window.localStorage)) {
+      if (key.startsWith("kheti.") && key !== "kheti.session.v1") {
+        window.localStorage.removeItem(key);
+      }
+    }
+  } catch {
+    /* nothing we can do, and nothing depends on it succeeding */
+  }
+}
+
 export function switchCrop(farm: Farm, cropId: string): Farm {
   if (farm.cropId === cropId) return farm;
   return { ...farm, cropId, stockQtl: {}, lastSprayAt: {}, plantedOn: undefined };

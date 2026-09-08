@@ -7,7 +7,7 @@ const TABS = [
   { href: "/", label: "Today", icon: "🌴" },
   { href: "/market", label: "Sell", icon: "💰" },
   { href: "/profit", label: "Profit", icon: "📊" },
-  { href: "/onboarding", label: "Farm", icon: "⚙️" },
+  { href: "/settings", label: "Settings", icon: "⚙️" },
 ];
 
 /** Hidden during sign-in and setup — those flows own the whole screen. */
