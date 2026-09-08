@@ -266,18 +266,48 @@ export default function OnboardingPage() {
               />
             </label>
 
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                {crop.yield.kind === "perennial" ? "Year planted" : "Year sown"}
-              </span>
-              <input
-                inputMode="numeric"
-                value={farm.plantedYear || ""}
-                onChange={(e) => update("plantedYear", Number(e.target.value) || 0)}
-                className="w-full rounded-xl border px-3 text-base"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
-              />
-            </label>
+            {crop.yield.kind === "perennial" ? (
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
+                  Year planted
+                </span>
+                <input
+                  inputMode="numeric"
+                  value={farm.plantedYear || ""}
+                  onChange={(e) => update("plantedYear", Number(e.target.value) || 0)}
+                  className="w-full rounded-xl border px-3 text-base"
+                  style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+                />
+              </label>
+            ) : (
+              /* Seasonal crops need the actual date: the gap between sowing and
+                 harvest is months, not years, and it decides whether this farm
+                 has a crop coming or one ready to sell. */
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
+                  When did you plant it?
+                </span>
+                <input
+                  type="date"
+                  max={new Date().toISOString().slice(0, 10)}
+                  value={farm.plantedOn?.slice(0, 10) ?? ""}
+                  onChange={(e) => {
+                    const iso = e.target.value;
+                    setFarm((f) =>
+                      f
+                        ? { ...f, plantedOn: iso, plantedYear: Number(iso.slice(0, 4)) || f.plantedYear }
+                        : f,
+                    );
+                  }}
+                  className="w-full rounded-xl border px-3 text-base"
+                  style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+                />
+                <span className="mt-1.5 block text-xs" style={{ color: "var(--ink-soft)" }}>
+                  {crop.name.en} takes about {Math.round(crop.yield.cycleDays / 30)} months from
+                  planting to harvest.
+                </span>
+              </label>
+            )}
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>

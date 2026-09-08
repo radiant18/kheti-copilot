@@ -1,4 +1,4 @@
-import { getCrop, gradeLabel, yieldPerAcre, type CropConfig } from "../crops";
+import { getCrop, gradeLabel, harvestOutlook, type CropConfig } from "../crops";
 import type { Economics, Farm, Grade, MandiQuote, MarketView, Recommendation } from "../types";
 
 /**
@@ -215,8 +215,8 @@ export function referencePrice(farm: Farm, market: MarketView | null): number {
 
 export function economics(farm: Farm, market: MarketView | null, costs: number): Economics {
   const crop = getCrop(farm.cropId);
-  const perAcre = yieldPerAcre(crop, farm.plantedYear);
-  const yieldQtl = perAcre * farm.acres;
+  const outlook = harvestOutlook(crop, farm.plantedYear, farm.plantedOn);
+  const yieldQtl = outlook.qtlPerAcre * farm.acres;
   const price = referencePrice(farm, market);
   const revenue = Math.round(yieldQtl * price);
   const trend = Object.values(market?.weekChangePct ?? {})[0] ?? 0;
@@ -227,10 +227,13 @@ export function economics(farm: Farm, market: MarketView | null, costs: number):
     totalCosts: costs,
     expectedProfit: revenue - costs,
     weekDeltaRupees: Math.round((revenue * trend) / 100),
-    // A generic crop has no yield curve, and a crop with no quotes today has no
-    // price. Either way we report costs and stay silent on profit rather than
-    // presenting "revenue zero" as though it were a finding.
-    yieldKnown: perAcre > 0,
+    // A generic crop has no yield curve; a crop with no quotes has no price; a
+    // crop just put in the ground has no harvest yet. In every one of those
+    // cases we report costs and stay silent on profit, rather than presenting a
+    // number the farmer would reasonably read as money he is owed.
+    yieldKnown: crop.yield.kind === "seasonal" ? crop.yield.qtlPerAcre > 0 : true,
     priceKnown: price > 0,
+    bearing: outlook.bearing,
+    firstHarvestOn: outlook.firstHarvestOn,
   };
 }

@@ -63,18 +63,74 @@ export function gradeLabel(crop: CropConfig, gradeId: string): string {
     .join(" ");
 }
 
-/** Expected yield per acre for a crop at a given planting age. */
-export function yieldPerAcre(crop: CropConfig, plantedYear: number, today = new Date()): number {
-  if (crop.yield.kind === "seasonal") return crop.yield.qtlPerAcre;
+export interface HarvestOutlook {
+  /** Quintals per acre expected from the crop that is actually in the ground. */
+  qtlPerAcre: number;
+  /** False while the crop is too young to have produced anything. */
+  bearing: boolean;
+  /** When the first harvest is expected. ISO date for seasonals, year for perennials. */
+  firstHarvestOn: string | null;
+}
+
+/**
+ * What this planting will actually yield, and when.
+ *
+ * The distinction matters: a perennial is judged by its age in years, a
+ * seasonal by days since sowing against its cycle length. Getting this wrong
+ * told a farmer who had just planted banana that he had 360 quintals in hand.
+ * Until a crop is bearing, the honest expected yield is zero.
+ */
+export function harvestOutlook(
+  crop: CropConfig,
+  plantedYear: number,
+  plantedOn?: string,
+  today = new Date(),
+): HarvestOutlook {
+  if (crop.yield.kind === "seasonal") {
+    const { qtlPerAcre, cycleDays } = crop.yield;
+
+    // Without a sowing date we cannot say whether the cycle has completed, and
+    // guessing in the farmer's favour is exactly the mistake we are fixing.
+    if (!plantedOn) return { qtlPerAcre: 0, bearing: false, firstHarvestOn: null };
+
+    const sown = Date.parse(plantedOn);
+    if (Number.isNaN(sown)) return { qtlPerAcre: 0, bearing: false, firstHarvestOn: null };
+
+    const harvestAt = new Date(sown + cycleDays * 86_400_000);
+    const bearing = today.getTime() >= harvestAt.getTime();
+    return {
+      qtlPerAcre: bearing ? qtlPerAcre : 0,
+      bearing,
+      firstHarvestOn: harvestAt.toISOString().slice(0, 10),
+    };
+  }
 
   const age = today.getFullYear() - plantedYear;
+  const firstBearingAge = crop.yield.curve[0]?.fromAge ?? 0;
+
   let value = 0;
   for (const point of crop.yield.curve) {
     if (age >= point.fromAge) value = point.qtlPerAcre;
   }
+
   const { declineFromAge, declinePerYear } = crop.yield;
   if (declineFromAge && declinePerYear && age > declineFromAge) {
     value = Math.max(value * 0.3, value - (age - declineFromAge) * declinePerYear);
   }
-  return value;
+
+  return {
+    qtlPerAcre: value,
+    bearing: value > 0,
+    firstHarvestOn: value > 0 ? null : String(plantedYear + firstBearingAge),
+  };
+}
+
+/** Convenience wrapper for callers that only need the number. */
+export function yieldPerAcre(
+  crop: CropConfig,
+  plantedYear: number,
+  plantedOn?: string,
+  today = new Date(),
+): number {
+  return harvestOutlook(crop, plantedYear, plantedOn, today).qtlPerAcre;
 }

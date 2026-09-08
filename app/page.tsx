@@ -3,6 +3,7 @@
 import { ActionCard } from "@/components/ActionCard";
 import { WeatherStrip } from "@/components/WeatherStrip";
 import { getCrop } from "@/lib/crops";
+import { harvestNote } from "@/components/HarvestNote";
 import { loadFarm } from "@/lib/farm";
 import { usePlan } from "@/lib/use-plan";
 import { useEffect, useState } from "react";
@@ -46,7 +47,7 @@ export default function TodayPage() {
           className="mb-5 rounded-2xl border p-4"
           style={{ borderColor: "var(--border)", background: "var(--surface)" }}
         >
-          {plan.economics.yieldKnown && plan.economics.priceKnown ? (
+          {plan.economics.bearing && plan.economics.yieldKnown && plan.economics.priceKnown ? (
             <>
               <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
                 Expected profit this season
@@ -68,9 +69,7 @@ export default function TodayPage() {
                 ₹{plan.economics.totalCosts.toLocaleString("en-IN")}
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
-                {plan.economics.yieldKnown
-                  ? "No mandi price for this crop today, so the harvest cannot be valued yet."
-                  : "No harvest estimate for this crop yet, so profit is not shown."}
+                {harvestNote(plan.economics)}
               </p>
             </>
           )}

@@ -89,5 +89,5 @@ export function addCost(entry: Omit<CostEntry, "id">): CostEntry[] {
  */
 export function switchCrop(farm: Farm, cropId: string): Farm {
   if (farm.cropId === cropId) return farm;
-  return { ...farm, cropId, stockQtl: {}, lastSprayAt: {} };
+  return { ...farm, cropId, stockQtl: {}, lastSprayAt: {}, plantedOn: undefined };
 }

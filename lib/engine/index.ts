@@ -1,4 +1,4 @@
-import { getCrop, yieldPerAcre } from "../crops";
+import { getCrop, harvestOutlook } from "../crops";
 import type { CostEntry, Farm, FarmPlan, MarketView, Recommendation, WeatherWindow } from "../types";
 import { agronomyPlan } from "./agronomy";
 import { economics, referencePrice, sellAdvice } from "./market";
@@ -21,7 +21,7 @@ export function buildPlan(
 ): FarmPlan {
   const crop = getCrop(farm.cropId);
   const price = referencePrice(farm, market);
-  const expectedQtl = yieldPerAcre(crop, farm.plantedYear, today) * farm.acres;
+  const expectedQtl = harvestOutlook(crop, farm.plantedYear, farm.plantedOn, today).qtlPerAcre * farm.acres;
 
   const recommendations: Recommendation[] = [
     ...agronomyPlan(farm, crop, wx, price, expectedQtl, today),

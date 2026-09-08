@@ -25,8 +25,14 @@ export interface Farm {
   /** State, used to scope the mandi price query. */
   state: string;
   acres: number;
-  /** Year planted for perennials; year of sowing for seasonals. */
+  /** Year planted. Coarse, but enough for a perennial's age in years. */
   plantedYear: number;
+  /**
+   * Exact planting/sowing date, ISO. Required to be useful for seasonal crops:
+   * a banana sucker takes ~11 months to its first bunch, so a year alone cannot
+   * tell us whether this farm has a harvest coming or one already in hand.
+   */
+  plantedOn?: string;
   irrigation: IrrigationMethod;
   soil: "laterite" | "alluvial" | "red_loam" | "black" | "sandy";
   lang: Lang;
@@ -102,6 +108,10 @@ export interface Economics {
   yieldKnown: boolean;
   /** False when no mandi price was available to value the harvest at. */
   priceKnown: boolean;
+  /** False while the crop is too young to yield anything. */
+  bearing: boolean;
+  /** When the first harvest is expected, ISO date or year. Null if unknown. */
+  firstHarvestOn: string | null;
 }
 
 export interface CostEntry {

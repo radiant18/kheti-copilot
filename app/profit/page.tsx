@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { addCost, loadCosts, loadFarm } from "@/lib/farm";
 import { economics } from "@/lib/engine/market";
+import { harvestNote } from "@/components/HarvestNote";
 import { apiGet } from "@/lib/api";
 import type { CostEntry, Economics, MarketView } from "@/lib/types";
 
@@ -59,7 +60,7 @@ export default function ProfitPage() {
           className="mt-4 rounded-2xl border p-4"
           style={{ borderColor: "var(--border)", background: "var(--surface)" }}
         >
-          {econ.yieldKnown && econ.priceKnown ? (
+          {econ.bearing && econ.yieldKnown && econ.priceKnown ? (
             <>
               <Row label="Expected yield" value={`${econ.expectedYieldQtl} qtl`} />
               <Row label="Expected revenue" value={`₹${econ.expectedRevenue.toLocaleString("en-IN")}`} />
@@ -76,9 +77,7 @@ export default function ProfitPage() {
             <>
               <Row label="Costs so far" value={`₹${econ.totalCosts.toLocaleString("en-IN")}`} strong />
               <p className="mt-2 text-sm" style={{ color: "var(--ink-soft)" }}>
-                {econ.yieldKnown
-                  ? "No mandi price for this crop today, so revenue and profit cannot be worked out yet. Your costs are still tracked."
-                  : "This crop has no harvest estimate in the registry yet, so revenue and profit cannot be worked out. Your costs are still tracked."}
+                {harvestNote(econ)} Your costs are still tracked.
               </p>
             </>
           )}
