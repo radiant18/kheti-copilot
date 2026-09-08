@@ -77,7 +77,7 @@ export default function MarketPage() {
       {market?.source !== "live" && market && market.quotes.length > 0 && (
         <p
           className="mt-3 rounded-xl border px-3 py-2 text-xs"
-          style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
+          style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}
         >
           Sample prices from 7 Sep 2026, not today's board. Set DATA_GOV_API_KEY for the live Agmarknet feed.
         </p>
@@ -86,7 +86,7 @@ export default function MarketPage() {
       {market && market.quotes.length === 0 && (
         <p
           className="mt-4 rounded-xl border px-4 py-3 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
+          style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}
         >
           {market.source === "unconfigured" ? (
             <>
@@ -144,7 +144,7 @@ export default function MarketPage() {
                 <li
                   key={g}
                   className="flex items-center justify-between gap-3 rounded-xl border px-3 py-2"
-                  style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+                  style={{ borderColor: "var(--line)", background: "var(--surface)" }}
                 >
                   <span className="font-medium">{gradeLabel(crop, g)}</span>
                   <span className="flex items-center gap-2">
@@ -154,7 +154,7 @@ export default function MarketPage() {
                       onChange={(e) => setStock(g, Number(e.target.value) || 0)}
                       placeholder="0"
                       className="w-20 rounded-lg border px-2 text-right text-base tabular-nums"
-                      style={{ borderColor: "var(--border)", background: "var(--bg)", color: "var(--ink)" }}
+                      style={{ borderColor: "var(--line)", background: "var(--ground)", color: "var(--ink)" }}
                     />
                     <span className="text-sm" style={{ color: "var(--ink-soft)" }}>qtl</span>
                   </span>
@@ -169,7 +169,7 @@ export default function MarketPage() {
                   onClick={() => setGrade(g)}
                   className="rounded-full border px-3 py-1.5 text-sm font-medium"
                   style={{
-                    borderColor: g === grade ? "var(--accent)" : "var(--border)",
+                    borderColor: g === grade ? "var(--accent)" : "var(--line)",
                     background: g === grade ? "var(--accent-soft)" : "var(--surface)",
                     color: g === grade ? "var(--accent)" : "var(--ink-soft)",
                   }}
@@ -194,7 +194,7 @@ export default function MarketPage() {
               key={`${o.quote.market}-${o.quote.grade}`}
               className="rounded-2xl border p-4"
               style={{
-                borderColor: i === 0 ? "var(--accent)" : "var(--border)",
+                borderColor: i === 0 ? "var(--accent)" : "var(--line)",
                 background: i === 0 ? "var(--accent-soft)" : "var(--surface)",
               }}
             >

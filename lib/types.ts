@@ -2,7 +2,9 @@
 // Everything the engine reasons about is defined here so the rules stay pure
 // and testable — no fetching, no React, no I/O.
 
-export type Lang = "kn" | "en";
+import type { Lang } from "./i18n";
+
+export type { Lang };
 
 /**
  * A grade id, scoped to a crop. Curated crops declare theirs in the registry

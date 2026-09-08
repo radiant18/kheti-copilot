@@ -6,6 +6,7 @@ import { estimatedQtlPerAcre, getCrop, listCrops } from "@/lib/crops";
 import { blankFarm, DEMO_FARM, hasFarm, loadFarm, loadFarms, saveFarm, switchCrop } from "@/lib/farm";
 import { placesIn, STATES, type Place } from "@/lib/places";
 import { loadSession, markOnboarded } from "@/lib/session";
+import { useLang } from "@/lib/use-lang";
 import type { Farm } from "@/lib/types";
 
 /**
@@ -27,6 +28,7 @@ export default function OnboardingPage() {
   const [locError, setLocError] = useState<string | null>(null);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     if (!loadSession()) {
@@ -53,6 +55,8 @@ export default function OnboardingPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return crops;
+    // Kannada names are no longer shown, but still match: a Kannada speaker
+    // typing ಅಡಿಕೆ should still find arecanut.
     return crops.filter((c) => c.en.toLowerCase().includes(q) || c.kn.includes(q));
   }, [crops, query]);
 
@@ -137,7 +141,7 @@ export default function OnboardingPage() {
           <span
             key={i}
             className="h-1 flex-1 rounded-full"
-            style={{ background: i <= stepIndex ? "var(--accent)" : "var(--border)" }}
+            style={{ background: i <= stepIndex ? "var(--accent)" : "var(--line)" }}
           />
         ))}
       </div>
@@ -145,7 +149,7 @@ export default function OnboardingPage() {
       {step === "crop" && (
         <>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isAdding ? "Add another crop" : "What do you grow?"}
+            {isAdding ? t("addAnotherCrop") : t("whatDoYouGrow")}
           </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
             {isAdding
@@ -156,9 +160,9 @@ export default function OnboardingPage() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search crops…"
+            placeholder={t("searchCrops")}
             className="mt-4 w-full rounded-xl border px-3 text-base"
-            style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+            style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
           />
 
           <ul className="mt-3 space-y-2">
@@ -168,17 +172,12 @@ export default function OnboardingPage() {
                   onClick={() => pickCrop(c.id)}
                   className="flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left"
                   style={{
-                    borderColor: c.id === farm.cropId ? "var(--accent)" : "var(--border)",
+                    borderColor: c.id === farm.cropId ? "var(--accent)" : "var(--line)",
                     background: c.id === farm.cropId ? "var(--accent-soft)" : "var(--surface)",
                   }}
                 >
                   <span>
                     <span className="block font-semibold">{c.en}</span>
-                    {/* Some crops have no established Kannada name in the
-                        registry; repeating the English one just looks broken. */}
-                    {c.kn !== c.en && (
-                      <span className="block text-sm" style={{ color: "var(--ink-soft)" }}>{c.kn}</span>
-                    )}
                   </span>
                 </button>
               </li>
@@ -190,7 +189,7 @@ export default function OnboardingPage() {
 
       {step === "location" && (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">Where is your farm?</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("whereIsFarm")}</h1>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
             This sets your weather forecast and which markets are near you.
           </p>
@@ -201,7 +200,7 @@ export default function OnboardingPage() {
             className="mt-4 w-full rounded-xl border px-4 py-3 font-semibold"
             style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
           >
-            {locating ? "Finding you…" : "📍 Use my current location"}
+            {locating ? "…" : `📍 ${t("useMyLocation")}`}
           </button>
 
           {locError && (
@@ -209,16 +208,16 @@ export default function OnboardingPage() {
           )}
 
           <p className="my-4 text-center text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
-            or choose manually
+            {t("orChooseManually")}
           </p>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>State</span>
+            <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>{t("state")}</span>
             <select
               value={farm.state}
               onChange={(e) => update("state", e.target.value)}
               className="w-full rounded-xl border px-3 text-base"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+              style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
             >
               {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -226,7 +225,7 @@ export default function OnboardingPage() {
 
           <div className="mt-4">
             <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-              Nearest town or taluk
+              {t("nearestTown")}
             </span>
             <ul className="max-h-64 space-y-2 overflow-y-auto">
               {placesIn(farm.state).map((p) => (
@@ -235,7 +234,7 @@ export default function OnboardingPage() {
                     onClick={() => pickPlace(p)}
                     className="w-full rounded-xl border px-4 py-2.5 text-left"
                     style={{
-                      borderColor: farm.village === p.name ? "var(--accent)" : "var(--border)",
+                      borderColor: farm.village === p.name ? "var(--accent)" : "var(--line)",
                       background: farm.village === p.name ? "var(--accent-soft)" : "var(--surface)",
                     }}
                   >
@@ -260,16 +259,16 @@ export default function OnboardingPage() {
             <button
               onClick={() => setStep("crop")}
               className="rounded-xl border px-4 py-3 font-semibold"
-              style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
+              style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}
             >
-              Back
+              {t("back")}
             </button>
             <button
               onClick={() => setStep("details")}
               className="flex-1 rounded-xl px-4 py-3 font-semibold"
-              style={{ background: "var(--accent)", color: "var(--bg)" }}
+              style={{ background: "var(--accent)", color: "var(--ground)" }}
             >
-              Next
+              {t("next")}
             </button>
           </div>
         </>
@@ -292,7 +291,7 @@ export default function OnboardingPage() {
                 value={farm.acres || ""}
                 onChange={(e) => update("acres", Number(e.target.value) || 0)}
                 className="w-full rounded-xl border px-3 text-base"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+                style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               />
             </label>
 
@@ -306,7 +305,7 @@ export default function OnboardingPage() {
                   value={farm.plantedYear || ""}
                   onChange={(e) => update("plantedYear", Number(e.target.value) || 0)}
                   className="w-full rounded-xl border px-3 text-base"
-                  style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+                  style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
                 />
               </label>
             ) : (
@@ -331,7 +330,7 @@ export default function OnboardingPage() {
                     setDetailsError(null);
                   }}
                   className="w-full rounded-xl border px-3 text-base"
-                  style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+                  style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
                 />
                 <span className="mt-1.5 block text-xs" style={{ color: "var(--ink-soft)" }}>
                   {crop.name.en} takes about {Math.round(crop.yield.cycleDays / 30)} months from
@@ -353,7 +352,7 @@ export default function OnboardingPage() {
                   update("expectedQtlPerAcre", e.target.value === "" || !Number.isFinite(v) ? undefined : v);
                 }}
                 className="w-full rounded-xl border px-3 text-base"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+                style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               />
               <span className="mt-1.5 block text-xs leading-relaxed" style={{ color: "var(--ink-soft)" }}>
                 Leave blank to use our estimate.{crop.yieldNote ? ` ${crop.yieldNote}` : ""} Your own
@@ -369,7 +368,7 @@ export default function OnboardingPage() {
                 value={farm.irrigation}
                 onChange={(e) => update("irrigation", e.target.value as Farm["irrigation"])}
                 className="w-full rounded-xl border px-3 text-base"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+                style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               >
                 {(["drip", "sprinkler", "flood", "rainfed"] as const).map((i) => (
                   <option key={i} value={i}>{i}</option>
@@ -386,16 +385,16 @@ export default function OnboardingPage() {
             <button
               onClick={() => setStep("location")}
               className="rounded-xl border px-4 py-3 font-semibold"
-              style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
+              style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}
             >
-              Back
+              {t("back")}
             </button>
             <button
               onClick={finish}
               className="flex-1 rounded-xl px-4 py-3 font-semibold"
-              style={{ background: "var(--accent)", color: "var(--bg)" }}
+              style={{ background: "var(--accent)", color: "var(--ground)" }}
             >
-              See my farm plan
+              {t("seeMyPlan")}
             </button>
           </div>
 

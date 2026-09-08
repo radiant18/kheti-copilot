@@ -7,11 +7,13 @@ import { WeatherStrip } from "@/components/WeatherStrip";
 import { getCrop } from "@/lib/crops";
 import { harvestNote } from "@/components/HarvestNote";
 import { loadFarm, loadFarms } from "@/lib/farm";
+import { useLang } from "@/lib/use-lang";
 import { usePlan } from "@/lib/use-plan";
 import { useEffect, useState } from "react";
 
 export default function TodayPage() {
   const { plan, stale, loading, refresh } = usePlan();
+  const { t } = useLang();
   const [farmName, setFarmName] = useState("");
   const [plotCount, setPlotCount] = useState(1);
 
@@ -31,7 +33,7 @@ export default function TodayPage() {
     <main className="py-5">
       <header className="mb-5">
         <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{today}</p>
-        <h1 className="mt-0.5 text-2xl font-bold tracking-tight">Your farm today</h1>
+        <h1 className="mt-0.5 text-[1.75rem] font-extrabold leading-tight">{t("yourFarmToday")}</h1>
         {farmName && (
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
             {farmName}
@@ -50,8 +52,8 @@ export default function TodayPage() {
 
       {stale && (
         <p
-          className="mb-4 rounded-xl border px-3 py-2 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
+          className="card mb-4 px-3.5 py-2.5 text-sm"
+          style={{ color: "var(--ink-soft)" }}
         >
           You are offline. These are yesterday&apos;s numbers run through today&apos;s rules.
         </p>
@@ -59,15 +61,14 @@ export default function TodayPage() {
 
       {plan && (
         <section
-          className="mb-5 rounded-2xl border p-4"
-          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          className="card mb-5 p-5"
         >
           {plan.economics.bearing && plan.economics.yieldKnown && plan.economics.priceKnown ? (
             <>
-              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
-                Expected profit this season
+              <p className="eyebrow">
+                {t("expectedProfit")}
               </p>
-              <p className="mt-1 text-3xl font-bold tabular-nums" style={{ color: "var(--money)" }}>
+              <p className="tabular mt-1.5 text-[2.1rem] font-extrabold leading-none" style={{ color: "var(--money)" }}>
                 ₹{plan.economics.expectedProfit.toLocaleString("en-IN")}
               </p>
               <p className="mt-1 text-sm tabular-nums" style={{ color: "var(--ink-soft)" }}>
@@ -77,10 +78,10 @@ export default function TodayPage() {
             </>
           ) : (
             <>
-              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
-                Spent this season
+              <p className="eyebrow">
+                {t("spentThisSeason")}
               </p>
-              <p className="mt-1 text-3xl font-bold tabular-nums">
+              <p className="tabular mt-1.5 text-[2.1rem] font-extrabold leading-none">
                 ₹{plan.economics.totalCosts.toLocaleString("en-IN")}
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
@@ -103,8 +104,8 @@ export default function TodayPage() {
 
       {plan && (
         <section className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
-            Next 7 days
+          <h2 className="eyebrow mb-2">
+            {t("next7days")}
           </h2>
           <WeatherStrip wx={plan.weather} />
         </section>
@@ -112,10 +113,10 @@ export default function TodayPage() {
 
       <button
         onClick={() => void refresh()}
-        className="mt-6 w-full rounded-xl border px-4 py-3 text-sm font-semibold"
-        style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
+        className="press card mt-6 w-full py-3 text-sm font-bold"
+        style={{ color: "var(--ink-soft)" }}
       >
-        Refresh
+        {t("refresh")}
       </button>
     </main>
   );

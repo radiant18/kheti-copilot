@@ -16,9 +16,13 @@
 
 const SESSION_KEY = "kheti.session.v1";
 
+import type { Lang } from "./i18n";
+
 export interface Session {
   phone: string;
   name: string;
+  /** Chosen at sign-in, before a farm exists, so the setup flow is translated too. */
+  lang: Lang;
   signedInAt: string;
   /** False until the farm profile wizard has been completed. */
   onboarded: boolean;
@@ -42,11 +46,12 @@ export function saveSession(session: Session): void {
   }
 }
 
-export function signIn(phone: string, name: string): Session {
+export function signIn(phone: string, name: string, lang: Lang): Session {
   const existing = loadSession();
   const session: Session = {
     phone,
     name,
+    lang,
     signedInAt: new Date().toISOString(),
     onboarded: existing?.phone === phone ? existing.onboarded : false,
   };

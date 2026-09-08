@@ -58,14 +58,14 @@ export default function ProfitPage() {
       {econ && (
         <section
           className="mt-4 rounded-2xl border p-4"
-          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          style={{ borderColor: "var(--line)", background: "var(--surface)" }}
         >
           {econ.bearing && econ.yieldKnown && econ.priceKnown ? (
             <>
               <Row label="Expected yield" value={`${econ.expectedYieldQtl} qtl`} />
               <Row label="Expected revenue" value={`₹${econ.expectedRevenue.toLocaleString("en-IN")}`} />
               <Row label="Costs so far" value={`−₹${econ.totalCosts.toLocaleString("en-IN")}`} />
-              <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+              <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--line)" }}>
                 <Row
                   label="Expected profit"
                   value={`₹${econ.expectedProfit.toLocaleString("en-IN")}`}
@@ -91,13 +91,13 @@ export default function ProfitPage() {
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Amount ₹"
           className="min-w-0 flex-1 rounded-xl border px-3 text-base"
-          style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+          style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as CostEntry["category"])}
           className="rounded-xl border px-2 text-base"
-          style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+          style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
         >
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -106,7 +106,7 @@ export default function ProfitPage() {
         <button
           type="submit"
           className="rounded-xl px-4 font-semibold"
-          style={{ background: "var(--accent)", color: "var(--bg)" }}
+          style={{ background: "var(--accent)", color: "var(--ground)" }}
         >
           Add
         </button>
@@ -117,7 +117,7 @@ export default function ProfitPage() {
           <li
             key={c.id}
             className="flex items-center justify-between rounded-xl border px-3 py-2 text-sm"
-            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            style={{ borderColor: "var(--line)", background: "var(--surface)" }}
           >
             <span>
               <span className="font-medium capitalize">{c.category}</span>

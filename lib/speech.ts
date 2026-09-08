@@ -1,5 +1,8 @@
 "use client";
 
+import { localeFor, type Lang } from "./i18n";
+
+
 /**
  * Voice in and out, using what the phone already has.
  *
@@ -49,7 +52,7 @@ export interface Listener {
  * who taps the mic by accident should not be stuck waiting for a timeout.
  */
 export function listenOnce(
-  lang: "kn" | "en",
+  lang: Lang,
   onResult: (text: string) => void,
   onError: (message: string) => void,
 ): Listener | null {
@@ -59,7 +62,7 @@ export function listenOnce(
     return null;
   }
 
-  rec.lang = lang === "kn" ? "kn-IN" : "en-IN";
+  rec.lang = localeFor(lang);
   rec.interimResults = false;
   rec.continuous = false;
   rec.maxAlternatives = 1;
@@ -91,12 +94,12 @@ export function listenOnce(
 }
 
 /** Read an answer aloud, if the phone has a voice for the language. */
-export function speak(text: string, lang: "kn" | "en"): void {
+export function speak(text: string, lang: Lang): void {
   if (typeof window === "undefined" || !window.speechSynthesis) return;
   try {
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
-    const wanted = lang === "kn" ? "kn-IN" : "en-IN";
+    const wanted = localeFor(lang);
     const voice = window.speechSynthesis.getVoices().find((v) => v.lang === wanted);
     if (voice) utter.voice = voice;
     utter.lang = wanted;

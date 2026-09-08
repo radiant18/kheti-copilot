@@ -12,6 +12,7 @@ import {
   setActiveFarm,
 } from "@/lib/farm";
 import { loadSession, signOut, type Session } from "@/lib/session";
+import { useLang } from "@/lib/use-lang";
 import type { Farm } from "@/lib/types";
 
 /**
@@ -28,6 +29,7 @@ export default function SettingsPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingPlot, setConfirmingPlot] = useState<string | null>(null);
+  const { t } = useLang();
 
   function refresh() {
     setFarms(loadFarms());
@@ -65,9 +67,9 @@ export default function SettingsPage() {
 
   return (
     <main className="py-5">
-      <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+      <h1 className="text-2xl font-bold tracking-tight">{t("settings")}</h1>
 
-      <Section title="Account">
+      <Section title={t("account")}>
         <Row label="Name" value={session.name} />
         <Row label="Mobile" value={`+91 ${session.phone}`} />
       </Section>
@@ -77,13 +79,13 @@ export default function SettingsPage() {
           className="mb-2 text-xs font-semibold uppercase tracking-wide"
           style={{ color: "var(--ink-soft)" }}
         >
-          Your crops
+          {t("yourCrops")}
         </h2>
 
         {farms.length === 0 ? (
           <div
             className="rounded-2xl border p-4"
-            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            style={{ borderColor: "var(--line)", background: "var(--surface)" }}
           >
             <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
               No crop set up on this phone yet.
@@ -91,7 +93,7 @@ export default function SettingsPage() {
             <Link
               href="/onboarding"
               className="mt-3 block rounded-xl px-4 py-3 text-center font-semibold"
-              style={{ background: "var(--accent)", color: "var(--bg)" }}
+              style={{ background: "var(--accent)", color: "var(--ground)" }}
             >
               Set up my first crop
             </Link>
@@ -113,7 +115,7 @@ export default function SettingsPage() {
                   key={f.id}
                   className="rounded-2xl border p-4"
                   style={{
-                    borderColor: active ? "var(--accent)" : "var(--border)",
+                    borderColor: active ? "var(--accent)" : "var(--line)",
                     background: active ? "var(--accent-soft)" : "var(--surface)",
                   }}
                 >
@@ -143,7 +145,7 @@ export default function SettingsPage() {
                       <button
                         onClick={() => choosePlot(f.id)}
                         className="shrink-0 rounded-xl border px-3 py-1.5 text-sm font-semibold"
-                        style={{ borderColor: "var(--border)", color: "var(--accent)" }}
+                        style={{ borderColor: "var(--line)", color: "var(--accent)" }}
                       >
                         Show this
                       </button>
@@ -162,14 +164,14 @@ export default function SettingsPage() {
                         <button
                           onClick={() => setConfirmingPlot(null)}
                           className="flex-1 rounded-xl border px-3 py-2 text-sm font-semibold"
-                          style={{ borderColor: "var(--border)", color: "var(--ink)" }}
+                          style={{ borderColor: "var(--line)", color: "var(--ink)" }}
                         >
                           Keep it
                         </button>
                         <button
                           onClick={() => deletePlot(f.id)}
                           className="flex-1 rounded-xl px-3 py-2 text-sm font-semibold"
-                          style={{ background: "var(--urgent)", color: "var(--bg)" }}
+                          style={{ background: "var(--urgent)", color: "var(--ground)" }}
                         >
                           Remove
                         </button>
@@ -178,7 +180,7 @@ export default function SettingsPage() {
                   ) : (
                     <div
                       className="mt-3 flex gap-4 border-t pt-3 text-sm font-semibold"
-                      style={{ borderColor: "var(--border)" }}
+                      style={{ borderColor: "var(--line)" }}
                     >
                       <Link
                         href="/onboarding"
@@ -207,7 +209,7 @@ export default function SettingsPage() {
             className="mt-3 block rounded-xl border border-dashed px-4 py-3 text-center font-semibold"
             style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
           >
-            + Add another crop
+            + {t("addAnotherCrop")}
           </Link>
         )}
       </section>
@@ -228,9 +230,9 @@ export default function SettingsPage() {
         <button
           onClick={logOut}
           className="w-full rounded-xl border px-4 py-3.5 text-base font-semibold"
-          style={{ borderColor: "var(--border)", color: "var(--ink)" }}
+          style={{ borderColor: "var(--line)", color: "var(--ink)" }}
         >
-          Log out
+          {t("logOut")}
         </button>
 
         {confirmingDelete ? (
@@ -247,14 +249,14 @@ export default function SettingsPage() {
               <button
                 onClick={() => setConfirmingDelete(false)}
                 className="flex-1 rounded-xl border px-4 py-3 font-semibold"
-                style={{ borderColor: "var(--border)", color: "var(--ink)" }}
+                style={{ borderColor: "var(--line)", color: "var(--ink)" }}
               >
                 Keep it
               </button>
               <button
                 onClick={deleteData}
                 className="flex-1 rounded-xl px-4 py-3 font-semibold"
-                style={{ background: "var(--urgent)", color: "var(--bg)" }}
+                style={{ background: "var(--urgent)", color: "var(--ground)" }}
               >
                 Delete everything
               </button>
@@ -285,7 +287,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       </h2>
       <div
         className="rounded-2xl border p-4"
-        style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+        style={{ borderColor: "var(--line)", background: "var(--surface)" }}
       >
         {children}
       </div>
@@ -297,7 +299,7 @@ function Row({ label, value, caps }: { label: string; value: string; caps?: bool
   return (
     <div
       className="flex items-baseline justify-between gap-4 border-b py-2 last:border-b-0"
-      style={{ borderColor: "var(--border)" }}
+      style={{ borderColor: "var(--line)" }}
     >
       <span className="text-sm" style={{ color: "var(--ink-soft)" }}>{label}</span>
       <span className={`text-right font-medium${caps ? " capitalize" : ""}`}>{value}</span>

@@ -7,6 +7,7 @@ import { getCrop } from "@/lib/crops";
 import { loadFarm } from "@/lib/farm";
 import { listenOnce, speak, speechSupported, stopSpeaking, type Listener } from "@/lib/speech";
 import { usePlan } from "@/lib/use-plan";
+import { useLang } from "@/lib/use-lang";
 import type { Farm } from "@/lib/types";
 
 interface Turn {
@@ -25,6 +26,7 @@ interface Turn {
 export default function AskPage() {
   const { plan } = usePlan();
   const [farm, setFarm] = useState<Farm | null>(null);
+  const { lang, t } = useLang();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [typed, setTyped] = useState("");
   const [listening, setListening] = useState(false);
@@ -37,7 +39,6 @@ export default function AskPage() {
   useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [turns, thinking]);
   useEffect(() => () => stopSpeaking(), []);
 
-  const lang: "kn" | "en" = farm?.lang === "kn" ? "kn" : "en";
   const crop = farm ? getCrop(farm.cropId) : null;
 
   async function ask(question: string) {
@@ -96,7 +97,7 @@ export default function AskPage() {
   return (
     <main className="flex min-h-[calc(100svh-5rem)] flex-col py-5">
       <header className="mb-4">
-        <h1 className="text-2xl font-bold tracking-tight">Ask your farm</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("askYourFarm")}</h1>
         <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
           {crop ? `About your ${crop.name.en.toLowerCase()} at ${farm?.village || "your farm"}.` : "Loading your farm…"}
         </p>
@@ -105,7 +106,7 @@ export default function AskPage() {
       {turns.length === 0 && (
         <div
           className="mb-4 rounded-2xl border p-4"
-          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          style={{ borderColor: "var(--line)", background: "var(--surface)" }}
         >
           <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
             Ask about today&apos;s weather, spraying, watering, or prices. I only answer from
@@ -117,7 +118,7 @@ export default function AskPage() {
                 key={q}
                 onClick={() => void ask(q)}
                 className="rounded-full border px-3 py-1.5 text-sm"
-                style={{ borderColor: "var(--border)", color: "var(--accent)" }}
+                style={{ borderColor: "var(--line)", color: "var(--accent)" }}
               >
                 {q}
               </button>
@@ -134,7 +135,7 @@ export default function AskPage() {
             style={
               t.role === "user"
                 ? { background: "var(--accent-soft)", marginLeft: "2rem" }
-                : { background: "var(--surface)", border: "1px solid var(--border)", marginRight: "1rem" }
+                : { background: "var(--surface)", border: "1px solid var(--line)", marginRight: "1rem" }
             }
           >
             <p className="text-[15px] leading-relaxed">{t.text}</p>
@@ -163,7 +164,7 @@ export default function AskPage() {
       <form
         onSubmit={(e) => { e.preventDefault(); if (typed.trim()) void ask(typed.trim()); }}
         className="sticky bottom-0 mt-4 flex gap-2 pb-1"
-        style={{ background: "var(--bg)" }}
+        style={{ background: "var(--ground)" }}
       >
         <button
           type="button"
@@ -172,7 +173,7 @@ export default function AskPage() {
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl"
           style={{
             background: listening ? "var(--urgent)" : "var(--accent)",
-            color: "var(--bg)",
+            color: "var(--ground)",
           }}
         >
           {listening ? "■" : "🎤"}
@@ -180,20 +181,20 @@ export default function AskPage() {
         <input
           value={typed}
           onChange={(e) => setTyped(e.target.value)}
-          placeholder={listening ? "Listening…" : "Or type your question"}
+          placeholder={listening ? "…" : t("askPlaceholder")}
           className="min-w-0 flex-1 rounded-xl border px-3 text-base"
-          style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+          style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
         />
         <button
           type="submit"
           disabled={!typed.trim() || thinking}
           className="rounded-xl px-4 font-semibold"
           style={{
-            background: typed.trim() ? "var(--accent)" : "var(--border)",
-            color: typed.trim() ? "var(--bg)" : "var(--ink-soft)",
+            background: typed.trim() ? "var(--accent)" : "var(--line)",
+            color: typed.trim() ? "var(--ground)" : "var(--ink-soft)",
           }}
         >
-          Ask
+          {t("ask")}
         </button>
       </form>
 
