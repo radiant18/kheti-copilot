@@ -6,6 +6,8 @@ import { getCrop, gradeLabel } from "@/lib/crops";
 import { loadFarm, saveFarm } from "@/lib/farm";
 import { rankSellOptions } from "@/lib/engine/market";
 import { withTrend } from "@/lib/price-history";
+import { PageHeader } from "@/components/PageHeader";
+import { YardBar } from "@/components/YardBar";
 import type { Farm, Grade, MarketView } from "@/lib/types";
 
 /**
@@ -69,10 +71,10 @@ export default function MarketPage() {
 
   return (
     <main className="py-5">
-      <h1 className="text-2xl font-bold tracking-tight">Where to sell</h1>
-      <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
-        {crop.name.en} prices across {farm.state}, with your transport netted out.
-      </p>
+      <PageHeader
+        title="Where to sell"
+        subtitle={`${crop.name.en} prices across ${farm.state}, with your transport netted out.`}
+      />
 
       {market?.source !== "live" && market && market.quotes.length > 0 && (
         <p
@@ -190,35 +192,18 @@ export default function MarketPage() {
       {options.length > 0 && (
         <ol className="mt-5 space-y-3">
           {options.map((o, i) => (
-            <li
+            <YardBar
               key={`${o.quote.market}-${o.quote.grade}`}
-              className="rounded-2xl border p-4"
-              style={{
-                borderColor: i === 0 ? "var(--accent)" : "var(--line)",
-                background: i === 0 ? "var(--accent-soft)" : "var(--surface)",
-              }}
-            >
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-lg font-semibold">
-                  {i === 0 && <span aria-hidden>⭐ </span>}
-                  {o.quote.market}
-                </h2>
-                <span className="text-lg font-bold tabular-nums" style={{ color: "var(--money)" }}>
-                  ₹{o.net.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <p className="mt-1 text-sm tabular-nums" style={{ color: "var(--ink-soft)" }}>
-                ₹{o.quote.modalPerQtl.toLocaleString("en-IN")}/qtl × {o.quintals} qtl
-                {o.distanceKnown
-                  ? ` − ₹${o.transport.toLocaleString("en-IN")} transport (${o.quote.distanceKm} km)`
-                  : " · distance unknown, transport not included"}
-              </p>
-              {i === 0 && options[1] && (
-                <p className="mt-2 text-sm font-semibold" style={{ color: "var(--accent)" }}>
-                  ₹{(o.net - options[1].net).toLocaleString("en-IN")} better than the next yard
-                </p>
-              )}
-            </li>
+              option={o}
+              best={options[0].net}
+              floor={options[options.length - 1].net * 0.9}
+              rank={i}
+              gapLabel={
+                i === 0 && options[1]
+                  ? `₹${(o.net - options[1].net).toLocaleString("en-IN")} better than the next yard`
+                  : undefined
+              }
+            />
           ))}
         </ol>
       )}
