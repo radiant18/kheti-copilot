@@ -1,4 +1,5 @@
 import { CROPS, genericCrop } from "./registry";
+import type { Lang } from "../i18n";
 import type { CropConfig } from "./types";
 
 export * from "./types";
@@ -6,15 +7,29 @@ export { CROPS };
 
 export interface CropOption {
   id: string;
-  en: string;
-  kn: string;
+  /** The crop in the farmer's own language. */
+  label: string;
+  /** English, shown underneath — unless English is what they chose. */
+  english: string;
 }
 
-/** Everything a farmer can pick, alphabetically so it is scannable. */
-export function listCrops(): CropOption[] {
-  return CROPS.map((c) => ({ id: c.id, en: c.name.en, kn: c.name.kn })).sort((a, b) =>
-    a.en.localeCompare(b.en),
-  );
+/**
+ * Everything a farmer can pick, in their language, sorted by what they see.
+ *
+ * A Hindi speaker scanning for सुपारी should find it where स sorts, not where
+ * "Arecanut" sorts, so ordering follows the label rather than the English name.
+ */
+export function listCrops(lang: Lang = "en"): CropOption[] {
+  return CROPS.map((c) => ({
+    id: c.id,
+    label: cropName(c, lang),
+    english: c.name.en,
+  })).sort((a, b) => a.label.localeCompare(b.label, lang));
+}
+
+/** A crop's name in one language, falling back to English if it is missing. */
+export function cropName(crop: CropConfig, lang: Lang): string {
+  return crop.name[lang] || crop.name.en;
 }
 
 /** Never throws — an unknown id degrades to a generic crop rather than a crash. */

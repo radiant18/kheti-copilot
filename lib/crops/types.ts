@@ -10,6 +10,14 @@
 
 export type IrrigationMethod = "drip" | "sprinkler" | "flood" | "rainfed";
 
+/** A crop's name in each interface language. */
+export interface CropName {
+  en: string;
+  hi: string;
+  kn: string;
+  mr: string;
+}
+
 export interface GradeDef {
   /** Stable internal id. */
   id: string;
@@ -67,7 +75,7 @@ export interface SeasonalYield {
 
 export interface CropConfig {
   id: string;
-  name: { en: string; kn: string };
+  name: CropName;
   /**
    * The commodity string Agmarknet publishes under. These are messy and vary;
    * the market route falls back to a loose match when the exact filter is empty.

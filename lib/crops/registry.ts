@@ -97,7 +97,7 @@ export const CROPS: CropConfig[] = [
   // ---------------------------------------------------------------- plantation
   {
     id: "arecanut",
-    name: { en: "Arecanut", kn: "ಅಡಿಕೆ" },
+    name: { en: "Arecanut", hi: "सुपारी", kn: "ಅಡಿಕೆ", mr: "सुपारी" },
     agmarknetCommodity: "Arecanut(Betelnut/Supari)",
     grades: [
       { id: "rashi", label: { en: "Rashi", kn: "ರಾಶಿ" }, aliases: ["rashi", "raashi", "rashi idi"] },
@@ -120,7 +120,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "coconut",
-    name: { en: "Coconut", kn: "ತೆಂಗು" },
+    name: { en: "Coconut", hi: "नारियल", kn: "ತೆಂಗು", mr: "नारळ" },
     agmarknetCommodity: "Coconut",
     grades: [],
     irrigation: { intervalDays: { drip: 4, sprinkler: 7, flood: 10, rainfed: Infinity }, rainSkipMm: 12 },
@@ -140,7 +140,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "copra",
-    name: { en: "Copra", kn: "ಕೊಬ್ಬರಿ" },
+    name: { en: "Copra", hi: "खोपरा", kn: "ಕೊಬ್ಬರಿ", mr: "खोबरे" },
     agmarknetCommodity: "Copra",
     grades: [],
     irrigation: { intervalDays: { drip: 4, sprinkler: 7, flood: 10, rainfed: Infinity }, rainSkipMm: 12 },
@@ -150,7 +150,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "black_pepper",
-    name: { en: "Black pepper", kn: "ಕರಿಮೆಣಸು" },
+    name: { en: "Black pepper", hi: "काली मिर्च", kn: "ಕರಿಮೆಣಸು", mr: "काळी मिरी" },
     agmarknetCommodity: "Black pepper",
     grades: [],
     irrigation: { intervalDays: { drip: 4, sprinkler: 7, flood: 10, rainfed: Infinity }, rainSkipMm: 10 },
@@ -160,7 +160,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cocoa",
-    name: { en: "Cocoa", kn: "ಕೋಕೋ" },
+    name: { en: "Cocoa", hi: "कोको", kn: "ಕೋಕೋ", mr: "कोको" },
     agmarknetCommodity: "Cocoa",
     grades: [],
     irrigation: { intervalDays: { drip: 4, sprinkler: 7, flood: 9, rainfed: Infinity }, rainSkipMm: 10 },
@@ -175,7 +175,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cardamom",
-    name: { en: "Cardamom", kn: "ಏಲಕ್ಕಿ" },
+    name: { en: "Cardamom", hi: "इलायची", kn: "ಏಲಕ್ಕಿ", mr: "वेलची" },
     agmarknetCommodity: "Cardamoms",
     grades: [],
     irrigation: { intervalDays: { drip: 3, sprinkler: 6, flood: 9, rainfed: Infinity }, rainSkipMm: 12 },
@@ -185,7 +185,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "coffee",
-    name: { en: "Coffee", kn: "ಕಾಫಿ" },
+    name: { en: "Coffee", hi: "कॉफ़ी", kn: "ಕಾಫಿ", mr: "कॉफी" },
     agmarknetCommodity: "Coffee",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 12 },
@@ -197,7 +197,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cashew",
-    name: { en: "Cashew", kn: "ಗೋಡಂಬಿ" },
+    name: { en: "Cashew", hi: "काजू", kn: "ಗೋಡಂಬಿ", mr: "काजू" },
     agmarknetCommodity: "Cashewnuts",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 12 },
@@ -210,7 +210,7 @@ export const CROPS: CropConfig[] = [
   // ---------------------------------------------------------------- fruit
   {
     id: "grapes",
-    name: { en: "Grapes", kn: "ದ್ರಾಕ್ಷಿ" },
+    name: { en: "Grapes", hi: "अंगूर", kn: "ದ್ರಾಕ್ಷಿ", mr: "द्राक्ष" },
     agmarknetCommodity: "Grapes",
     grades: [],
     irrigation: { intervalDays: { drip: 2, sprinkler: 5, flood: 9, rainfed: Infinity }, rainSkipMm: 8 },
@@ -223,7 +223,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "mango",
-    name: { en: "Mango", kn: "ಮಾವು" },
+    name: { en: "Mango", hi: "आम", kn: "ಮಾವು", mr: "आंबा" },
     agmarknetCommodity: "Mango",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 12 },
@@ -236,7 +236,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "pomegranate",
-    name: { en: "Pomegranate", kn: "ದಾಳಿಂಬೆ" },
+    name: { en: "Pomegranate", hi: "अनार", kn: "ದಾಳಿಂಬೆ", mr: "डाळिंब" },
     agmarknetCommodity: "Pomegranate",
     grades: [],
     irrigation: { intervalDays: { drip: 3, sprinkler: 6, flood: 10, rainfed: Infinity }, rainSkipMm: 10 },
@@ -248,7 +248,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "banana",
-    name: { en: "Banana", kn: "ಬಾಳೆ" },
+    name: { en: "Banana", hi: "केला", kn: "ಬಾಳೆ", mr: "केळी" },
     agmarknetCommodity: "Banana",
     grades: [],
     irrigation: { intervalDays: { drip: 2, sprinkler: 4, flood: 7, rainfed: Infinity }, rainSkipMm: 10 },
@@ -260,7 +260,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "sapota",
-    name: { en: "Sapota", kn: "ಸಪೋಟ" },
+    name: { en: "Sapota", hi: "चीकू", kn: "ಸಪೋಟ", mr: "चिकू" },
     agmarknetCommodity: "Sapota",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 12 },
@@ -270,7 +270,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "papaya",
-    name: { en: "Papaya", kn: "ಪಪ್ಪಾಯಿ" },
+    name: { en: "Papaya", hi: "पपीता", kn: "ಪಪ್ಪಾಯಿ", mr: "पपई" },
     agmarknetCommodity: "Papaya",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -281,7 +281,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "watermelon",
-    name: { en: "Watermelon", kn: "ಕಲ್ಲಂಗಡಿ" },
+    name: { en: "Watermelon", hi: "तरबूज", kn: "ಕಲ್ಲಂಗಡಿ", mr: "कलिंगड" },
     agmarknetCommodity: "Water Melon",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -293,7 +293,7 @@ export const CROPS: CropConfig[] = [
   // ---------------------------------------------------------------- vegetables
   {
     id: "tomato",
-    name: { en: "Tomato", kn: "ಟೊಮೇಟೊ" },
+    name: { en: "Tomato", hi: "टमाटर", kn: "ಟೊಮೇಟೊ", mr: "टोमॅटो" },
     agmarknetCommodity: "Tomato",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -305,7 +305,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "onion",
-    name: { en: "Onion", kn: "ಈರುಳ್ಳಿ" },
+    name: { en: "Onion", hi: "प्याज़", kn: "ಈರುಳ್ಳಿ", mr: "कांदा" },
     agmarknetCommodity: "Onion",
     grades: [],
     irrigation: { intervalDays: { drip: 3, sprinkler: 6, flood: 10, rainfed: Infinity }, rainSkipMm: 8 },
@@ -318,7 +318,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "potato",
-    name: { en: "Potato", kn: "ಆಲೂಗಡ್ಡೆ" },
+    name: { en: "Potato", hi: "आलू", kn: "ಆಲೂಗಡ್ಡೆ", mr: "बटाटा" },
     agmarknetCommodity: "Potato",
     grades: [],
     irrigation: { intervalDays: { drip: 3, sprinkler: 5, flood: 8, rainfed: Infinity }, rainSkipMm: 8 },
@@ -330,7 +330,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "green_chilli",
-    name: { en: "Green chilli", kn: "ಹಸಿಮೆಣಸಿನಕಾಯಿ" },
+    name: { en: "Green chilli", hi: "हरी मिर्च", kn: "ಹಸಿಮೆಣಸಿನಕಾಯಿ", mr: "हिरवी मिरची" },
     agmarknetCommodity: "Green Chilli",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -343,7 +343,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "brinjal",
-    name: { en: "Brinjal", kn: "ಬದನೆಕಾಯಿ" },
+    name: { en: "Brinjal", hi: "बैंगन", kn: "ಬದನೆಕಾಯಿ", mr: "वांगे" },
     agmarknetCommodity: "Brinjal",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -354,7 +354,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "bhindi",
-    name: { en: "Okra", kn: "ಬೆಂಡೆಕಾಯಿ" },
+    name: { en: "Okra", hi: "भिंडी", kn: "ಬೆಂಡೆಕಾಯಿ", mr: "भेंडी" },
     agmarknetCommodity: "Bhindi(Ladies Finger)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -365,7 +365,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cabbage",
-    name: { en: "Cabbage", kn: "ಎಲೆಕೋಸು" },
+    name: { en: "Cabbage", hi: "पत्ता गोभी", kn: "ಎಲೆಕೋಸು", mr: "कोबी" },
     agmarknetCommodity: "Cabbage",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -375,7 +375,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cauliflower",
-    name: { en: "Cauliflower", kn: "ಹೂಕೋಸು" },
+    name: { en: "Cauliflower", hi: "फूल गोभी", kn: "ಹೂಕೋಸು", mr: "फ्लॉवर" },
     agmarknetCommodity: "Cauliflower",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -385,7 +385,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "carrot",
-    name: { en: "Carrot", kn: "ಕ್ಯಾರೆಟ್" },
+    name: { en: "Carrot", hi: "गाजर", kn: "ಕ್ಯಾರೆಟ್", mr: "गाजर" },
     agmarknetCommodity: "Carrot",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -395,7 +395,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cucumber",
-    name: { en: "Cucumber", kn: "ಸೌತೆಕಾಯಿ" },
+    name: { en: "Cucumber", hi: "खीरा", kn: "ಸೌತೆಕಾಯಿ", mr: "काकडी" },
     agmarknetCommodity: "Cucumbar(Kheera)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -407,7 +407,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "beans",
-    name: { en: "Beans", kn: "ಹುರುಳಿಕಾಯಿ" },
+    name: { en: "Beans", hi: "सेम", kn: "ಹುರುಳಿಕಾಯಿ", mr: "घेवडा" },
     agmarknetCommodity: "Beans",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 8 },
@@ -419,7 +419,7 @@ export const CROPS: CropConfig[] = [
   // ---------------------------------------------------------------- field crops
   {
     id: "paddy",
-    name: { en: "Paddy", kn: "ಭತ್ತ" },
+    name: { en: "Paddy", hi: "धान", kn: "ಭತ್ತ", mr: "भात" },
     agmarknetCommodity: "Paddy(Dhan)(Common)",
     grades: [],
     irrigation: { intervalDays: { drip: 5, sprinkler: 5, flood: 4, rainfed: Infinity }, rainSkipMm: 15 },
@@ -431,7 +431,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "ragi",
-    name: { en: "Ragi", kn: "ರಾಗಿ" },
+    name: { en: "Ragi", hi: "रागी", kn: "ರಾಗಿ", mr: "नाचणी" },
     agmarknetCommodity: "Ragi (Finger Millet)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -443,7 +443,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "maize",
-    name: { en: "Maize", kn: "ಮೆಕ್ಕೆಜೋಳ" },
+    name: { en: "Maize", hi: "मक्का", kn: "ಮೆಕ್ಕೆಜೋಳ", mr: "मका" },
     agmarknetCommodity: "Maize",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -456,7 +456,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "jowar",
-    name: { en: "Jowar", kn: "ಜೋಳ" },
+    name: { en: "Jowar", hi: "ज्वार", kn: "ಜೋಳ", mr: "ज्वारी" },
     agmarknetCommodity: "Jowar(Sorghum)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -466,7 +466,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "wheat",
-    name: { en: "Wheat", kn: "ಗೋಧಿ" },
+    name: { en: "Wheat", hi: "गेहूँ", kn: "ಗೋಧಿ", mr: "गहू" },
     agmarknetCommodity: "Wheat",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -478,7 +478,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "groundnut",
-    name: { en: "Groundnut", kn: "ಕಡಲೆಕಾಯಿ" },
+    name: { en: "Groundnut", hi: "मूंगफली", kn: "ಕಡಲೆಕಾಯಿ", mr: "भुईमूग" },
     agmarknetCommodity: "Groundnut",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -490,7 +490,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "sunflower",
-    name: { en: "Sunflower", kn: "ಸೂರ್ಯಕಾಂತಿ" },
+    name: { en: "Sunflower", hi: "सूरजमुखी", kn: "ಸೂರ್ಯಕಾಂತಿ", mr: "सूर्यफूल" },
     agmarknetCommodity: "Sunflower",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -500,7 +500,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "soyabean",
-    name: { en: "Soyabean", kn: "ಸೋಯಾಬೀನ್" },
+    name: { en: "Soyabean", hi: "सोयाबीन", kn: "ಸೋಯಾಬೀನ್", mr: "सोयाबीन" },
     agmarknetCommodity: "Soyabean",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -510,7 +510,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "tur",
-    name: { en: "Tur / red gram", kn: "ತೊಗರಿ" },
+    name: { en: "Tur / red gram", hi: "अरहर", kn: "ತೊಗರಿ", mr: "तूर" },
     agmarknetCommodity: "Arhar (Tur/Red Gram)(Whole)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -521,7 +521,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "bengal_gram",
-    name: { en: "Bengal gram", kn: "ಕಡಲೆ" },
+    name: { en: "Bengal gram", hi: "चना", kn: "ಕಡಲೆ", mr: "हरभरा" },
     agmarknetCommodity: "Bengal Gram(Gram)(Whole)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -531,7 +531,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "green_gram",
-    name: { en: "Green gram", kn: "ಹೆಸರುಕಾಳು" },
+    name: { en: "Green gram", hi: "मूंग", kn: "ಹೆಸರುಕಾಳು", mr: "मूग" },
     agmarknetCommodity: "Green Gram (Moong)(Whole)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -541,7 +541,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cotton",
-    name: { en: "Cotton", kn: "ಹತ್ತಿ" },
+    name: { en: "Cotton", hi: "कपास", kn: "ಹತ್ತಿ", mr: "कापूस" },
     agmarknetCommodity: "Cotton",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 12 },
@@ -552,7 +552,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "sugarcane",
-    name: { en: "Sugarcane", kn: "ಕಬ್ಬು" },
+    name: { en: "Sugarcane", hi: "गन्ना", kn: "ಕಬ್ಬು", mr: "ऊस" },
     agmarknetCommodity: "Sugarcane",
     grades: [],
     irrigation: { intervalDays: { drip: 4, sprinkler: 8, flood: 12, rainfed: Infinity }, rainSkipMm: 15 },
@@ -563,7 +563,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "turmeric",
-    name: { en: "Turmeric", kn: "ಅರಿಶಿನ" },
+    name: { en: "Turmeric", hi: "हल्दी", kn: "ಅರಿಶಿನ", mr: "हळद" },
     agmarknetCommodity: "Turmeric",
     grades: [],
     irrigation: { intervalDays: { drip: 3, sprinkler: 6, flood: 9, rainfed: Infinity }, rainSkipMm: 12 },
@@ -575,7 +575,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "ginger",
-    name: { en: "Ginger", kn: "ಶುಂಠಿ" },
+    name: { en: "Ginger", hi: "अदरक", kn: "ಶುಂಠಿ", mr: "आले" },
     agmarknetCommodity: "Ginger(Green)",
     grades: [],
     irrigation: { intervalDays: { drip: 3, sprinkler: 6, flood: 9, rainfed: Infinity }, rainSkipMm: 12 },
@@ -590,7 +590,7 @@ export const CROPS: CropConfig[] = [
   // ---------------------------------------------------------------- wider India
   {
     id: "bajra",
-    name: { en: "Bajra", kn: "ಸಜ್ಜೆ" },
+    name: { en: "Bajra", hi: "बाजरा", kn: "ಸಜ್ಜೆ", mr: "बाजरी" },
     agmarknetCommodity: "Bajra(Pearl Millet/Cumbu)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -602,7 +602,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "barley",
-    name: { en: "Barley", kn: "ಬಾರ್ಲಿ" },
+    name: { en: "Barley", hi: "जौ", kn: "ಬಾರ್ಲಿ", mr: "सातू" },
     agmarknetCommodity: "Barley (Jau)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -614,7 +614,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "foxtail_millet",
-    name: { en: "Foxtail millet", kn: "ನವಣೆ" },
+    name: { en: "Foxtail millet", hi: "कंगनी", kn: "ನವಣೆ", mr: "राळा" },
     agmarknetCommodity: "Foxtail Millet(Navane)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -626,7 +626,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "kodo_millet",
-    name: { en: "Kodo millet", kn: "ಹಾರಕ" },
+    name: { en: "Kodo millet", hi: "कोदो", kn: "ಹಾರಕ", mr: "कोद्रा" },
     agmarknetCommodity: "Kodo Millet(Varagu)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -638,7 +638,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "little_millet",
-    name: { en: "Little millet", kn: "ಸಾಮೆ" },
+    name: { en: "Little millet", hi: "कुटकी", kn: "ಸಾಮೆ", mr: "वरी" },
     agmarknetCommodity: "Little Millet (Kutki)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -650,7 +650,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "oats",
-    name: { en: "Oats", kn: "ಓಟ್ಸ್" },
+    name: { en: "Oats", hi: "जई", kn: "ಓಟ್ಸ್", mr: "ओट" },
     agmarknetCommodity: "Oat",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -662,7 +662,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "urad",
-    name: { en: "Urad / black gram", kn: "ಉದ್ದು" },
+    name: { en: "Urad / black gram", hi: "उड़द", kn: "ಉದ್ದು", mr: "उडीद" },
     agmarknetCommodity: "Black Gram (Urd Beans)(Whole)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -674,7 +674,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "lentil",
-    name: { en: "Lentil / masoor", kn: "ಮಸೂರ್" },
+    name: { en: "Lentil / masoor", hi: "मसूर", kn: "ಮಸೂರ್", mr: "मसूर" },
     agmarknetCommodity: "Lentil (Masur)(Whole)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -686,7 +686,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "horse_gram",
-    name: { en: "Horse gram", kn: "ಹುರುಳಿ" },
+    name: { en: "Horse gram", hi: "कुल्थी", kn: "ಹುರುಳಿ", mr: "कुळीथ" },
     agmarknetCommodity: "Horse Gram",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -698,7 +698,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cowpea",
-    name: { en: "Cowpea", kn: "ಅಲಸಂದೆ" },
+    name: { en: "Cowpea", hi: "लोबिया", kn: "ಅಲಸಂದೆ", mr: "चवळी" },
     agmarknetCommodity: "Cowpea(Veg)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -710,7 +710,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "field_pea",
-    name: { en: "Field pea", kn: "ಬಟಾಣಿ" },
+    name: { en: "Field pea", hi: "मटर", kn: "ಬಟಾಣಿ", mr: "वाटाणा" },
     agmarknetCommodity: "Peas(Dry)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -722,7 +722,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "moth_bean",
-    name: { en: "Moth bean", kn: "ಮಟಕಿ" },
+    name: { en: "Moth bean", hi: "मोठ", kn: "ಮಟಕಿ", mr: "मटकी" },
     agmarknetCommodity: "Math",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -734,7 +734,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "rajma",
-    name: { en: "Rajma", kn: "ರಾಜ್ಮಾ" },
+    name: { en: "Rajma", hi: "राजमा", kn: "ರಾಜ್ಮಾ", mr: "राजमा" },
     agmarknetCommodity: "Rajmash",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -746,7 +746,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "green_peas",
-    name: { en: "Green peas", kn: "ಹಸಿ ಬಟಾಣಿ" },
+    name: { en: "Green peas", hi: "हरी मटर", kn: "ಹಸಿ ಬಟಾಣಿ", mr: "हिरवे वाटाणे" },
     agmarknetCommodity: "Peas Wet",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -758,7 +758,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cluster_beans",
-    name: { en: "Cluster beans", kn: "ಗೋರಿಕಾಯಿ" },
+    name: { en: "Cluster beans", hi: "ग्वार", kn: "ಗೋರಿಕಾಯಿ", mr: "गवार" },
     agmarknetCommodity: "Cluster beans",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -770,7 +770,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "mustard",
-    name: { en: "Mustard", kn: "ಸಾಸಿವೆ" },
+    name: { en: "Mustard", hi: "सरसों", kn: "ಸಾಸಿವೆ", mr: "मोहरी" },
     agmarknetCommodity: "Mustard",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -782,7 +782,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "sesamum",
-    name: { en: "Sesamum", kn: "ಎಳ್ಳು" },
+    name: { en: "Sesamum", hi: "तिल", kn: "ಎಳ್ಳು", mr: "तीळ" },
     agmarknetCommodity: "Sesamum(Sesame,Gingelly,Til)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -794,7 +794,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "castor",
-    name: { en: "Castor", kn: "ಹರಳು" },
+    name: { en: "Castor", hi: "अरंडी", kn: "ಹರಳು", mr: "एरंड" },
     agmarknetCommodity: "Castor Seed",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -806,7 +806,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "safflower",
-    name: { en: "Safflower", kn: "ಕುಸುಬೆ" },
+    name: { en: "Safflower", hi: "कुसुम", kn: "ಕುಸುಬೆ", mr: "करडई" },
     agmarknetCommodity: "Safflower",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -818,7 +818,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "niger",
-    name: { en: "Niger", kn: "ಗುರೆಳ್ಳು" },
+    name: { en: "Niger", hi: "रामतिल", kn: "ಗುರೆಳ್ಳು", mr: "खुरासणी" },
     agmarknetCommodity: "Niger Seed (Ramtil)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -830,7 +830,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "linseed",
-    name: { en: "Linseed", kn: "ಅಗಸೆ" },
+    name: { en: "Linseed", hi: "अलसी", kn: "ಅಗಸೆ", mr: "जवस" },
     agmarknetCommodity: "Linseed",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -842,7 +842,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "jute",
-    name: { en: "Jute", kn: "ಸೆಣಬು" },
+    name: { en: "Jute", hi: "जूट", kn: "ಸೆಣಬು", mr: "ताग" },
     agmarknetCommodity: "Jute",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -854,7 +854,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "tobacco",
-    name: { en: "Tobacco", kn: "ಹೊಗೆಸೊಪ್ಪು" },
+    name: { en: "Tobacco", hi: "तंबाकू", kn: "ಹೊಗೆಸೊಪ್ಪು", mr: "तंबाखू" },
     agmarknetCommodity: "Tobacco",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -866,7 +866,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "tea",
-    name: { en: "Tea", kn: "ಚಹಾ" },
+    name: { en: "Tea", hi: "चाय", kn: "ಚಹಾ", mr: "चहा" },
     agmarknetCommodity: "Tea",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -878,7 +878,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "rubber",
-    name: { en: "Rubber", kn: "ರಬ್ಬರ್" },
+    name: { en: "Rubber", hi: "रबर", kn: "ರಬ್ಬರ್", mr: "रबर" },
     agmarknetCommodity: "Rubber",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -890,7 +890,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "oil_palm",
-    name: { en: "Oil palm", kn: "ಎಣ್ಣೆ ತಾಳೆ" },
+    name: { en: "Oil palm", hi: "तेल ताड़", kn: "ಎಣ್ಣೆ ತಾಳೆ", mr: "तेल माड" },
     agmarknetCommodity: "Oil Palm",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -902,7 +902,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "dry_chilli",
-    name: { en: "Dry chilli", kn: "ಒಣ ಮೆಣಸಿನಕಾಯಿ" },
+    name: { en: "Dry chilli", hi: "सूखी मिर्च", kn: "ಒಣ ಮೆಣಸಿನಕಾಯಿ", mr: "लाल मिरची" },
     agmarknetCommodity: "Dry Chillies",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -914,7 +914,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "coriander_seed",
-    name: { en: "Coriander seed", kn: "ಕೊತ್ತಂಬರಿ ಬೀಜ" },
+    name: { en: "Coriander seed", hi: "धनिया", kn: "ಕೊತ್ತಂಬರಿ ಬೀಜ", mr: "धणे" },
     agmarknetCommodity: "Coriander(Leaves)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -926,7 +926,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "coriander_leaves",
-    name: { en: "Coriander leaves", kn: "ಕೊತ್ತಂಬರಿ ಸೊಪ್ಪು" },
+    name: { en: "Coriander leaves", hi: "धनिया", kn: "ಕೊತ್ತಂಬರಿ ಸೊಪ್ಪು", mr: "कोथिंबीर" },
     agmarknetCommodity: "Coriander(Leaves)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -938,7 +938,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cumin",
-    name: { en: "Cumin", kn: "ಜೀರಿಗೆ" },
+    name: { en: "Cumin", hi: "जीरा", kn: "ಜೀರಿಗೆ", mr: "जिरे" },
     agmarknetCommodity: "Cummin Seed(Jeera)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -950,7 +950,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "fenugreek",
-    name: { en: "Fenugreek seed", kn: "ಮೆಂತ್ಯ" },
+    name: { en: "Fenugreek seed", hi: "मेथी दाना", kn: "ಮೆಂತ್ಯ", mr: "मेथी दाणे" },
     agmarknetCommodity: "Methi Seeds",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -962,7 +962,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "methi_leaves",
-    name: { en: "Fenugreek leaves", kn: "ಮೆಂತ್ಯ ಸೊಪ್ಪು" },
+    name: { en: "Fenugreek leaves", hi: "मेथी", kn: "ಮೆಂತ್ಯ ಸೊಪ್ಪು", mr: "मेथी" },
     agmarknetCommodity: "Methi(Leaves)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -974,7 +974,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "fennel",
-    name: { en: "Fennel", kn: "ಸೋಂಪು" },
+    name: { en: "Fennel", hi: "सौंफ", kn: "ಸೋಂಪು", mr: "बडीशेप" },
     agmarknetCommodity: "Fennel(Saunf)",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -986,7 +986,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "garlic",
-    name: { en: "Garlic", kn: "ಬೆಳ್ಳುಳ್ಳಿ" },
+    name: { en: "Garlic", hi: "लहसुन", kn: "ಬೆಳ್ಳುಳ್ಳಿ", mr: "लसूण" },
     agmarknetCommodity: "Garlic",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -998,7 +998,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "ajwain",
-    name: { en: "Ajwain", kn: "ಓಮ" },
+    name: { en: "Ajwain", hi: "अजवाइन", kn: "ಓಮ", mr: "ओवा" },
     agmarknetCommodity: "Ajwan",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -1010,7 +1010,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "nutmeg",
-    name: { en: "Nutmeg", kn: "ಜಾಯಿಕಾಯಿ" },
+    name: { en: "Nutmeg", hi: "जायफल", kn: "ಜಾಯಿಕಾಯಿ", mr: "जायफळ" },
     agmarknetCommodity: "Nutmeg",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1022,7 +1022,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "clove",
-    name: { en: "Clove", kn: "ಲವಂಗ" },
+    name: { en: "Clove", hi: "लौंग", kn: "ಲವಂಗ", mr: "लवंग" },
     agmarknetCommodity: "Cloves",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1034,7 +1034,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "cinnamon",
-    name: { en: "Cinnamon", kn: "ದಾಲ್ಚಿನ್ನಿ" },
+    name: { en: "Cinnamon", hi: "दालचीनी", kn: "ದಾಲ್ಚಿನ್ನಿ", mr: "दालचिनी" },
     agmarknetCommodity: "Cinnamon(Dalchini)",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1046,7 +1046,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "tamarind",
-    name: { en: "Tamarind", kn: "ಹುಣಸೆಹಣ್ಣು" },
+    name: { en: "Tamarind", hi: "इमली", kn: "ಹುಣಸೆಹಣ್ಣು", mr: "चिंच" },
     agmarknetCommodity: "Tamarind Fruit",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1058,7 +1058,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "guava",
-    name: { en: "Guava", kn: "ಸೀಬೆಕಾಯಿ" },
+    name: { en: "Guava", hi: "अमरूद", kn: "ಸೀಬೆಕಾಯಿ", mr: "पेरू" },
     agmarknetCommodity: "Guava",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1070,7 +1070,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "orange",
-    name: { en: "Orange / mandarin", kn: "ಕಿತ್ತಳೆ" },
+    name: { en: "Orange / mandarin", hi: "संतरा", kn: "ಕಿತ್ತಳೆ", mr: "संत्रे" },
     agmarknetCommodity: "Orange",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1082,7 +1082,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "sweet_lime",
-    name: { en: "Sweet lime / mosambi", kn: "ಮೂಸಂಬಿ" },
+    name: { en: "Sweet lime / mosambi", hi: "मौसंबी", kn: "ಮೂಸಂಬಿ", mr: "मोसंबी" },
     agmarknetCommodity: "Mousambi(Sweet Lime)",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1094,7 +1094,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "lemon",
-    name: { en: "Lemon", kn: "ನಿಂಬೆಹಣ್ಣು" },
+    name: { en: "Lemon", hi: "नींबू", kn: "ನಿಂಬೆಹಣ್ಣು", mr: "लिंबू" },
     agmarknetCommodity: "Lemon",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1106,7 +1106,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "jackfruit",
-    name: { en: "Jackfruit", kn: "ಹಲಸಿನಕಾಯಿ" },
+    name: { en: "Jackfruit", hi: "कटहल", kn: "ಹಲಸಿನಕಾಯಿ", mr: "फणस" },
     agmarknetCommodity: "Jack Fruit",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1118,7 +1118,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "pineapple",
-    name: { en: "Pineapple", kn: "ಅನಾನಸ್" },
+    name: { en: "Pineapple", hi: "अनानास", kn: "ಅನಾನಸ್", mr: "अननस" },
     agmarknetCommodity: "Pineapple",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1130,7 +1130,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "muskmelon",
-    name: { en: "Muskmelon", kn: "ಕರಬೂಜ" },
+    name: { en: "Muskmelon", hi: "खरबूजा", kn: "ಕರಬೂಜ", mr: "खरबूज" },
     agmarknetCommodity: "Water Melon",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1142,7 +1142,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "apple",
-    name: { en: "Apple", kn: "Apple" },
+    name: { en: "Apple", hi: "सेब", kn: "Apple", mr: "सफरचंद" },
     agmarknetCommodity: "Apple",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1154,7 +1154,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "pear",
-    name: { en: "Pear", kn: "Pear" },
+    name: { en: "Pear", hi: "नाशपाती", kn: "Pear", mr: "पेअर" },
     agmarknetCommodity: "Pear(Marasebu)",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1166,7 +1166,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "peach",
-    name: { en: "Peach", kn: "Peach" },
+    name: { en: "Peach", hi: "आड़ू", kn: "Peach", mr: "पीच" },
     agmarknetCommodity: "Peach",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1178,7 +1178,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "plum",
-    name: { en: "Plum", kn: "Plum" },
+    name: { en: "Plum", hi: "आलूबुखारा", kn: "Plum", mr: "आलूबुखार" },
     agmarknetCommodity: "Plum",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1190,7 +1190,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "litchi",
-    name: { en: "Litchi", kn: "Litchi" },
+    name: { en: "Litchi", hi: "लीची", kn: "Litchi", mr: "लिची" },
     agmarknetCommodity: "Litchi",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1202,7 +1202,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "ber",
-    name: { en: "Ber", kn: "ಬೋರೆಹಣ್ಣು" },
+    name: { en: "Ber", hi: "बेर", kn: "ಬೋರೆಹಣ್ಣು", mr: "बोर" },
     agmarknetCommodity: "Ber(Zizyphus/Borehannu)",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1214,7 +1214,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "custard_apple",
-    name: { en: "Custard apple", kn: "ಸೀತಾಫಲ" },
+    name: { en: "Custard apple", hi: "सीताफल", kn: "ಸೀತಾಫಲ", mr: "सीताफळ" },
     agmarknetCommodity: "Custard Apple (Sharifa)",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1226,7 +1226,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "fig",
-    name: { en: "Fig", kn: "ಅಂಜೂರ" },
+    name: { en: "Fig", hi: "अंजीर", kn: "ಅಂಜೂರ", mr: "अंजीर" },
     agmarknetCommodity: "Fig(Anjura/Anjeer)",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1238,7 +1238,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "amla",
-    name: { en: "Amla", kn: "ನೆಲ್ಲಿಕಾಯಿ" },
+    name: { en: "Amla", hi: "आंवला", kn: "ನೆಲ್ಲಿಕಾಯಿ", mr: "आवळा" },
     agmarknetCommodity: "Amla(Nelli Kai)",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1250,7 +1250,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "strawberry",
-    name: { en: "Strawberry", kn: "Strawberry" },
+    name: { en: "Strawberry", hi: "स्ट्रॉबेरी", kn: "Strawberry", mr: "स्ट्रॉबेरी" },
     agmarknetCommodity: "Straw Berry",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1262,7 +1262,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "mulberry",
-    name: { en: "Mulberry", kn: "ಹಿಪ್ಪುನೇರಳೆ" },
+    name: { en: "Mulberry", hi: "शहतूत", kn: "ಹಿಪ್ಪುನೇರಳೆ", mr: "तुती" },
     agmarknetCommodity: "Mulberry",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1274,7 +1274,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "radish",
-    name: { en: "Radish", kn: "ಮೂಲಂಗಿ" },
+    name: { en: "Radish", hi: "मूली", kn: "ಮೂಲಂಗಿ", mr: "मुळा" },
     agmarknetCommodity: "Raddish",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1286,7 +1286,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "beetroot",
-    name: { en: "Beetroot", kn: "ಬೀಟ್‌ರೂಟ್" },
+    name: { en: "Beetroot", hi: "चुकंदर", kn: "ಬೀಟ್‌ರೂಟ್", mr: "बीट" },
     agmarknetCommodity: "Beetroot",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1298,7 +1298,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "spinach",
-    name: { en: "Spinach", kn: "ಪಾಲಕ್" },
+    name: { en: "Spinach", hi: "पालक", kn: "ಪಾಲಕ್", mr: "पालक" },
     agmarknetCommodity: "Spinach",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1310,7 +1310,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "amaranthus",
-    name: { en: "Amaranthus", kn: "ಹರಿವೆ ಸೊಪ್ಪು" },
+    name: { en: "Amaranthus", hi: "चौलाई", kn: "ಹರಿವೆ ಸೊಪ್ಪು", mr: "माठ" },
     agmarknetCommodity: "Amaranthus",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1322,7 +1322,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "capsicum",
-    name: { en: "Capsicum", kn: "ದೊಣ್ಣೆ ಮೆಣಸಿನಕಾಯಿ" },
+    name: { en: "Capsicum", hi: "शिमला मिर्च", kn: "ದೊಣ್ಣೆ ಮೆಣಸಿನಕಾಯಿ", mr: "ढोबळी मिरची" },
     agmarknetCommodity: "Capsicum",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1334,7 +1334,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "bitter_gourd",
-    name: { en: "Bitter gourd", kn: "ಹಾಗಲಕಾಯಿ" },
+    name: { en: "Bitter gourd", hi: "करेला", kn: "ಹಾಗಲಕಾಯಿ", mr: "कारले" },
     agmarknetCommodity: "Bitter gourd",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1346,7 +1346,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "bottle_gourd",
-    name: { en: "Bottle gourd", kn: "ಸೋರೆಕಾಯಿ" },
+    name: { en: "Bottle gourd", hi: "लौकी", kn: "ಸೋರೆಕಾಯಿ", mr: "दुधी भोपळा" },
     agmarknetCommodity: "Bottle gourd",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1358,7 +1358,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "ridge_gourd",
-    name: { en: "Ridge gourd", kn: "ಹೀರೆಕಾಯಿ" },
+    name: { en: "Ridge gourd", hi: "तोरई", kn: "ಹೀರೆಕಾಯಿ", mr: "दोडका" },
     agmarknetCommodity: "Ridgeguard(Tori)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1370,7 +1370,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "snake_gourd",
-    name: { en: "Snake gourd", kn: "ಪಡವಲಕಾಯಿ" },
+    name: { en: "Snake gourd", hi: "चिचिंडा", kn: "ಪಡವಲಕಾಯಿ", mr: "पडवळ" },
     agmarknetCommodity: "Snakeguard",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1382,7 +1382,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "ash_gourd",
-    name: { en: "Ash gourd", kn: "ಬೂದುಗುಂಬಳ" },
+    name: { en: "Ash gourd", hi: "पेठा", kn: "ಬೂದುಗುಂಬಳ", mr: "कोहळा" },
     agmarknetCommodity: "Ashgourd",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1394,7 +1394,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "pumpkin",
-    name: { en: "Pumpkin", kn: "ಕುಂಬಳಕಾಯಿ" },
+    name: { en: "Pumpkin", hi: "कद्दू", kn: "ಕುಂಬಳಕಾಯಿ", mr: "भोपळा" },
     agmarknetCommodity: "Pumpkin",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1406,7 +1406,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "sweet_potato",
-    name: { en: "Sweet potato", kn: "ಸಿಹಿ ಗೆಣಸು" },
+    name: { en: "Sweet potato", hi: "शकरकंद", kn: "ಸಿಹಿ ಗೆಣಸು", mr: "रताळे" },
     agmarknetCommodity: "Sweet Potato",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -1418,7 +1418,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "colocasia",
-    name: { en: "Colocasia", kn: "ಕೆಸು" },
+    name: { en: "Colocasia", hi: "अरबी", kn: "ಕೆಸು", mr: "अळू" },
     agmarknetCommodity: "Colacasia",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1430,7 +1430,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "elephant_yam",
-    name: { en: "Elephant foot yam", kn: "ಸುವರ್ಣಗಡ್ಡೆ" },
+    name: { en: "Elephant foot yam", hi: "सूरन", kn: "ಸುವರ್ಣಗಡ್ಡೆ", mr: "सुरण" },
     agmarknetCommodity: "Elephant Yam (Suran)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1442,7 +1442,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "tapioca",
-    name: { en: "Tapioca / cassava", kn: "ಮರಗೆಣಸು" },
+    name: { en: "Tapioca / cassava", hi: "कसावा", kn: "ಮರಗೆಣಸು", mr: "कसावा" },
     agmarknetCommodity: "Tapioca",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -1454,7 +1454,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "drumstick",
-    name: { en: "Drumstick", kn: "ನುಗ್ಗೆಕಾಯಿ" },
+    name: { en: "Drumstick", hi: "सहजन", kn: "ನುಗ್ಗೆಕಾಯಿ", mr: "शेवगा" },
     agmarknetCommodity: "Drumstick",
     grades: [],
     irrigation: { intervalDays: ORCHARD, rainSkipMm: 10 },
@@ -1466,7 +1466,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "knol_khol",
-    name: { en: "Knol khol", kn: "ನವಿಲುಕೋಸು" },
+    name: { en: "Knol khol", hi: "गांठ गोभी", kn: "ನವಿಲುಕೋಸು", mr: "नवलकोल" },
     agmarknetCommodity: "Knol Khol",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1478,7 +1478,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "turnip",
-    name: { en: "Turnip", kn: "ಟರ್ನಿಪ್" },
+    name: { en: "Turnip", hi: "शलजम", kn: "ಟರ್ನಿಪ್", mr: "सलगम" },
     agmarknetCommodity: "Turnip",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1490,7 +1490,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "broccoli",
-    name: { en: "Broccoli", kn: "ಬ್ರೊಕೊಲಿ" },
+    name: { en: "Broccoli", hi: "ब्रोकली", kn: "ಬ್ರೊಕೊಲಿ", mr: "ब्रोकोली" },
     agmarknetCommodity: "Broccoli",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1502,7 +1502,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "lettuce",
-    name: { en: "Lettuce", kn: "ಲೆಟ್ಯೂಸ್" },
+    name: { en: "Lettuce", hi: "सलाद पत्ता", kn: "ಲೆಟ್ಯೂಸ್", mr: "लेट्युस" },
     agmarknetCommodity: "Lettuce",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1514,7 +1514,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "betel_leaves",
-    name: { en: "Betel leaves", kn: "ವೀಳ್ಯದೆಲೆ" },
+    name: { en: "Betel leaves", hi: "पान", kn: "ವೀಳ್ಯದೆಲೆ", mr: "विड्याची पाने" },
     agmarknetCommodity: "Betal Leaves",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1526,7 +1526,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "lemongrass",
-    name: { en: "Lemongrass", kn: "ಮಜ್ಜಿಗೆ ಹುಲ್ಲು" },
+    name: { en: "Lemongrass", hi: "नींबू घास", kn: "ಮಜ್ಜಿಗೆ ಹುಲ್ಲು", mr: "गवती चहा" },
     agmarknetCommodity: "Lemon Grass",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -1538,7 +1538,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "mint",
-    name: { en: "Mint", kn: "ಪುದೀನ" },
+    name: { en: "Mint", hi: "पुदीना", kn: "ಪುದೀನ", mr: "पुदिना" },
     agmarknetCommodity: "Mint(Pudina)",
     grades: [],
     irrigation: { intervalDays: VEG, rainSkipMm: 10 },
@@ -1550,7 +1550,7 @@ export const CROPS: CropConfig[] = [
   },
   {
     id: "aloe_vera",
-    name: { en: "Aloe vera", kn: "ಲೋಳೆಸರ" },
+    name: { en: "Aloe vera", hi: "घृतकुमारी", kn: "ಲೋಳೆಸರ", mr: "कोरफड" },
     agmarknetCommodity: "Aloe Vera",
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },
@@ -1573,7 +1573,8 @@ export const CROPS: CropConfig[] = [
 export function genericCrop(id: string, en: string, kn: string, commodity: string): CropConfig {
   return {
     id,
-    name: { en, kn },
+    // An unrecognised crop has no translations; English stands in everywhere.
+    name: { en, hi: en, kn, mr: en },
     agmarknetCommodity: commodity,
     grades: [],
     irrigation: { intervalDays: FIELD, rainSkipMm: 10 },

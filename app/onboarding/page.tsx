@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { estimatedQtlPerAcre, getCrop, listCrops } from "@/lib/crops";
+import { cropName, estimatedQtlPerAcre, getCrop, listCrops } from "@/lib/crops";
 import { blankFarm, DEMO_FARM, hasFarm, loadFarm, loadFarms, saveFarm, switchCrop } from "@/lib/farm";
 import { placesIn, STATES, type Place } from "@/lib/places";
 import { loadSession, markOnboarded } from "@/lib/session";
@@ -28,7 +28,7 @@ export default function OnboardingPage() {
   const [locError, setLocError] = useState<string | null>(null);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const { t } = useLang();
+  const { lang, t } = useLang();
 
   useEffect(() => {
     if (!loadSession()) {
@@ -51,13 +51,15 @@ export default function OnboardingPage() {
     }
   }, [router]);
 
-  const crops = useMemo(() => listCrops(), []);
+  const crops = useMemo(() => listCrops(lang), [lang]);
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return crops;
-    // Kannada names are no longer shown, but still match: a Kannada speaker
-    // typing ಅಡಿಕೆ should still find arecanut.
-    return crops.filter((c) => c.en.toLowerCase().includes(q) || c.kn.includes(q));
+    // Match either script, so a farmer can type in their own language or in
+    // English and still land on the same crop.
+    return crops.filter(
+      (c) => c.label.toLowerCase().includes(q) || c.english.toLowerCase().includes(q),
+    );
   }, [crops, query]);
 
   if (!farm) return null;
@@ -176,8 +178,15 @@ export default function OnboardingPage() {
                     background: c.id === farm.cropId ? "var(--accent-soft)" : "var(--surface)",
                   }}
                 >
-                  <span>
-                    <span className="block font-semibold">{c.en}</span>
+<span>
+                    <span className="block text-[17px] font-bold leading-snug">{c.label}</span>
+                    {/* Only show English underneath when it adds something —
+                        never the same word twice. */}
+                    {c.label !== c.english && (
+                      <span className="mt-0.5 block text-[13px]" style={{ color: "var(--ink-faint)" }}>
+                        {c.english}
+                      </span>
+                    )}
                   </span>
                 </button>
               </li>
@@ -276,7 +285,7 @@ export default function OnboardingPage() {
 
       {step === "details" && (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">About your {crop.name.en.toLowerCase()}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">About your {cropName(crop, lang)}</h1>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
             These set your watering cycle and expected harvest.
           </p>
@@ -284,7 +293,7 @@ export default function OnboardingPage() {
           <div className="mt-4 space-y-4">
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                Area under {crop.name.en.toLowerCase()} (acres)
+                Area under {cropName(crop, lang)} (acres)
               </span>
               <input
                 inputMode="decimal"
@@ -346,7 +355,7 @@ export default function OnboardingPage() {
               <input
                 inputMode="decimal"
                 value={farm.expectedQtlPerAcre ?? ""}
-                placeholder={`About ${estimatedQtlPerAcre(crop)} for ${crop.name.en.toLowerCase()}`}
+                placeholder={`About ${estimatedQtlPerAcre(crop)} for ${cropName(crop, lang)}`}
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   update("expectedQtlPerAcre", e.target.value === "" || !Number.isFinite(v) ? undefined : v);
