@@ -33,6 +33,11 @@ type Dict = Record<string, string>;
 
 const STRINGS: Record<Lang, Dict> = {
   en: {
+    shareWhatsapp: "Send on WhatsApp",
+    sharePrice: "{grade} ₹{price}/quintal at {market}",
+    shareNoPrice: "No mandi price today",
+    shareFrom: "Sent from Kheti",
+    shareToday: "Today's plan",
     separatePlot: "This is saved as a separate plot, with its own stock and expenses.",
     pickMainCrop: "Pick your main crop. You can change it later.",
     locationHint: "This sets your weather forecast and which markets are near you.",
@@ -100,6 +105,11 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "Ask",
   },
   hi: {
+    shareWhatsapp: "व्हाट्सएप पर भेजें",
+    sharePrice: "{grade} ₹{price}/क्विंटल — {market}",
+    shareNoPrice: "आज मंडी भाव नहीं",
+    shareFrom: "Kheti से भेजा गया",
+    shareToday: "आज की योजना",
     separatePlot: "यह अलग खेत के रूप में सहेजा जाएगा, अपने माल और खर्च के साथ।",
     pickMainCrop: "अपनी मुख्य फ़सल चुनें। बाद में बदल सकते हैं।",
     locationHint: "इससे आपका मौसम और नज़दीकी मंडियाँ तय होती हैं।",
@@ -167,6 +177,11 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "पूछें",
   },
   kn: {
+    shareWhatsapp: "ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಕಳುಹಿಸಿ",
+    sharePrice: "{grade} ₹{price}/ಕ್ವಿಂಟಾಲ್ — {market}",
+    shareNoPrice: "ಇಂದು ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಇಲ್ಲ",
+    shareFrom: "Kheti ನಿಂದ ಕಳುಹಿಸಲಾಗಿದೆ",
+    shareToday: "ಇಂದಿನ ಯೋಜನೆ",
     separatePlot: "ಇದು ಪ್ರತ್ಯೇಕ ಜಮೀನಾಗಿ ಉಳಿಸಲಾಗುತ್ತದೆ, ತನ್ನದೇ ದಾಸ್ತಾನು ಮತ್ತು ಖರ್ಚಿನೊಂದಿಗೆ.",
     pickMainCrop: "ನಿಮ್ಮ ಮುಖ್ಯ ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ. ನಂತರ ಬದಲಾಯಿಸಬಹುದು.",
     locationHint: "ಇದರಿಂದ ನಿಮ್ಮ ಹವಾಮಾನ ಮತ್ತು ಹತ್ತಿರದ ಮಾರುಕಟ್ಟೆಗಳು ನಿರ್ಧಾರವಾಗುತ್ತವೆ.",
@@ -182,7 +197,7 @@ const STRINGS: Record<Lang, Dict> = {
     whenPlanted: "ನೀವು ಯಾವಾಗ ನೆಟ್ಟಿರಿ?",
     cycleHint: "{crop} ನೆಟ್ಟಿನಿಂದ ಕೊಯ್ಲಿಗೆ ಸುಮಾರು {months} ತಿಂಗಳು ಬೇಕು.",
     expectedHarvest: "ನಿರೀಕ್ಷಿತ ಇಳುವರಿ (ಎಕರೆಗೆ ಕ್ವಿಂಟಾಲ್)",
-    harvestAbout: "{crop} ಗೆ ಸುಮಾರು {n}",
+    harvestAbout: "{crop}ಗೆ ಸುಮಾರು {n}",
     harvestHint: "ಖಾಲಿ ಬಿಟ್ಟರೆ ನಮ್ಮ ಅಂದಾಜು ಬಳಸಲಾಗುತ್ತದೆ. ಕಳೆದ ವರ್ಷದ ನಿಮ್ಮ ಸ್ವಂತ ಅಂಕಿ ಯಾವಾಗಲೂ ಉತ್ತಮ.",
     howWater: "ನೀವು ನೀರು ಹೇಗೆ ಕೊಡುತ್ತೀರಿ?",
     useDemo: "ಮಾದರಿ ತೋಟ ಬಳಸಿ",
@@ -234,6 +249,11 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "ಕೇಳಿ",
   },
   mr: {
+    shareWhatsapp: "व्हॉट्सअॅपवर पाठवा",
+    sharePrice: "{grade} ₹{price}/क्विंटल — {market}",
+    shareNoPrice: "आज बाजारभाव नाही",
+    shareFrom: "Kheti वरून पाठवले",
+    shareToday: "आजची योजना",
     separatePlot: "हे वेगळे शेत म्हणून जतन होईल, स्वतःचा माल आणि खर्चासह.",
     pickMainCrop: "तुमचे मुख्य पीक निवडा. नंतर बदलता येईल.",
     locationHint: "यावरून तुमचे हवामान आणि जवळच्या बाजार समित्या ठरतात.",

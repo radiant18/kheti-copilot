@@ -7,6 +7,7 @@ import { WeatherStrip } from "@/components/WeatherStrip";
 import { cropName, getCrop } from "@/lib/crops";
 import { harvestNote } from "@/components/HarvestNote";
 import { loadFarm, loadFarms } from "@/lib/farm";
+import { buildShareMessage, shareOnWhatsapp } from "@/lib/share";
 import { t as translate } from "@/lib/i18n";
 import { useLang } from "@/lib/use-lang";
 import { usePlan } from "@/lib/use-plan";
@@ -113,9 +114,24 @@ export default function TodayPage() {
         </section>
       )}
 
+      {/* The plan is more useful in WhatsApp than in an app the farmer has to
+          remember to open — and forwarding it is how it reaches the next farm. */}
+      {plan && (
+        <button
+          onClick={() => {
+            const farm = loadFarm();
+            shareOnWhatsapp(buildShareMessage(farm, plan, lang));
+          }}
+          className="press mt-6 w-full rounded-xl py-3.5 text-base font-bold"
+          style={{ background: "#25D366", color: "#0b1a12", boxShadow: "var(--shadow-md)" }}
+        >
+          {t("shareWhatsapp")}
+        </button>
+      )}
+
       <button
         onClick={() => void refresh()}
-        className="press card mt-6 w-full py-3 text-sm font-bold"
+        className="press card mt-3 w-full py-3 text-sm font-bold"
         style={{ color: "var(--ink-soft)" }}
       >
         {t("refresh")}

@@ -145,7 +145,7 @@ export function sellAdvice(
     if (options.length === 0) continue;
 
     const best = options[0];
-    const label = gradeLabel(crop, grade);
+    const label = gradeLabel(crop, grade, lang);
     const trend = market.weekChangePct[grade] ?? 0;
 
     const placed = options.filter((o) => o.distanceKnown);
@@ -216,7 +216,7 @@ export function sellAdvice(
           icon: "💰",
           severity: "info",
           title: msg(lang, "mkt.worth.t", {
-            grade: gradeLabel(crop, grade),
+            grade: gradeLabel(crop, grade, lang),
             net: best.net.toLocaleString("en-IN"),
           }),
           why: msg(lang, "mkt.worth.w", {
@@ -236,7 +236,7 @@ export function sellAdvice(
         icon: "💰",
         severity: "info",
         title: msg(lang, "mkt.best.t", {
-          grade: gradeLabel(crop, top.grade),
+          grade: gradeLabel(crop, top.grade, lang),
           price: top.modalPerQtl.toLocaleString("en-IN"),
         }),
         why: msg(lang, "mkt.best.w", { market: top.market }),

@@ -75,10 +75,10 @@ export function normaliseGrade(crop: CropConfig, raw: string): string | null {
   return crop.grades.find((g) => g.aliases.includes(key))?.id ?? null;
 }
 
-export function gradeLabel(crop: CropConfig, gradeId: string): string {
+export function gradeLabel(crop: CropConfig, gradeId: string, lang: Lang = "en"): string {
   const declared = crop.grades.find((g) => g.id === gradeId);
-  if (declared) return declared.label.en;
-  // Undeclared grades come straight from the feed; make them readable.
+  if (declared) return declared.label[lang === "kn" ? "kn" : "en"] || declared.label.en;
+  // Undeclared grades come straight from the Agmarknet feed, which is English.
   return gradeId
     .split("_")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
