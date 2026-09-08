@@ -83,7 +83,7 @@ export default function OnboardingPage() {
     setLocating(true);
     setLocError(null);
     if (!navigator.geolocation) {
-      setLocError("This phone cannot share its location. Pick your taluk from the list instead.");
+      setLocError(t("locNoGeo"));
       setLocating(false);
       return;
     }
@@ -97,7 +97,7 @@ export default function OnboardingPage() {
         setLocating(false);
       },
       () => {
-        setLocError("Could not get your location. Pick your taluk from the list instead.");
+        setLocError(t("locFailed"));
         setLocating(false);
       },
       { timeout: 10_000 },
@@ -109,14 +109,14 @@ export default function OnboardingPage() {
    * would produce a confident and wrong harvest projection. Better to block.
    */
   function detailsProblem(f: Farm): string | null {
-    if (!f.acres || f.acres <= 0) return "Enter how many acres you have under this crop.";
+    if (!f.acres || f.acres <= 0) return t("errAcres");
     if (crop.yield.kind === "seasonal") {
-      if (!f.plantedOn) return "Choose the date you planted, so we know when your harvest is due.";
+      if (!f.plantedOn) return t("errPlantDate");
     } else {
       const year = new Date().getFullYear();
-      if (!f.plantedYear) return "Enter the year you planted.";
+      if (!f.plantedYear) return t("errYear");
       if (f.plantedYear < 1900 || f.plantedYear > year) {
-        return `Enter a planting year between 1900 and ${year}.`;
+        return t("errYearRange", { year });
       }
     }
     return null;
@@ -155,8 +155,8 @@ export default function OnboardingPage() {
           </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
             {isAdding
-              ? "This is saved as a separate plot, with its own stock and expenses."
-              : "Pick your main crop. You can change it later."}
+              ? t("separatePlot")
+              : t("pickMainCrop")}
           </p>
 
           <input
@@ -200,7 +200,7 @@ export default function OnboardingPage() {
         <>
           <h1 className="text-2xl font-bold tracking-tight">{t("whereIsFarm")}</h1>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
-            This sets your weather forecast and which markets are near you.
+            {t("locationHint")}
           </p>
 
           <button
@@ -209,7 +209,7 @@ export default function OnboardingPage() {
             className="mt-4 w-full rounded-xl border px-4 py-3 font-semibold"
             style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
           >
-            {locating ? "…" : `📍 ${t("useMyLocation")}`}
+            {locating ? t("finding") : `📍 ${t("useMyLocation")}`}
           </button>
 
           {locError && (
@@ -254,14 +254,14 @@ export default function OnboardingPage() {
               ))}
               {placesIn(farm.state).length === 0 && (
                 <li className="text-sm" style={{ color: "var(--ink-soft)" }}>
-                  No towns listed for {farm.state} yet — use your current location above.
+                  {t("noTowns", { state: farm.state })}
                 </li>
               )}
             </ul>
           </div>
 
           <p className="mt-4 text-sm tabular-nums" style={{ color: "var(--ink-soft)" }}>
-            Selected: {farm.village || "—"} · {farm.lat}, {farm.lon}
+            {t("selected")}: {farm.village || "—"} · {farm.lat}, {farm.lon}
           </p>
 
           <div className="mt-5 flex gap-2">
@@ -285,15 +285,17 @@ export default function OnboardingPage() {
 
       {step === "details" && (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">About your {cropName(crop, lang)}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t("aboutYour", { crop: cropName(crop, lang) })}
+          </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
-            These set your watering cycle and expected harvest.
+            {t("detailsHint")}
           </p>
 
           <div className="mt-4 space-y-4">
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                Area under {cropName(crop, lang)} (acres)
+                {t("areaUnder", { crop: cropName(crop, lang) })}
               </span>
               <input
                 inputMode="decimal"
@@ -307,7 +309,7 @@ export default function OnboardingPage() {
             {crop.yield.kind === "perennial" ? (
               <label className="block">
                 <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                  Year planted
+                  {t("yearPlanted")}
                 </span>
                 <input
                   inputMode="numeric"
@@ -323,7 +325,7 @@ export default function OnboardingPage() {
                  has a crop coming or one ready to sell. */
               <label className="block">
                 <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                  When did you plant it?
+                  {t("whenPlanted")}
                 </span>
                 <input
                   type="date"
@@ -342,20 +344,22 @@ export default function OnboardingPage() {
                   style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
                 />
                 <span className="mt-1.5 block text-xs" style={{ color: "var(--ink-soft)" }}>
-                  {crop.name.en} takes about {Math.round(crop.yield.cycleDays / 30)} months from
-                  planting to harvest.
+                  {t("cycleHint", {
+                    crop: cropName(crop, lang),
+                    months: Math.round(crop.yield.cycleDays / 30),
+                  })}
                 </span>
               </label>
             )}
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                Expected harvest (quintals per acre)
+                {t("expectedHarvest")}
               </span>
               <input
                 inputMode="decimal"
                 value={farm.expectedQtlPerAcre ?? ""}
-                placeholder={`About ${estimatedQtlPerAcre(crop)} for ${cropName(crop, lang)}`}
+                placeholder={t("harvestAbout", { n: estimatedQtlPerAcre(crop), crop: cropName(crop, lang) })}
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   update("expectedQtlPerAcre", e.target.value === "" || !Number.isFinite(v) ? undefined : v);
@@ -364,14 +368,15 @@ export default function OnboardingPage() {
                 style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               />
               <span className="mt-1.5 block text-xs leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-                Leave blank to use our estimate.{crop.yieldNote ? ` ${crop.yieldNote}` : ""} Your own
-                figure from last year is always better than ours.
+                {t("harvestHint")}
+                {/* yieldNote is free text in the registry and exists only in English. */}
+                {crop.yieldNote ? ` ${crop.yieldNote}` : ""}
               </span>
             </label>
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                How do you water it?
+                {t("howWater")}
               </span>
               <select
                 value={farm.irrigation}
@@ -380,7 +385,7 @@ export default function OnboardingPage() {
                 style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               >
                 {(["drip", "sprinkler", "flood", "rainfed"] as const).map((i) => (
-                  <option key={i} value={i}>{i}</option>
+                  <option key={i} value={i}>{t(`irr.${i}`)}</option>
                 ))}
               </select>
             </label>
@@ -412,7 +417,7 @@ export default function OnboardingPage() {
             className="mt-4 w-full text-center text-xs underline"
             style={{ color: "var(--ink-soft)" }}
           >
-            Use the demo garden (3 acres of mature arecanut) instead
+            {t("useDemo")}
           </button>
         </>
       )}
