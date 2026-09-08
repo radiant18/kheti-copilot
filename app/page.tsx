@@ -14,7 +14,7 @@ export default function TodayPage() {
 
   useEffect(() => {
     const f = loadFarm();
-    setFarmName(`${getCrop(f.cropId).name.en} · ${f.acres} acres · ${f.village}`);
+    setFarmName(`${getCrop(f.cropId).name.en} · ${f.acres} ${f.acres === 1 ? "acre" : "acres"} · ${f.village}`);
   }, []);
 
   const today = new Date().toLocaleDateString("en-IN", {

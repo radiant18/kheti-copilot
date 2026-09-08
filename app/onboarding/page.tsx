@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { listCrops, getCrop } from "@/lib/crops";
-import { claimFarm, DEMO_FARM, loadFarm, saveFarm, switchCrop } from "@/lib/farm";
+import { blankFarm, claimFarm, DEMO_FARM, hasFarm, loadFarm, saveFarm, switchCrop } from "@/lib/farm";
 import { placesIn, STATES, type Place } from "@/lib/places";
 import { loadSession, markOnboarded } from "@/lib/session";
 import type { Farm } from "@/lib/types";
@@ -25,13 +25,16 @@ export default function OnboardingPage() {
   const [query, setQuery] = useState("");
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState<string | null>(null);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loadSession()) {
       router.replace("/login");
       return;
     }
-    setFarm(loadFarm());
+    // Editing an existing profile loads it; a first-time grower starts empty so
+    // no demo acreage or planting year leaks into their numbers.
+    setFarm(hasFarm() ? loadFarm() : blankFarm(loadSession()?.name ?? ""));
   }, [router]);
 
   const crops = useMemo(() => listCrops(), []);
@@ -46,6 +49,7 @@ export default function OnboardingPage() {
 
   function update<K extends keyof Farm>(key: K, value: Farm[K]) {
     setFarm((f) => (f ? { ...f, [key]: value } : f));
+    setDetailsError(null);
   }
 
   function pickCrop(id: string) {
@@ -82,7 +86,30 @@ export default function OnboardingPage() {
     );
   }
 
+  /**
+   * Both of these feed the yield model directly, so a blank or nonsense value
+   * would produce a confident and wrong harvest projection. Better to block.
+   */
+  function detailsProblem(f: Farm): string | null {
+    if (!f.acres || f.acres <= 0) return "Enter how many acres you have under this crop.";
+    if (crop.yield.kind === "seasonal") {
+      if (!f.plantedOn) return "Choose the date you planted, so we know when your harvest is due.";
+    } else {
+      const year = new Date().getFullYear();
+      if (!f.plantedYear) return "Enter the year you planted.";
+      if (f.plantedYear < 1900 || f.plantedYear > year) {
+        return `Enter a planting year between 1900 and ${year}.`;
+      }
+    }
+    return null;
+  }
+
   function finish() {
+    const problem = detailsProblem(farm!);
+    if (problem) {
+      setDetailsError(problem);
+      return;
+    }
     const session = loadSession();
     saveFarm(claimFarm(farm!, session?.name ?? farm!.ownerName));
     markOnboarded();
@@ -298,6 +325,7 @@ export default function OnboardingPage() {
                         ? { ...f, plantedOn: iso, plantedYear: Number(iso.slice(0, 4)) || f.plantedYear }
                         : f,
                     );
+                    setDetailsError(null);
                   }}
                   className="w-full rounded-xl border px-3 text-base"
                   style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
@@ -326,6 +354,10 @@ export default function OnboardingPage() {
             </label>
           </div>
 
+          {detailsError && (
+            <p className="mt-4 text-sm" style={{ color: "var(--urgent)" }}>{detailsError}</p>
+          )}
+
           <div className="mt-6 flex gap-2">
             <button
               onClick={() => setStep("location")}
@@ -344,11 +376,11 @@ export default function OnboardingPage() {
           </div>
 
           <button
-            onClick={() => { setFarm(DEMO_FARM); }}
+            onClick={() => { setFarm(DEMO_FARM); setDetailsError(null); }}
             className="mt-4 w-full text-center text-xs underline"
             style={{ color: "var(--ink-soft)" }}
           >
-            Fill with the demo garden instead
+            Use the demo garden (3 acres of mature arecanut) instead
           </button>
         </>
       )}

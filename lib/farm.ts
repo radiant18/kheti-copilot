@@ -59,6 +59,45 @@ function write(key: string, value: unknown): void {
   }
 }
 
+/**
+ * An empty farm for somebody signing up for the first time.
+ *
+ * Onboarding must NOT start from DEMO_FARM. Seeding a new grower with the
+ * demo's 3 acres planted in 2014 told the engine they owned a mature bearing
+ * plantation, and the app duly projected lakhs of revenue to a farmer who had
+ * just put seedlings in the ground. Blank fields that must be filled are the
+ * only honest default.
+ */
+export function blankFarm(ownerName = ""): Farm {
+  return {
+    id: "new",
+    ownerName,
+    cropId: "arecanut",
+    lat: 0,
+    lon: 0,
+    village: "",
+    district: "",
+    state: "Karnataka",
+    acres: 0,
+    plantedYear: 0,
+    irrigation: "sprinkler",
+    soil: "laterite",
+    lang: "en",
+    stockQtl: {},
+    lastSprayAt: {},
+  };
+}
+
+/** True once a farm profile has actually been saved on this device. */
+export function hasFarm(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(FARM_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export const loadFarm = (): Farm => read(FARM_KEY, DEMO_FARM);
 export const saveFarm = (farm: Farm): void => write(FARM_KEY, farm);
 /**
@@ -72,7 +111,7 @@ export const saveCosts = (costs: CostEntry[]): void => write(COSTS_KEY, costs);
 
 /** Turn the pre-filled demo profile into this farmer's own farm. */
 export function claimFarm(farm: Farm, ownerName: string): Farm {
-  if (farm.id !== "demo") return farm;
+  if (farm.id !== "demo" && farm.id !== "new") return farm;
   return { ...farm, id: `farm-${Date.now().toString(36)}`, ownerName };
 }
 
