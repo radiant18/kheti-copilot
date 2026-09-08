@@ -4,24 +4,26 @@ import Link from "next/link";
 
 import { ActionCard } from "@/components/ActionCard";
 import { WeatherStrip } from "@/components/WeatherStrip";
-import { getCrop } from "@/lib/crops";
+import { cropName, getCrop } from "@/lib/crops";
 import { harvestNote } from "@/components/HarvestNote";
 import { loadFarm, loadFarms } from "@/lib/farm";
+import { t as translate } from "@/lib/i18n";
 import { useLang } from "@/lib/use-lang";
 import { usePlan } from "@/lib/use-plan";
 import { useEffect, useState } from "react";
 
 export default function TodayPage() {
   const { plan, stale, loading, refresh } = usePlan();
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const [farmName, setFarmName] = useState("");
   const [plotCount, setPlotCount] = useState(1);
 
   useEffect(() => {
     const f = loadFarm();
-    setFarmName(`${getCrop(f.cropId).name.en} · ${f.acres} ${f.acres === 1 ? "acre" : "acres"} · ${f.village}`);
+    const unit = translate(lang, f.acres === 1 ? "acre" : "acres");
+    setFarmName(`${cropName(getCrop(f.cropId), lang)} · ${f.acres} ${unit} · ${f.village}`);
     setPlotCount(loadFarms().length);
-  }, []);
+  }, [lang]);
 
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
@@ -72,8 +74,8 @@ export default function TodayPage() {
                 ₹{plan.economics.expectedProfit.toLocaleString("en-IN")}
               </p>
               <p className="mt-1 text-sm tabular-nums" style={{ color: "var(--ink-soft)" }}>
-                {plan.economics.expectedYieldQtl} qtl expected · ₹
-                {plan.economics.totalCosts.toLocaleString("en-IN")} spent so far
+                {t("qtlExpected", { qtl: plan.economics.expectedYieldQtl })} ·{" "}
+                {t("spentSoFar", { amount: plan.economics.totalCosts.toLocaleString("en-IN") })}
               </p>
             </>
           ) : (

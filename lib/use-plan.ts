@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { apiGet } from "./api";
 import { buildPlan } from "./engine";
 import { loadCosts, loadFarm } from "./farm";
+import { loadSession } from "./session";
 import { withTrend } from "./price-history";
 import type { FarmPlan, MarketView, WeatherWindow } from "./types";
 
@@ -25,6 +26,7 @@ export function usePlan() {
   const refresh = useCallback(async () => {
     const farm = loadFarm();
     const costs = loadCosts();
+    const lang = loadSession()?.lang ?? "en";
     setLoading(true);
 
     try {
@@ -33,7 +35,7 @@ export function usePlan() {
         apiGet<MarketView>("/api/market", { crop: farm.cropId, state: farm.state }).catch(() => null),
       ]);
       const enriched = market ? withTrend(market) : null;
-      const next = buildPlan(farm, wx, enriched, costs);
+      const next = buildPlan(farm, wx, enriched, costs, new Date(), lang);
       setPlan(next);
       setStale(false);
       try {
@@ -47,7 +49,7 @@ export function usePlan() {
         const raw = window.localStorage.getItem(cacheKeyFor(farm.cropId));
         if (raw) {
           const { wx, market } = JSON.parse(raw) as { wx: WeatherWindow; market: MarketView | null };
-          setPlan(buildPlan(farm, wx, market, costs));
+          setPlan(buildPlan(farm, wx, market, costs, new Date(), lang));
           setStale(true);
         }
       } catch {

@@ -1,4 +1,6 @@
-import { getCrop, gradeLabel, harvestOutlook, type CropConfig } from "../crops";
+import { cropName, getCrop, gradeLabel, harvestOutlook, type CropConfig } from "../crops";
+import type { Lang } from "../i18n";
+import { msg } from "../messages";
 import type { Economics, Farm, Grade, MandiQuote, MarketView, Recommendation } from "../types";
 
 /**
@@ -110,7 +112,12 @@ export function rankSellOptions(
     .sort((a, b) => b.net - a.net);
 }
 
-export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | null): Recommendation[] {
+export function sellAdvice(
+  farm: Farm,
+  crop: CropConfig,
+  market: MarketView | null,
+  lang: Lang,
+): Recommendation[] {
   if (!market || market.quotes.length === 0) {
     return [
       {
@@ -119,12 +126,12 @@ export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | nu
         severity: "info",
         title:
           market?.source === "unconfigured"
-            ? "Market prices are not switched on"
-            : `No ${crop.name.en.toLowerCase()} prices today`,
+            ? msg(lang, "mkt.off.t")
+            : msg(lang, "mkt.none.t", { crop: cropName(crop, lang) }),
         why:
           market?.source === "unconfigured"
-            ? "The app has no key for the government price feed yet, so it has not asked for prices. Everything else on this screen is live."
-            : "Agmarknet had no quotes for this crop in your state today. Prices refresh through the day, and some yards report late.",
+            ? msg(lang, "mkt.off.w")
+            : msg(lang, "mkt.none.w"),
       },
     ];
   }
@@ -150,10 +157,22 @@ export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | nu
         id: `sell-${grade}`,
         icon: "🚚",
         severity: "act",
-        title: `Take your ${label} to ${best.quote.market}, not ${nearest.quote.market}`,
-        why: `${best.quote.market} is quoting ₹${best.quote.modalPerQtl.toLocaleString("en-IN")}/qtl against ₹${nearest.quote.modalPerQtl.toLocaleString("en-IN")} at ${nearest.quote.market}. On ${qtl} quintals that is ₹${(best.gross - nearest.gross).toLocaleString("en-IN")} more, and the extra distance costs about ₹${(best.transport - nearest.transport).toLocaleString("en-IN")} in transport.`,
+        title: msg(lang, "sell.move.t", {
+          grade: label,
+          best: best.quote.market,
+          near: nearest.quote.market,
+        }),
+        why: msg(lang, "sell.move.w", {
+          best: best.quote.market,
+          bestPrice: best.quote.modalPerQtl.toLocaleString("en-IN"),
+          nearPrice: nearest.quote.modalPerQtl.toLocaleString("en-IN"),
+          near: nearest.quote.market,
+          qtl,
+          gain: (best.gross - nearest.gross).toLocaleString("en-IN"),
+          extra: (best.transport - nearest.transport).toLocaleString("en-IN"),
+        }),
         rupeeImpact: Math.round(gain),
-        window: `Prices dated ${best.quote.date}`,
+        window: msg(lang, "sell.dated", { date: best.quote.date }),
       });
     }
 
@@ -162,8 +181,11 @@ export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | nu
         id: `trend-${grade}`,
         icon: "📉",
         severity: "act",
-        title: `${label} has fallen ${Math.abs(trend).toFixed(1)}% this week`,
-        why: `Your ${qtl} quintals are worth about ₹${Math.round((best.net * Math.abs(trend)) / 100).toLocaleString("en-IN")} less than last week. Consider releasing part of the stock rather than waiting for a bounce.`,
+        title: msg(lang, "trend.down.t", { grade: label, pct: Math.abs(trend).toFixed(1) }),
+        why: msg(lang, "trend.down.w", {
+          qtl,
+          loss: Math.round((best.net * Math.abs(trend)) / 100).toLocaleString("en-IN"),
+        }),
         rupeeImpact: -Math.round((best.net * Math.abs(trend)) / 100),
       });
     } else if (trend >= 3) {
@@ -171,8 +193,12 @@ export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | nu
         id: `trend-${grade}`,
         icon: "📈",
         severity: "watch",
-        title: `${label} is up ${trend.toFixed(1)}% this week`,
-        why: `Holding has paid off so far. Today ${best.quote.market} nets you ₹${best.net.toLocaleString("en-IN")} for ${qtl} quintals.`,
+        title: msg(lang, "trend.up.t", { grade: label, pct: trend.toFixed(1) }),
+        why: msg(lang, "trend.up.w", {
+          market: best.quote.market,
+          net: best.net.toLocaleString("en-IN"),
+          qtl,
+        }),
         rupeeImpact: Math.round((best.net * trend) / 100),
       });
     }
@@ -189,8 +215,18 @@ export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | nu
           id: "market",
           icon: "💰",
           severity: "info",
-          title: `Your ${gradeLabel(crop, grade)} is worth ₹${best.net.toLocaleString("en-IN")} today`,
-          why: `${qtl} quintals at ${best.quote.market}'s ₹${best.quote.modalPerQtl.toLocaleString("en-IN")}/qtl${best.distanceKnown ? `, less ₹${best.transport.toLocaleString("en-IN")} to get it there` : ""}. No other yard is far enough ahead to be worth the extra distance.`,
+          title: msg(lang, "mkt.worth.t", {
+            grade: gradeLabel(crop, grade),
+            net: best.net.toLocaleString("en-IN"),
+          }),
+          why: msg(lang, "mkt.worth.w", {
+            qtl,
+            market: best.quote.market,
+            price: best.quote.modalPerQtl.toLocaleString("en-IN"),
+            transport: best.distanceKnown
+              ? msg(lang, "mkt.worth.transport", { cost: best.transport.toLocaleString("en-IN") })
+              : "",
+          }),
         });
       }
     } else {
@@ -199,8 +235,11 @@ export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | nu
         id: "market",
         icon: "💰",
         severity: "info",
-        title: `${gradeLabel(crop, top.grade)} at ₹${top.modalPerQtl.toLocaleString("en-IN")}/qtl`,
-        why: `Best quote today is ${top.market}. Add your unsold stock to get sell recommendations.`,
+        title: msg(lang, "mkt.best.t", {
+          grade: gradeLabel(crop, top.grade),
+          price: top.modalPerQtl.toLocaleString("en-IN"),
+        }),
+        why: msg(lang, "mkt.best.w", { market: top.market }),
       });
     }
   }

@@ -1,4 +1,5 @@
 import { getCrop, harvestOutlook } from "../crops";
+import type { Lang } from "../i18n";
 import type { CostEntry, Farm, FarmPlan, MarketView, Recommendation, WeatherWindow } from "../types";
 import { agronomyPlan } from "./agronomy";
 import { economics, referencePrice, sellAdvice } from "./market";
@@ -18,6 +19,8 @@ export function buildPlan(
   market: MarketView | null,
   costs: CostEntry[],
   today = new Date(),
+  /** Chosen at sign-in and carried through every message the plan produces. */
+  lang: Lang = "en",
 ): FarmPlan {
   const crop = getCrop(farm.cropId);
   const price = referencePrice(farm, market);
@@ -28,8 +31,8 @@ export function buildPlan(
       .qtlPerAcre * farm.acres;
 
   const recommendations: Recommendation[] = [
-    ...agronomyPlan(farm, crop, wx, price, expectedQtl, today),
-    ...sellAdvice(farm, crop, market),
+    ...agronomyPlan(farm, crop, wx, price, expectedQtl, lang, today),
+    ...sellAdvice(farm, crop, market, lang),
   ].sort((a, b) => {
     const s = SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
     if (s !== 0) return s;

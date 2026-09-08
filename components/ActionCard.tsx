@@ -1,4 +1,8 @@
+"use client";
+
+import { msg } from "@/lib/messages";
 import type { Recommendation, Severity } from "@/lib/types";
+import { useLang } from "@/lib/use-lang";
 
 /**
  * One action, with its arithmetic showing.
@@ -9,11 +13,11 @@ import type { Recommendation, Severity } from "@/lib/types";
  * into a traffic light. Colour is never the only signal: each card also states
  * its urgency in words.
  */
-const TONE: Record<Severity, { colour: string; label: string }> = {
-  urgent: { colour: "var(--urgent)", label: "Do now" },
-  act: { colour: "var(--signal)", label: "Today" },
-  watch: { colour: "var(--accent)", label: "Keep an eye" },
-  info: { colour: "var(--ink-faint)", label: "For info" },
+const TONE: Record<Severity, { colour: string; key: string }> = {
+  urgent: { colour: "var(--urgent)", key: "sev.urgent" },
+  act: { colour: "var(--signal)", key: "sev.act" },
+  watch: { colour: "var(--accent)", key: "sev.watch" },
+  info: { colour: "var(--ink-faint)", key: "sev.info" },
 };
 
 function rupees(n: number): string {
@@ -21,7 +25,9 @@ function rupees(n: number): string {
 }
 
 export function ActionCard({ rec }: { rec: Recommendation }) {
+  const { lang } = useLang();
   const tone = TONE[rec.severity];
+  const label = msg(lang, tone.key);
   return (
     <article className="card relative overflow-hidden pl-4 pr-4 py-4">
       <span
@@ -37,9 +43,9 @@ export function ActionCard({ rec }: { rec: Recommendation }) {
               className="text-[10px] font-bold uppercase tracking-[0.09em]"
               style={{ color: tone.colour }}
             >
-              {tone.label}
+              {label}
             </span>
-            {rec.window && rec.window.toLowerCase() !== tone.label.toLowerCase() && (
+            {rec.window && rec.window.toLowerCase() !== label.toLowerCase() && (
               <span className="text-[11px]" style={{ color: "var(--ink-faint)" }}>
                 · {rec.window}
               </span>

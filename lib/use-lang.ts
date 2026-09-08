@@ -13,7 +13,10 @@ import { t as translate, type Lang } from "./i18n";
  * language. Starts at English and corrects on mount — the alternative is
  * rendering nothing until localStorage is read, which flashes an empty screen.
  */
-export function useLang(): { lang: Lang; t: (key: string) => string } {
+export function useLang(): {
+  lang: Lang;
+  t: (key: string, params?: Record<string, string | number>) => string;
+} {
   const path = usePathname();
   const [lang, setLang] = useState<Lang>("en");
 
@@ -24,5 +27,5 @@ export function useLang(): { lang: Lang; t: (key: string) => string } {
     const s = loadSession();
     setLang(s?.lang ?? "en");
   }, [path]);
-  return { lang, t: (key: string) => translate(lang, key) };
+  return { lang, t: (key: string, params?: Record<string, string | number>) => translate(lang, key, params) };
 }

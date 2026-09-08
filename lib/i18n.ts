@@ -33,6 +33,14 @@ type Dict = Record<string, string>;
 
 const STRINGS: Record<Lang, Dict> = {
   en: {
+    acres: "acres",
+    acre: "acre",
+    qtlExpected: "{qtl} qtl expected",
+    spentSoFar: "₹{amount} spent so far",
+    "irr.drip": "drip",
+    "irr.sprinkler": "sprinkler",
+    "irr.flood": "flood",
+    "irr.rainfed": "rainfed",
     tagline: "Your farm's daily plan — what to water, what to spray, and where to sell.",
     chooseLanguage: "Choose your language",
     yourName: "Your name",
@@ -69,6 +77,14 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "Ask",
   },
   hi: {
+    acres: "एकड़",
+    acre: "एकड़",
+    qtlExpected: "{qtl} क्विंटल की उम्मीद",
+    spentSoFar: "₹{amount} अब तक खर्च",
+    "irr.drip": "टपक",
+    "irr.sprinkler": "फव्वारा",
+    "irr.flood": "क्यारी",
+    "irr.rainfed": "बारिश पर",
     tagline: "आपके खेत की रोज़ की योजना — कब पानी दें, कब छिड़काव करें, और कहाँ बेचें।",
     chooseLanguage: "अपनी भाषा चुनें",
     yourName: "आपका नाम",
@@ -105,6 +121,14 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "पूछें",
   },
   kn: {
+    acres: "ಎಕರೆ",
+    acre: "ಎಕರೆ",
+    qtlExpected: "{qtl} ಕ್ವಿಂಟಾಲ್ ನಿರೀಕ್ಷೆ",
+    spentSoFar: "₹{amount} ಈವರೆಗೆ ಖರ್ಚು",
+    "irr.drip": "ಹನಿ ನೀರಾವರಿ",
+    "irr.sprinkler": "ತುಂತುರು",
+    "irr.flood": "ಹರಿ ನೀರಾವರಿ",
+    "irr.rainfed": "ಮಳೆ ಆಶ್ರಿತ",
     tagline: "ನಿಮ್ಮ ಜಮೀನಿನ ದಿನದ ಯೋಜನೆ — ಯಾವಾಗ ನೀರು, ಯಾವಾಗ ಸಿಂಪರಣೆ, ಎಲ್ಲಿ ಮಾರಾಟ.",
     chooseLanguage: "ನಿಮ್ಮ ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ",
     yourName: "ನಿಮ್ಮ ಹೆಸರು",
@@ -141,6 +165,14 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "ಕೇಳಿ",
   },
   mr: {
+    acres: "एकर",
+    acre: "एकर",
+    qtlExpected: "{qtl} क्विंटल अपेक्षित",
+    spentSoFar: "₹{amount} आतापर्यंत खर्च",
+    "irr.drip": "ठिबक",
+    "irr.sprinkler": "तुषार",
+    "irr.flood": "पाट",
+    "irr.rainfed": "पावसावर",
     tagline: "तुमच्या शेताची रोजची योजना — कधी पाणी, कधी फवारणी, आणि कुठे विकायचे.",
     chooseLanguage: "तुमची भाषा निवडा",
     yourName: "तुमचे नाव",
@@ -179,6 +211,9 @@ const STRINGS: Record<Lang, Dict> = {
 };
 
 /** Falls back to English rather than showing a raw key if a string is missing. */
-export function t(lang: Lang, key: string): string {
-  return STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+export function t(lang: Lang, key: string, params: Record<string, string | number> = {}): string {
+  const template = STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+  return template.replace(/\{(\w+)\}/g, (_, name: string) =>
+    params[name] === undefined ? "" : String(params[name]),
+  );
 }

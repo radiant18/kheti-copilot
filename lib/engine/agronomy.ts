@@ -1,14 +1,18 @@
 import type { CropConfig, DiseaseRule } from "../crops";
+import { cropName } from "../crops";
+import { t, type Lang } from "../i18n";
+import { msg } from "../messages";
 import type { DayWeather, Farm, Recommendation, WeatherWindow } from "../types";
 
 /**
- * Weather-driven agronomy, generalised across crops.
+ * Weather-driven agronomy, generalised across crops and languages.
  *
  * Nothing here knows what crop it is looking at — it reads thresholds off the
- * CropConfig. Adding a crop means adding data to the registry, never editing
- * this file. The rules stay deterministic on purpose: an LLM may translate a
- * recommendation, but a hallucinated fungicide dose is a destroyed crop, so the
- * model never originates one.
+ * CropConfig — and nothing here writes an English sentence: wording lives in
+ * lib/messages.ts and this file supplies the key and the numbers. The rules
+ * stay deterministic on purpose. An LLM may translate a recommendation, but a
+ * hallucinated fungicide dose is a destroyed crop, so the model never
+ * originates one.
  *
  * Thresholds in the registry follow published extension practice and are
  * pending review by an agronomist.
@@ -22,36 +26,43 @@ function rainOver(days: DayWeather[], count: number): number {
   return days.slice(0, count).reduce((sum, d) => sum + d.rainMm, 0);
 }
 
+/** Weekday and date in the farmer's own language, via the platform locale. */
+function weekday(date: Date, lang: Lang): string {
+  return date.toLocaleDateString(`${lang}-IN`, { weekday: "long" });
+}
+
 export function irrigationAdvice(
   farm: Farm,
   crop: CropConfig,
   wx: WeatherWindow,
+  lang: Lang,
   today = new Date(),
 ): Recommendation {
   const rain48 = rainOver(wx.days, 2);
   const { intervalDays, rainSkipMm } = crop.irrigation;
+  const name = cropName(crop, lang);
+  const rain = rain48.toFixed(0);
 
   if (farm.irrigation === "rainfed") {
     return {
       id: "irrigation",
       icon: "💧",
       severity: "info",
-      title: "Rainfed — nothing to irrigate",
-      why: `${rain48.toFixed(0)} mm of rain expected over the next 2 days.`,
+      title: msg(lang, "irr.rainfed.t"),
+      why: msg(lang, "irr.rainfed.w", { rain }),
     };
   }
 
   if (rain48 >= rainSkipMm) {
     // Diesel and pump time saved is the concrete win the farmer feels.
-    const saved = Math.round(farm.acres * 180);
     return {
       id: "irrigation",
       icon: "💧",
       severity: "act",
-      title: "Do not irrigate today",
-      why: `${rain48.toFixed(0)} mm of rain is expected in the next 48 hours — more than your ${crop.name.en.toLowerCase()} needs.`,
-      rupeeImpact: saved,
-      window: "Today",
+      title: msg(lang, "irr.skip.t"),
+      why: msg(lang, "irr.skip.w", { rain, crop: name }),
+      rupeeImpact: Math.round(farm.acres * 180),
+      window: msg(lang, "win.today"),
     };
   }
 
@@ -64,9 +75,15 @@ export function irrigationAdvice(
       id: "irrigation",
       icon: "💧",
       severity: "act",
-      title: "Irrigate today",
-      why: `${since} days since your last irrigation and only ${rain48.toFixed(0)} mm of rain is expected. Your ${farm.irrigation} system is on a ${interval}-day cycle for ${crop.name.en.toLowerCase()}.`,
-      window: "Today",
+      title: msg(lang, "irr.due.t"),
+      why: msg(lang, "irr.due.w", {
+        since,
+        rain,
+        method: t(lang, `irr.${farm.irrigation}`),
+        interval,
+        crop: name,
+      }),
+      window: msg(lang, "win.today"),
     };
   }
 
@@ -75,9 +92,9 @@ export function irrigationAdvice(
     id: "irrigation",
     icon: "💧",
     severity: "info",
-    title: `Next irrigation in ${due} day${due === 1 ? "" : "s"}`,
-    why: `Last irrigated ${since} days ago on a ${interval}-day cycle.`,
-    window: when.toLocaleDateString("en-IN", { weekday: "long" }),
+    title: due === 1 ? msg(lang, "irr.next1.t") : msg(lang, "irr.next.t", { due }),
+    why: msg(lang, "irr.next.w", { since, interval }),
+    window: weekday(when, lang),
   };
 }
 
@@ -95,9 +112,12 @@ export function diseaseAdvice(
   wx: WeatherWindow,
   pricePerQtl: number,
   expectedQtl: number,
+  lang: Lang,
   today = new Date(),
 ): Recommendation {
   const inSeason = rule.months.includes(today.getMonth() + 1);
+  const disease = rule.name[lang === "kn" ? "kn" : "en"] ?? rule.name.en;
+  const treatment = rule.treatment.name[lang === "kn" ? "kn" : "en"] ?? rule.treatment.name.en;
 
   const wetDays = wx.days.filter(
     (d) =>
@@ -110,7 +130,6 @@ export function diseaseAdvice(
   const lastSpray = farm.lastSprayAt?.[rule.id];
   const sinceSpray = lastSpray ? daysBetween(lastSpray, today.toISOString()) : Infinity;
   const protectionLeft = rule.treatment.protectionDays - sinceSpray;
-
   const sprayDay = wx.days.find((d) => d.dryHours >= rule.treatment.dryHours);
   const atRisk = inSeason && wetDays >= rule.wetDays;
   const atStake = Math.round(expectedQtl * pricePerQtl * rule.lossShare);
@@ -120,8 +139,13 @@ export function diseaseAdvice(
       id: rule.id,
       icon: "🌂",
       severity: "info",
-      title: `${rule.name.en} conditions present — you are still protected`,
-      why: `${wetDays} wet days ahead with humidity above ${rule.humidityPct}%, but your spray from ${sinceSpray} days ago has about ${protectionLeft} days of cover left.`,
+      title: msg(lang, "dis.safe.t", { disease }),
+      why: msg(lang, "dis.safe.w", {
+        wetDays,
+        humidity: rule.humidityPct,
+        since: sinceSpray,
+        left: protectionLeft,
+      }),
     };
   }
 
@@ -131,21 +155,27 @@ export function diseaseAdvice(
         id: rule.id,
         icon: "🌂",
         severity: "urgent",
-        title: `${rule.name.en} risk high — no dry window in the next 7 days`,
-        why: `${wetDays} days of wet, humid weather ahead and ${Number.isFinite(sinceSpray) ? `your last spray was ${sinceSpray} days ago` : "no spray is recorded"}. There is no ${rule.treatment.dryHours}-hour dry gap in the forecast.`,
+        title: msg(lang, "dis.nowindow.t", { disease }),
+        why: msg(lang, "dis.nowindow.w", { wetDays, hours: rule.treatment.dryHours }),
         rupeeImpact: -atStake,
       };
     }
-    const day = new Date(sprayDay.date);
-    const weekday = day.toLocaleDateString("en-IN", { weekday: "long" });
+    const date = new Date(sprayDay.date);
+    const day = weekday(date, lang);
     return {
       id: rule.id,
       icon: "🌂",
       severity: "urgent",
-      title: `Spray ${rule.treatment.name.en} on ${weekday}`,
-      why: `${rule.name.en} weather is setting in (${wetDays} wet days, humidity above ${rule.humidityPct}%) and your protection has run out. ${weekday} has about ${sprayDay.dryHours} dry hours — the only workable window this week.`,
+      title: msg(lang, "dis.spray.t", { treatment, day }),
+      why: msg(lang, "dis.spray.w", {
+        disease,
+        wetDays,
+        humidity: rule.humidityPct,
+        day,
+        dryHours: sprayDay.dryHours,
+      }),
       rupeeImpact: -atStake,
-      window: `${day.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}, roughly ${sprayDay.dryHours} dry hours`,
+      window: date.toLocaleDateString(`${lang}-IN`, { day: "numeric", month: "short" }),
     };
   }
 
@@ -154,10 +184,10 @@ export function diseaseAdvice(
       id: rule.id,
       icon: "🌂",
       severity: "watch",
-      title: `${rule.treatment.name.en} cover has expired`,
+      title: msg(lang, "dis.expired.t", { treatment }),
       why: Number.isFinite(sinceSpray)
-        ? `Your last spray was ${sinceSpray} days ago; cover lasts about ${rule.treatment.protectionDays} days.`
-        : `No protective spray recorded this season for ${rule.name.en.toLowerCase()}.`,
+        ? msg(lang, "dis.expired.w", { since: sinceSpray, days: rule.treatment.protectionDays })
+        : msg(lang, "dis.never.w", { disease }),
     };
   }
 
@@ -165,21 +195,19 @@ export function diseaseAdvice(
     id: rule.id,
     icon: "🌂",
     severity: "info",
-    title: `${rule.name.en} risk low`,
-    why: inSeason
-      ? `Only ${wetDays} day(s) in the forecast meet the infection conditions.`
-      : `Outside the ${rule.name.en.toLowerCase()} season.`,
+    title: msg(lang, "dis.low.t", { disease }),
+    why: inSeason ? msg(lang, "dis.low.w", { wetDays }) : msg(lang, "dis.off.w", { disease }),
   };
 }
 
-/** Crops with no curated rules say so, rather than pretending to advise. */
-export function coverageNote(crop: CropConfig): Recommendation {
+/** A crop the registry does not know says so, rather than advising blindly. */
+export function coverageNote(crop: CropConfig, lang: Lang): Recommendation {
   return {
     id: "coverage",
     icon: "📋",
     severity: "info",
-    title: `No disease rules for ${crop.name.en.toLowerCase()} yet`,
-    why: "Market prices, irrigation timing and your cost book all work. Pest and disease advice needs this crop to be added to the registry — everything else on this screen is live.",
+    title: msg(lang, "cover.t", { crop: cropName(crop, lang) }),
+    why: msg(lang, "cover.w"),
   };
 }
 
@@ -189,24 +217,26 @@ export function agronomyPlan(
   wx: WeatherWindow,
   pricePerQtl: number,
   expectedQtl: number,
+  lang: Lang,
   today = new Date(),
 ): Recommendation[] {
-  const out: Recommendation[] = [irrigationAdvice(farm, crop, wx, today)];
+  const out: Recommendation[] = [irrigationAdvice(farm, crop, wx, lang, today)];
 
   for (const rule of crop.diseases) {
-    out.push(diseaseAdvice(farm, crop, rule, wx, pricePerQtl, expectedQtl, today));
+    out.push(diseaseAdvice(farm, crop, rule, wx, pricePerQtl, expectedQtl, lang, today));
   }
 
-  if (crop.diseases.length === 0) out.push(coverageNote(crop));
+  if (crop.diseases.length === 0) out.push(coverageNote(crop, lang));
 
   if (crop.notes) {
     out.push({
       id: "crop-note",
       icon: "📸",
       severity: "watch",
-      title: `${crop.name.en}: worth knowing`,
+      title: msg(lang, "crop.note.t", { crop: cropName(crop, lang) }),
+      // Crop notes are free text in the registry and exist only in English.
       why: crop.notes,
-      window: "Weekly",
+      window: msg(lang, "win.weekly"),
     });
   }
 
