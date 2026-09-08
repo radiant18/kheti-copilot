@@ -1,26 +1,68 @@
 @import "tailwindcss";
 
+/*
+ * Palette is built for a phone held at arm's length in bright coastal sun:
+ * high contrast, large type, no thin greys. Severity colours carry meaning, so
+ * every one of them is paired with an icon and a word — never colour alone.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --border: #e2ddd2;
+  --ink: #14140f;
+  --ink-soft: #5c5a50;
+  --accent: #1f6b3a;
+  --accent-soft: #e6f1e9;
+  --urgent: #a32020;
+  --urgent-soft: #fbeaea;
+  --act: #a35a00;
+  --act-soft: #fdf1e2;
+  --watch: #7a5c00;
+  --money: #14532d;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root:not([data-theme="light"]) {
+  @media (prefers-color-scheme: dark) {
+    --bg: #12130f;
+    --surface: #1c1e18;
+    --border: #2f322a;
+    --ink: #f2f1e9;
+    --ink-soft: #a7a89c;
+    --accent: #6ec18a;
+    --accent-soft: #1d2f23;
+    --urgent: #ff8a80;
+    --urgent-soft: #34191a;
+    --act: #f0b060;
+    --act-soft: #33260f;
+    --watch: #d9c26a;
+    --money: #8fdca9;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root[data-theme="dark"] {
+  --bg: #12130f;
+  --surface: #1c1e18;
+  --border: #2f322a;
+  --ink: #f2f1e9;
+  --ink-soft: #a7a89c;
+  --accent: #6ec18a;
+  --accent-soft: #1d2f23;
+  --urgent: #ff8a80;
+  --urgent-soft: #34191a;
+  --act: #f0b060;
+  --act-soft: #33260f;
+  --watch: #d9c26a;
+  --money: #8fdca9;
 }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, "Noto Sans Kannada", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Room for the fixed bottom nav plus the iOS home indicator. */
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+/* Every tap target clears the 44pt minimum without needing per-element classes. */
+button, a[role="button"], select, input { min-height: 44px; }
