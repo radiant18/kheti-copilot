@@ -117,8 +117,14 @@ export function sellAdvice(farm: Farm, crop: CropConfig, market: MarketView | nu
         id: "market",
         icon: "💰",
         severity: "info",
-        title: `No ${crop.name.en.toLowerCase()} prices today`,
-        why: "Agmarknet had no quotes for this crop in your state. Prices refresh through the day; some yards report late.",
+        title:
+          market?.source === "unconfigured"
+            ? "Market prices are not switched on"
+            : `No ${crop.name.en.toLowerCase()} prices today`,
+        why:
+          market?.source === "unconfigured"
+            ? "The app has no key for the government price feed yet, so it has not asked for prices. Everything else on this screen is live."
+            : "Agmarknet had no quotes for this crop in your state today. Prices refresh through the day, and some yards report late.",
       },
     ];
   }

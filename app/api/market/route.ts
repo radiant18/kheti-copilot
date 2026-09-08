@@ -56,7 +56,11 @@ function looselyMatches(recordCommodity: string, target: string): boolean {
   return a.includes(b) || b.includes(a);
 }
 
-function summarise(quotes: MandiQuote[], cropId: string, sample: boolean): MarketView {
+function summarise(
+  quotes: MandiQuote[],
+  cropId: string,
+  source: MarketView["source"],
+): MarketView {
   const byGrade = new Map<Grade, number[]>();
   for (const q of quotes) {
     if (!byGrade.has(q.grade)) byGrade.set(q.grade, []);
@@ -75,7 +79,7 @@ function summarise(quotes: MandiQuote[], cropId: string, sample: boolean): Marke
     // Filled in client-side from locally recorded snapshots; the feed has no history.
     weekChangePct: {},
     cropId,
-    ...(sample ? { sample: true } : {}),
+    source,
   };
 }
 
@@ -110,8 +114,8 @@ export async function GET(req: Request) {
   if (!key) {
     return NextResponse.json(
       cropId === "arecanut"
-        ? summarise(SAMPLE_ARECANUT_QUOTES, cropId, true)
-        : summarise([], cropId, true),
+        ? summarise(SAMPLE_ARECANUT_QUOTES, cropId, "unconfigured")
+        : summarise([], cropId, "unconfigured"),
     );
   }
 
@@ -125,14 +129,14 @@ export async function GET(req: Request) {
 
     const quotes = toQuotes(records);
     if (quotes.length === 0 && cropId === "arecanut") {
-      return NextResponse.json(summarise(SAMPLE_ARECANUT_QUOTES, cropId, true));
+      return NextResponse.json(summarise(SAMPLE_ARECANUT_QUOTES, cropId, "sample"));
     }
-    return NextResponse.json(summarise(quotes, cropId, false));
+    return NextResponse.json(summarise(quotes, cropId, "live"));
   } catch {
     return NextResponse.json(
       cropId === "arecanut"
-        ? summarise(SAMPLE_ARECANUT_QUOTES, cropId, true)
-        : summarise([], cropId, true),
+        ? summarise(SAMPLE_ARECANUT_QUOTES, cropId, "sample")
+        : summarise([], cropId, "sample"),
     );
   }
 }

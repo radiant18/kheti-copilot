@@ -74,12 +74,12 @@ export default function MarketPage() {
         {crop.name.en} prices across {farm.state}, with your transport netted out.
       </p>
 
-      {market?.sample && market.quotes.length > 0 && (
+      {market?.source !== "live" && market && market.quotes.length > 0 && (
         <p
           className="mt-3 rounded-xl border px-3 py-2 text-xs"
           style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
         >
-          Sample prices from 7 Sep 2026 — set DATA_GOV_API_KEY for the live Agmarknet feed.
+          Sample prices from 7 Sep 2026, not today's board. Set DATA_GOV_API_KEY for the live Agmarknet feed.
         </p>
       )}
 
@@ -88,8 +88,20 @@ export default function MarketPage() {
           className="mt-4 rounded-xl border px-4 py-3 text-sm"
           style={{ borderColor: "var(--border)", color: "var(--ink-soft)" }}
         >
-          No {crop.name.en.toLowerCase()} quotes for {farm.state} today. Some yards report
-          late in the day, and not every commodity trades everywhere. Check back this evening.
+          {market.source === "unconfigured" ? (
+            <>
+              Market prices are not switched on. The app needs a free
+              data.gov.in API key in <code>DATA_GOV_API_KEY</code> before it can read the
+              Agmarknet board — until then it will not show prices for any crop except the
+              bundled arecanut sample.
+            </>
+          ) : (
+            <>
+              No {crop.name.en.toLowerCase()} quotes for {farm.state} today. Some yards
+              report late in the day, and not every commodity trades in every state. Check
+              back this evening.
+            </>
+          )}
         </p>
       )}
 

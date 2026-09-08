@@ -81,8 +81,17 @@ export interface MarketView {
   quotes: MandiQuote[];
   stateModal: Record<Grade, number>;
   weekChangePct: Record<Grade, number>;
-  /** True when these are bundled fallback quotes, not a live Agmarknet pull. */
-  sample?: boolean;
+  /**
+   * Where this board came from.
+   *  live         - a real Agmarknet pull
+   *  sample       - bundled fallback quotes, feed unreachable or returned nothing
+   *  unconfigured - no DATA_GOV_API_KEY, so the feed was never called
+   *
+   * The last one matters: reporting "no quotes today" when we never asked blames
+   * the mandi for our own missing key, and the farmer would wait for prices that
+   * are never coming.
+   */
+  source: "live" | "sample" | "unconfigured";
   /** Which crop these quotes are for. */
   cropId?: string;
 }
