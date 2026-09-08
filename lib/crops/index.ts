@@ -18,7 +18,23 @@ export function listCrops(): CropOption[] {
 }
 
 /** Never throws — an unknown id degrades to a generic crop rather than a crash. */
+/**
+ * Crop ids that changed when the registry was rebuilt. A farm saved under an
+ * old id must keep working — dropping it to the unknown-crop fallback would
+ * silently strip that plot's disease rules and harvest estimate, which the
+ * farmer has no way to notice.
+ */
+const RENAMED: Record<string, string> = {
+  bittergourd: "bitter_gourd",
+  bottlegourd: "bottle_gourd",
+  ridgegourd: "ridge_gourd",
+  coriander: "coriander_leaves",
+};
+
 export function getCrop(id: string): CropConfig {
+  const resolved = RENAMED[id] ?? id;
+  if (resolved !== id) return getCrop(resolved);
+
   const modelled = CROPS.find((c) => c.id === id);
   if (modelled) return modelled;
 

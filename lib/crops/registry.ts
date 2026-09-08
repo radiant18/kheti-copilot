@@ -1565,10 +1565,10 @@ export const CROPS: CropConfig[] = [
 /**
  * Fallback for a commodity with no agronomy in the registry.
  *
- * The irrigation interval here is a generic default and is NOT crop-specific —
- * that is exactly why these crops are labelled "Prices only" and why the yield
- * is zero rather than a guess. Anything that needs to be right for a particular
- * crop belongs in CROPS, not here.
+ * This is now reached only by an id the registry does not know — a farm saved
+ * before a rename, or corrupted storage. The irrigation interval is a generic
+ * default and the yield is zero rather than a guess, so the app reports what it
+ * does not know instead of inventing it. Every real crop lives in CROPS.
  */
 export function genericCrop(id: string, en: string, kn: string, commodity: string): CropConfig {
   return {
