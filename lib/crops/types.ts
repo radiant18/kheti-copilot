@@ -10,8 +10,14 @@
 
 export type IrrigationMethod = "drip" | "sprinkler" | "flood" | "rainfed";
 
-/** How well we actually model this crop. Shown to the farmer, not hidden. */
-export type CropDepth = "modelled" | "basic";
+/**
+ * How well we actually model this crop. Shown to the farmer, not hidden.
+ *
+ * - "modelled": yield, irrigation and weather-driven disease rules
+ * - "partial":  yield and irrigation, but no disease rule we trust
+ * - "basic":    prices and the cost book only
+ */
+export type CropDepth = "modelled" | "partial" | "basic";
 
 export interface GradeDef {
   /** Stable internal id. */
@@ -89,4 +95,10 @@ export interface CropConfig {
   diseases: DiseaseRule[];
   /** Anything the farmer should be told about this crop that is not a rule. */
   notes?: string;
+  /**
+   * Where the yield figure came from and how much to trust it. Yields swing by
+   * a factor of three across variety, season, soil and management, so this is
+   * always an opening estimate the farmer is expected to correct.
+   */
+  yieldNote?: string;
 }

@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { listCrops, getCrop } from "@/lib/crops";
-import { blankFarm, claimFarm, DEMO_FARM, hasFarm, loadFarm, saveFarm, switchCrop } from "@/lib/farm";
+import { estimatedQtlPerAcre, getCrop, listCrops } from "@/lib/crops";
+import { blankFarm, DEMO_FARM, hasFarm, loadFarm, loadFarms, saveFarm, switchCrop } from "@/lib/farm";
 import { placesIn, STATES, type Place } from "@/lib/places";
 import { loadSession, markOnboarded } from "@/lib/session";
 import type { Farm } from "@/lib/types";
@@ -26,15 +26,27 @@ export default function OnboardingPage() {
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState<string | null>(null);
   const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     if (!loadSession()) {
       router.replace("/login");
       return;
     }
-    // Editing an existing profile loads it; a first-time grower starts empty so
-    // no demo acreage or planting year leaks into their numbers.
-    setFarm(hasFarm() ? loadFarm() : blankFarm(loadSession()?.name ?? ""));
+    // Read from location rather than useSearchParams so the page needs no
+    // Suspense boundary during static export (which the Capacitor build uses).
+    const adding = new URLSearchParams(window.location.search).get("mode") === "add";
+    setIsAdding(adding);
+
+    const name = loadSession()?.name ?? "";
+    if (adding) {
+      // A second plot is usually beside the first, so carry the location over.
+      setFarm(blankFarm(name, hasFarm() ? loadFarm() : undefined));
+    } else {
+      // Editing an existing plot loads it; a first-time grower starts empty so
+      // no demo acreage or planting year leaks into their numbers.
+      setFarm(hasFarm() ? loadFarm() : blankFarm(name));
+    }
   }, [router]);
 
   const crops = useMemo(() => listCrops(), []);
@@ -111,7 +123,7 @@ export default function OnboardingPage() {
       return;
     }
     const session = loadSession();
-    saveFarm(claimFarm(farm!, session?.name ?? farm!.ownerName));
+    saveFarm({ ...farm!, ownerName: session?.name ?? farm!.ownerName });
     markOnboarded();
     router.push("/");
   }
@@ -132,9 +144,13 @@ export default function OnboardingPage() {
 
       {step === "crop" && (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">What do you grow?</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {isAdding ? "Add another crop" : "What do you grow?"}
+          </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
-            Pick your main crop. You can change it later.
+            {isAdding
+              ? "This is saved as a separate plot, with its own stock and expenses."
+              : "Pick your main crop. You can change it later."}
           </p>
 
           <input
@@ -167,6 +183,10 @@ export default function OnboardingPage() {
                     >
                       Full advice
                     </span>
+                  ) : c.depth === "partial" ? (
+                    <span className="shrink-0 text-[11px]" style={{ color: "var(--ink-soft)" }}>
+                      No disease rules
+                    </span>
                   ) : (
                     <span className="shrink-0 text-[11px]" style={{ color: "var(--ink-soft)" }}>
                       Prices only
@@ -178,9 +198,12 @@ export default function OnboardingPage() {
           </ul>
 
           <p className="mt-4 text-xs leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-            <strong>Full advice</strong> crops get irrigation timing, disease and spray windows.
-            <strong> Prices only</strong> crops get mandi prices, selling advice and your cost book —
-            disease rules for them have not been written yet.
+            <strong>Full advice</strong> crops get irrigation timing plus disease and spray
+            windows. <strong>No disease rules</strong> crops get watering cycles and a harvest
+            estimate, but no spray warnings — often because the main threat is an insect or a
+            dry-weather mildew, which these rules cannot detect.
+            <strong> Prices only</strong> crops get mandi prices, selling advice and your cost
+            book. Every crop gets live prices.
           </p>
         </>
       )}
@@ -336,6 +359,27 @@ export default function OnboardingPage() {
                 </span>
               </label>
             )}
+
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
+                Expected harvest (quintals per acre)
+              </span>
+              <input
+                inputMode="decimal"
+                value={farm.expectedQtlPerAcre ?? ""}
+                placeholder={`About ${estimatedQtlPerAcre(crop)} for ${crop.name.en.toLowerCase()}`}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  update("expectedQtlPerAcre", e.target.value === "" || !Number.isFinite(v) ? undefined : v);
+                }}
+                className="w-full rounded-xl border px-3 text-base"
+                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--ink)" }}
+              />
+              <span className="mt-1.5 block text-xs leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+                Leave blank to use our estimate.{crop.yieldNote ? ` ${crop.yieldNote}` : ""} Your own
+                figure from last year is always better than ours.
+              </span>
+            </label>
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>

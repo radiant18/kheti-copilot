@@ -21,7 +21,11 @@ export function buildPlan(
 ): FarmPlan {
   const crop = getCrop(farm.cropId);
   const price = referencePrice(farm, market);
-  const expectedQtl = harvestOutlook(crop, farm.plantedYear, farm.plantedOn, today).qtlPerAcre * farm.acres;
+  // The rupee figure on a spray warning is only as good as the yield behind it,
+  // so the farmer's own number wins here too.
+  const expectedQtl =
+    harvestOutlook(crop, farm.plantedYear, farm.plantedOn, today, farm.expectedQtlPerAcre)
+      .qtlPerAcre * farm.acres;
 
   const recommendations: Recommendation[] = [
     ...agronomyPlan(farm, crop, wx, price, expectedQtl, today),

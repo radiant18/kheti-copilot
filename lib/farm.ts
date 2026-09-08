@@ -3,15 +3,22 @@
 import type { CostEntry, Farm } from "./types";
 
 /**
- * Offline-first local store.
+ * Offline-first local store for a grower's plots.
  *
- * Farmers work in patchy 4G, often under canopy, so the farm profile, cost book
- * and last-known plan all live in localStorage and the app renders fully without
- * a network. Server sync is a later concern; nothing here blocks on it.
+ * A farmer rarely grows one thing. Coastal gardens carry arecanut with pepper
+ * on the standards and cocoa underneath; a Kolar farmer runs tomato and ragi in
+ * different blocks. Each plot is its own Farm with its own crop, acreage,
+ * planting date, stock and cost book, and one of them is active at a time.
+ *
+ * Everything lives in localStorage: gardens sit under canopy on patchy 4G, so
+ * the app has to render fully with no network. Server sync is a later concern.
  */
 
-const FARM_KEY = "kheti.farm.v2";
+const FARMS_KEY = "kheti.farms.v1";
+const ACTIVE_KEY = "kheti.activeFarm.v1";
 const COSTS_KEY = "kheti.costs.v1";
+/** Pre-multi-plot key, migrated on first read and then left alone. */
+const LEGACY_FARM_KEY = "kheti.farm.v2";
 
 /** A realistic Dakshina Kannada arecanut garden, for first run and demos. */
 export const DEMO_FARM: Farm = {
@@ -59,80 +66,120 @@ function write(key: string, value: unknown): void {
   }
 }
 
-/**
- * An empty farm for somebody signing up for the first time.
- *
- * Onboarding must NOT start from DEMO_FARM. Seeding a new grower with the
- * demo's 3 acres planted in 2014 told the engine they owned a mature bearing
- * plantation, and the app duly projected lakhs of revenue to a farmer who had
- * just put seedlings in the ground. Blank fields that must be filled are the
- * only honest default.
- */
-export function blankFarm(ownerName = ""): Farm {
+/** An empty plot for somebody adding their first, or another, crop. */
+export function blankFarm(ownerName = "", template?: Farm): Farm {
   return {
     id: "new",
     ownerName,
     cropId: "arecanut",
-    lat: 0,
-    lon: 0,
-    village: "",
-    district: "",
-    state: "Karnataka",
+    // A second plot is nearly always near the first, so inherit the location
+    // and let the farmer change it rather than making them find it again.
+    lat: template?.lat ?? 0,
+    lon: template?.lon ?? 0,
+    village: template?.village ?? "",
+    district: template?.district ?? "",
+    state: template?.state ?? "Karnataka",
     acres: 0,
     plantedYear: 0,
     irrigation: "sprinkler",
-    soil: "laterite",
-    lang: "en",
+    soil: template?.soil ?? "laterite",
+    lang: template?.lang ?? "en",
     stockQtl: {},
     lastSprayAt: {},
   };
 }
 
-/** True once a farm profile has actually been saved on this device. */
-export function hasFarm(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(FARM_KEY) !== null;
-  } catch {
-    return false;
+/**
+ * Read all plots, migrating a single pre-existing farm into the collection.
+ * The legacy key is left in place rather than deleted, so a downgrade or a
+ * half-finished migration cannot lose somebody's only farm.
+ */
+export function loadFarms(): Farm[] {
+  const farms = read<Farm[]>(FARMS_KEY, []);
+  if (farms.length > 0) return farms;
+
+  const legacy = read<Farm | null>(LEGACY_FARM_KEY, null);
+  if (legacy) {
+    write(FARMS_KEY, [legacy]);
+    write(ACTIVE_KEY, legacy.id);
+    return [legacy];
   }
+  return [];
 }
 
-export const loadFarm = (): Farm => read(FARM_KEY, DEMO_FARM);
-export const saveFarm = (farm: Farm): void => write(FARM_KEY, farm);
-/**
- * The seeded cost book belongs to the demo garden only. A farmer who has just
- * completed onboarding starts empty — inheriting somebody else's ₹1.34 lakh of
- * arecanut expenses would poison every number on the profit screen.
- */
-export const loadCosts = (): CostEntry[] =>
-  read(COSTS_KEY, loadFarm().id === "demo" ? DEMO_COSTS : []);
-export const saveCosts = (costs: CostEntry[]): void => write(COSTS_KEY, costs);
+export function saveFarms(farms: Farm[]): void {
+  write(FARMS_KEY, farms);
+}
 
-/** Turn the pre-filled demo profile into this farmer's own farm. */
-export function claimFarm(farm: Farm, ownerName: string): Farm {
-  if (farm.id !== "demo" && farm.id !== "new") return farm;
-  return { ...farm, id: `farm-${Date.now().toString(36)}`, ownerName };
+/** True once at least one plot has been set up on this device. */
+export function hasFarm(): boolean {
+  return loadFarms().length > 0;
+}
+
+export function activeFarmId(): string | null {
+  const farms = loadFarms();
+  if (farms.length === 0) return null;
+  const stored = read<string | null>(ACTIVE_KEY, null);
+  return farms.some((f) => f.id === stored) ? stored : farms[0].id;
+}
+
+export function setActiveFarm(id: string): void {
+  write(ACTIVE_KEY, id);
+}
+
+/** The plot every screen is currently showing. Falls back to the demo garden. */
+export function loadFarm(): Farm {
+  const farms = loadFarms();
+  if (farms.length === 0) return DEMO_FARM;
+  return farms.find((f) => f.id === activeFarmId()) ?? farms[0];
+}
+
+/** Insert or update a plot, and make it the active one. */
+export function saveFarm(farm: Farm): Farm {
+  const farms = loadFarms();
+  const stored: Farm =
+    farm.id === "new" || farm.id === "demo"
+      ? { ...farm, id: `farm-${Date.now().toString(36)}` }
+      : farm;
+
+  const index = farms.findIndex((f) => f.id === stored.id);
+  if (index >= 0) farms[index] = stored;
+  else farms.push(stored);
+
+  saveFarms(farms);
+  setActiveFarm(stored.id);
+  return stored;
+}
+
+/** Remove a plot and everything recorded against it. */
+export function removeFarm(id: string): void {
+  saveFarms(loadFarms().filter((f) => f.id !== id));
+  saveAllCosts(loadAllCosts().filter((c) => c.farmId !== id));
+  const remaining = loadFarms();
+  if (remaining.length > 0) setActiveFarm(remaining[0].id);
+}
+
+export const loadAllCosts = (): CostEntry[] =>
+  read(COSTS_KEY, hasFarm() ? [] : DEMO_COSTS);
+
+export const saveAllCosts = (costs: CostEntry[]): void => write(COSTS_KEY, costs);
+
+/**
+ * Costs for the active plot only. Expenses belong to a block, not a person —
+ * showing an arecanut garden's labour bill against a tomato plot would make
+ * both profit figures meaningless.
+ */
+export function loadCosts(): CostEntry[] {
+  const id = loadFarm().id;
+  return loadAllCosts().filter((c) => c.farmId === id);
 }
 
 export function addCost(entry: Omit<CostEntry, "id">): CostEntry[] {
-  const next = [...loadCosts(), { ...entry, id: `c${Date.now()}` }];
-  saveCosts(next);
-  return next;
+  saveAllCosts([...loadAllCosts(), { ...entry, id: `c${Date.now()}` }]);
+  return loadCosts();
 }
 
-/**
- * Switching crop invalidates stock and spray history — they were grades and
- * diseases belonging to the old crop. Clearing them is the honest move; keeping
- * "12 qtl of Rashi" against a tomato farm would produce confident nonsense.
- */
-/**
- * Wipe every trace of this device's farm — profile, cost book, cached plans and
- * the recorded price history. Used by "Delete farm data" in Settings, which is
- * why it is deliberately thorough: a half-cleared store would leave the next
- * sign-in reading a previous farm's numbers, which is the class of bug that put
- * a mature plantation's revenue in front of a new grower.
- */
+/** Wipe every plot and everything recorded against them. */
 export function clearFarmData(): void {
   if (typeof window === "undefined") return;
   try {
@@ -142,11 +189,17 @@ export function clearFarmData(): void {
       }
     }
   } catch {
-    /* nothing we can do, and nothing depends on it succeeding */
+    /* nothing depends on this succeeding */
   }
 }
 
+/**
+ * Changing a plot's crop invalidates its stock and spray history — those were
+ * grades and diseases belonging to the old crop. Clearing them is the honest
+ * move; carrying "12 qtl of Rashi" onto a tomato plot produces confident
+ * nonsense on the sell screen.
+ */
 export function switchCrop(farm: Farm, cropId: string): Farm {
   if (farm.cropId === cropId) return farm;
-  return { ...farm, cropId, stockQtl: {}, lastSprayAt: {}, plantedOn: undefined };
+  return { ...farm, cropId, stockQtl: {}, lastSprayAt: {}, plantedOn: undefined, expectedQtlPerAcre: undefined };
 }

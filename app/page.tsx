@@ -1,20 +1,24 @@
 "use client";
 
+import Link from "next/link";
+
 import { ActionCard } from "@/components/ActionCard";
 import { WeatherStrip } from "@/components/WeatherStrip";
 import { getCrop } from "@/lib/crops";
 import { harvestNote } from "@/components/HarvestNote";
-import { loadFarm } from "@/lib/farm";
+import { loadFarm, loadFarms } from "@/lib/farm";
 import { usePlan } from "@/lib/use-plan";
 import { useEffect, useState } from "react";
 
 export default function TodayPage() {
   const { plan, stale, loading, refresh } = usePlan();
   const [farmName, setFarmName] = useState("");
+  const [plotCount, setPlotCount] = useState(1);
 
   useEffect(() => {
     const f = loadFarm();
     setFarmName(`${getCrop(f.cropId).name.en} · ${f.acres} ${f.acres === 1 ? "acre" : "acres"} · ${f.village}`);
+    setPlotCount(loadFarms().length);
   }, []);
 
   const today = new Date().toLocaleDateString("en-IN", {
@@ -29,7 +33,18 @@ export default function TodayPage() {
         <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{today}</p>
         <h1 className="mt-0.5 text-2xl font-bold tracking-tight">Your farm today</h1>
         {farmName && (
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>{farmName}</p>
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
+            {farmName}
+            {/* With more than one plot on the phone, say which one this is about. */}
+            {plotCount > 1 && (
+              <>
+                {" · "}
+                <Link href="/settings" style={{ color: "var(--accent)" }}>
+                  switch crop
+                </Link>
+              </>
+            )}
+          </p>
         )}
       </header>
 

@@ -28,6 +28,12 @@ export interface Farm {
   /** Year planted. Coarse, but enough for a perennial's age in years. */
   plantedYear: number;
   /**
+   * The farmer's own expected yield in quintals per acre, overriding the
+   * registry estimate. Registry figures are national ballparks; the grower
+   * knows what their block actually gives. Undefined means use the estimate.
+   */
+  expectedQtlPerAcre?: number;
+  /**
    * Exact planting/sowing date, ISO. Required to be useful for seasonal crops:
    * a banana sucker takes ~11 months to its first bunch, so a year alone cannot
    * tell us whether this farm has a harvest coming or one already in hand.

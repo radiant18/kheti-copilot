@@ -3,8 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getCrop } from "@/lib/crops";
-import { clearFarmData, hasFarm, loadFarm } from "@/lib/farm";
+import { getCrop, harvestOutlook } from "@/lib/crops";
+import {
+  activeFarmId,
+  clearFarmData,
+  loadFarms,
+  removeFarm,
+  setActiveFarm,
+} from "@/lib/farm";
 import { loadSession, signOut, type Session } from "@/lib/session";
 import type { Farm } from "@/lib/types";
 
@@ -18,13 +24,31 @@ import type { Farm } from "@/lib/types";
 export default function SettingsPage() {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
-  const [farm, setFarm] = useState<Farm | null>(null);
+  const [farms, setFarms] = useState<Farm[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [confirmingPlot, setConfirmingPlot] = useState<string | null>(null);
+
+  function refresh() {
+    setFarms(loadFarms());
+    setActiveId(activeFarmId());
+  }
 
   useEffect(() => {
     setSession(loadSession());
-    if (hasFarm()) setFarm(loadFarm());
+    refresh();
   }, []);
+
+  function choosePlot(id: string) {
+    setActiveFarm(id);
+    setActiveId(id);
+  }
+
+  function deletePlot(id: string) {
+    removeFarm(id);
+    setConfirmingPlot(null);
+    refresh();
+  }
 
   function logOut() {
     signOut();
@@ -38,7 +62,6 @@ export default function SettingsPage() {
   }
 
   if (!session) return null;
-  const crop = farm ? getCrop(farm.cropId) : null;
 
   return (
     <main className="py-5">
@@ -49,39 +72,145 @@ export default function SettingsPage() {
         <Row label="Mobile" value={`+91 ${session.phone}`} />
       </Section>
 
-      {farm && crop ? (
-        <Section title="Your farm">
-          <Row label="Crop" value={`${crop.name.en} · ${crop.name.kn}`} />
-          <Row label="Area" value={`${farm.acres} ${farm.acres === 1 ? "acre" : "acres"}`} />
-          <Row
-            label={crop.yield.kind === "perennial" ? "Planted" : "Sown"}
-            value={crop.yield.kind === "perennial" ? String(farm.plantedYear) : (farm.plantedOn ?? "—")}
-          />
-          <Row label="Location" value={farm.village ? `${farm.village}, ${farm.district}` : "—"} />
-          <Row label="Watering" value={farm.irrigation} caps />
+      <section className="mt-6">
+        <h2
+          className="mb-2 text-xs font-semibold uppercase tracking-wide"
+          style={{ color: "var(--ink-soft)" }}
+        >
+          Your crops
+        </h2>
 
-          <Link
-            href="/onboarding"
-            className="mt-3 block rounded-xl border px-4 py-3 text-center font-semibold"
-            style={{ borderColor: "var(--border)", color: "var(--accent)" }}
+        {farms.length === 0 ? (
+          <div
+            className="rounded-2xl border p-4"
+            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
           >
-            Edit farm details
-          </Link>
-        </Section>
-      ) : (
-        <Section title="Your farm">
-          <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
-            No farm set up on this phone yet.
-          </p>
+            <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
+              No crop set up on this phone yet.
+            </p>
+            <Link
+              href="/onboarding"
+              className="mt-3 block rounded-xl px-4 py-3 text-center font-semibold"
+              style={{ background: "var(--accent)", color: "var(--bg)" }}
+            >
+              Set up my first crop
+            </Link>
+          </div>
+        ) : (
+          <ul className="space-y-3">
+            {farms.map((f) => {
+              const crop = getCrop(f.cropId);
+              const outlook = harvestOutlook(
+                crop,
+                f.plantedYear,
+                f.plantedOn,
+                new Date(),
+                f.expectedQtlPerAcre,
+              );
+              const active = f.id === activeId;
+              return (
+                <li
+                  key={f.id}
+                  className="rounded-2xl border p-4"
+                  style={{
+                    borderColor: active ? "var(--accent)" : "var(--border)",
+                    background: active ? "var(--accent-soft)" : "var(--surface)",
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold">
+                        {crop.name.en} · {crop.name.kn}
+                      </h3>
+                      <p className="mt-0.5 text-sm" style={{ color: "var(--ink-soft)" }}>
+                        {f.acres} {f.acres === 1 ? "acre" : "acres"}
+                        {f.village ? ` · ${f.village}` : ""}
+                      </p>
+                      <p className="mt-0.5 text-sm" style={{ color: "var(--ink-soft)" }}>
+                        {outlook.bearing
+                          ? `${Math.round(outlook.qtlPerAcre * f.acres * 10) / 10} qtl expected`
+                          : `Not bearing yet — around ${outlook.firstHarvestOn ?? "unknown"}`}
+                      </p>
+                    </div>
+                    {active ? (
+                      <span
+                        className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                        style={{ color: "var(--accent)", border: "1px solid var(--accent)" }}
+                      >
+                        Showing
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => choosePlot(f.id)}
+                        className="shrink-0 rounded-xl border px-3 py-1.5 text-sm font-semibold"
+                        style={{ borderColor: "var(--border)", color: "var(--accent)" }}
+                      >
+                        Show this
+                      </button>
+                    )}
+                  </div>
+
+                  {confirmingPlot === f.id ? (
+                    <div className="mt-3">
+                      <p className="text-sm font-semibold">
+                        Remove this {crop.name.en.toLowerCase()} plot?
+                      </p>
+                      <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
+                        Its stock and expenses go with it. This cannot be undone.
+                      </p>
+                      <div className="mt-2 flex gap-2">
+                        <button
+                          onClick={() => setConfirmingPlot(null)}
+                          className="flex-1 rounded-xl border px-3 py-2 text-sm font-semibold"
+                          style={{ borderColor: "var(--border)", color: "var(--ink)" }}
+                        >
+                          Keep it
+                        </button>
+                        <button
+                          onClick={() => deletePlot(f.id)}
+                          className="flex-1 rounded-xl px-3 py-2 text-sm font-semibold"
+                          style={{ background: "var(--urgent)", color: "var(--bg)" }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="mt-3 flex gap-4 border-t pt-3 text-sm font-semibold"
+                      style={{ borderColor: "var(--border)" }}
+                    >
+                      <Link
+                        href="/onboarding"
+                        onClick={() => choosePlot(f.id)}
+                        style={{ color: "var(--accent)" }}
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => setConfirmingPlot(f.id)}
+                        style={{ color: "var(--urgent)" }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {farms.length > 0 && (
           <Link
-            href="/onboarding"
-            className="mt-3 block rounded-xl px-4 py-3 text-center font-semibold"
-            style={{ background: "var(--accent)", color: "var(--bg)" }}
+            href="/onboarding?mode=add"
+            className="mt-3 block rounded-xl border border-dashed px-4 py-3 text-center font-semibold"
+            style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
           >
-            Set up my farm
+            + Add another crop
           </Link>
-        </Section>
-      )}
+        )}
+      </section>
 
       <Section title="About">
         <p className="text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>

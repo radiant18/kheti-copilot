@@ -85,6 +85,13 @@ export function harvestOutlook(
   plantedYear: number,
   plantedOn?: string,
   today = new Date(),
+  /**
+   * The grower's own quintals-per-acre. Always wins over the registry figure,
+   * which is a national ballpark that can be out by a factor of three on any
+   * particular block. It does not override *timing*: an override cannot make a
+   * crop bear before it is planted or ripe.
+   */
+  overrideQtlPerAcre?: number,
 ): HarvestOutlook {
   if (crop.yield.kind === "seasonal") {
     const { qtlPerAcre, cycleDays } = crop.yield;
@@ -99,7 +106,7 @@ export function harvestOutlook(
     const harvestAt = new Date(sown + cycleDays * 86_400_000);
     const bearing = today.getTime() >= harvestAt.getTime();
     return {
-      qtlPerAcre: bearing ? qtlPerAcre : 0,
+      qtlPerAcre: bearing ? (overrideQtlPerAcre ?? qtlPerAcre) : 0,
       bearing,
       firstHarvestOn: harvestAt.toISOString().slice(0, 10),
     };
@@ -118,14 +125,21 @@ export function harvestOutlook(
     value = Math.max(value * 0.3, value - (age - declineFromAge) * declinePerYear);
   }
 
+  const bearing = value > 0;
   return {
-    qtlPerAcre: value,
-    bearing: value > 0,
-    firstHarvestOn: value > 0 ? null : String(plantedYear + firstBearingAge),
+    qtlPerAcre: bearing ? (overrideQtlPerAcre ?? value) : 0,
+    bearing,
+    firstHarvestOn: bearing ? null : String(plantedYear + firstBearingAge),
   };
 }
 
 /** Convenience wrapper for callers that only need the number. */
+/** The registry's estimate for a mature/complete crop, ignoring timing. */
+export function estimatedQtlPerAcre(crop: CropConfig): number {
+  if (crop.yield.kind === "seasonal") return crop.yield.qtlPerAcre;
+  return crop.yield.curve.reduce((max, p) => Math.max(max, p.qtlPerAcre), 0);
+}
+
 export function yieldPerAcre(
   crop: CropConfig,
   plantedYear: number,

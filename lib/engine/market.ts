@@ -215,7 +215,13 @@ export function referencePrice(farm: Farm, market: MarketView | null): number {
 
 export function economics(farm: Farm, market: MarketView | null, costs: number): Economics {
   const crop = getCrop(farm.cropId);
-  const outlook = harvestOutlook(crop, farm.plantedYear, farm.plantedOn);
+  const outlook = harvestOutlook(
+    crop,
+    farm.plantedYear,
+    farm.plantedOn,
+    new Date(),
+    farm.expectedQtlPerAcre,
+  );
   const yieldQtl = outlook.qtlPerAcre * farm.acres;
   const price = referencePrice(farm, market);
   const revenue = Math.round(yieldQtl * price);
