@@ -90,10 +90,28 @@ export default function MarketPage() {
         >
           {market.source === "unconfigured" ? (
             <>
-              Market prices are not switched on. The app needs a free
-              data.gov.in API key in <code>DATA_GOV_API_KEY</code> before it can read the
-              Agmarknet board — until then it will not show prices for any crop except the
-              bundled arecanut sample.
+              <strong className="block text-base">Market prices are not switched on</strong>
+              <span className="mt-1 block">
+                Prices come from Agmarknet, the government&apos;s daily mandi board. It is
+                free, but it needs a key. This takes about two minutes and only has to be
+                done once.
+              </span>
+              <ol className="mt-3 list-decimal space-y-1 pl-5">
+                <li>
+                  Open <strong>data.gov.in</strong> and sign in (registering is free).
+                </li>
+                <li>
+                  Go to <strong>My Account → API key</strong> and copy it.
+                </li>
+                <li>
+                  Put it in <code>.env.local</code> as{" "}
+                  <code>DATA_GOV_API_KEY=your_key</code> and restart the app.
+                </li>
+              </ol>
+              <span className="mt-3 block">
+                Until then, no crop will show prices — the arecanut figures elsewhere in the
+                app are a bundled sample from 7 September, not today&apos;s board.
+              </span>
             </>
           ) : (
             <>
