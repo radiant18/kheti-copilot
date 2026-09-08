@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:mobile": "MOBILE_BUILD=1 next build",
+    "build:mobile": "node scripts/build-mobile.mjs",
     "sync:mobile": "npm run build:mobile && cap sync",
     "typecheck": "tsc --noEmit"
   },

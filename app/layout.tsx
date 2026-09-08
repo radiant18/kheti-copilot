@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Noto_Sans_Devanagari, Noto_Sans_Kannada } from "next/font/google";
 import { AppGate } from "@/components/AppGate";
 import { BottomNav } from "@/components/BottomNav";
+import { ServiceWorker } from "@/components/ServiceWorker";
 import "./globals.css";
 
 /**
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sans.variable} ${devanagari.variable} ${kannada.variable}`}>
       <body>
+        <ServiceWorker />
         <AppGate>
           <div className="mx-auto min-h-[100svh] w-full max-w-[30rem] px-5">{children}</div>
           <BottomNav />
