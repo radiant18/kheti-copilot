@@ -1,83 +1,62 @@
+import type { CropConfig, DiseaseRule } from "../crops";
 import type { DayWeather, Farm, Recommendation, WeatherWindow } from "../types";
 
 /**
- * Agronomic rules for arecanut in coastal Karnataka.
+ * Weather-driven agronomy, generalised across crops.
  *
- * These are deliberately deterministic. The LLM layer never decides anything —
- * it only translates and explains what these functions returned. That is the
- * difference between an advisory the farmer can trust with a Bordeaux spray
- * schedule and a chatbot that hallucinates a fungicide dose.
+ * Nothing here knows what crop it is looking at — it reads thresholds off the
+ * CropConfig. Adding a crop means adding data to the registry, never editing
+ * this file. The rules stay deterministic on purpose: an LLM may translate a
+ * recommendation, but a hallucinated fungicide dose is a destroyed crop, so the
+ * model never originates one.
  *
- * Thresholds follow ICAR-CPCRI / Directorate of Arecanut & Spices practice for
- * the Dakshina Kannada / Uttara Kannada belt and should be reviewed with an
- * agronomist before any real farmer sees them.
+ * Thresholds in the registry follow published extension practice and are
+ * pending review by an agronomist.
  */
-
-/** Rain in the next 48h above this makes irrigation a waste of diesel. */
-const RAIN_SKIP_IRRIGATION_MM = 10;
-
-/** Days between irrigations, by delivery method, in the dry season. */
-const IRRIGATION_INTERVAL_DAYS: Record<Farm["irrigation"], number> = {
-  drip: 3,
-  sprinkler: 6,
-  flood: 8,
-  rainfed: Number.POSITIVE_INFINITY,
-};
-
-/** Koleroga (Phytophthora meadii) needs a wet, warm, humid stretch to take hold. */
-const KOLEROGA = {
-  humidityPct: 90,
-  tempMinC: 20,
-  tempMaxC: 30,
-  /** Consecutive wet days before risk is meaningful. */
-  wetDays: 3,
-  /** A Bordeaux spray needs this many dry hours to dry on the bunch. */
-  sprayDryHours: 6,
-  /** Protection lasts roughly this long, then it must be repeated. */
-  protectionDays: 40,
-};
-
-const MONSOON_MONTHS = new Set([5, 6, 7, 8, 9]); // Jun–Oct, 0-indexed
 
 function daysBetween(a: string, b: string): number {
   return Math.floor((Date.parse(b) - Date.parse(a)) / 86_400_000);
 }
 
-function rainNextHours(days: DayWeather[], count: number): number {
+function rainOver(days: DayWeather[], count: number): number {
   return days.slice(0, count).reduce((sum, d) => sum + d.rainMm, 0);
 }
 
-export function irrigationAdvice(farm: Farm, wx: WeatherWindow, today = new Date()): Recommendation {
-  const rain48 = rainNextHours(wx.days, 2);
+export function irrigationAdvice(
+  farm: Farm,
+  crop: CropConfig,
+  wx: WeatherWindow,
+  today = new Date(),
+): Recommendation {
+  const rain48 = rainOver(wx.days, 2);
+  const { intervalDays, rainSkipMm } = crop.irrigation;
 
   if (farm.irrigation === "rainfed") {
     return {
       id: "irrigation",
       icon: "💧",
       severity: "info",
-      title: "Rainfed garden — nothing to irrigate",
+      title: "Rainfed — nothing to irrigate",
       why: `${rain48.toFixed(0)} mm of rain expected over the next 2 days.`,
     };
   }
 
-  if (rain48 >= RAIN_SKIP_IRRIGATION_MM) {
-    // Diesel/electricity saved is the concrete win the farmer feels.
+  if (rain48 >= rainSkipMm) {
+    // Diesel and pump time saved is the concrete win the farmer feels.
     const saved = Math.round(farm.acres * 180);
     return {
       id: "irrigation",
       icon: "💧",
       severity: "act",
       title: "Do not irrigate today",
-      why: `${rain48.toFixed(0)} mm of rain is expected in the next 48 hours — that is more than your garden needs.`,
+      why: `${rain48.toFixed(0)} mm of rain is expected in the next 48 hours — more than your ${crop.name.en.toLowerCase()} needs.`,
       rupeeImpact: saved,
       window: "Today",
     };
   }
 
-  const interval = IRRIGATION_INTERVAL_DAYS[farm.irrigation];
-  const since = farm.lastIrrigatedAt
-    ? daysBetween(farm.lastIrrigatedAt, today.toISOString())
-    : interval;
+  const interval = intervalDays[farm.irrigation];
+  const since = farm.lastIrrigatedAt ? daysBetween(farm.lastIrrigatedAt, today.toISOString()) : interval;
   const due = interval - since;
 
   if (due <= 0) {
@@ -86,7 +65,7 @@ export function irrigationAdvice(farm: Farm, wx: WeatherWindow, today = new Date
       icon: "💧",
       severity: "act",
       title: "Irrigate today",
-      why: `${since} days since your last irrigation and only ${rain48.toFixed(0)} mm of rain is expected. Your ${farm.irrigation} system is on a ${interval}-day cycle.`,
+      why: `${since} days since your last irrigation and only ${rain48.toFixed(0)} mm of rain is expected. Your ${farm.irrigation} system is on a ${interval}-day cycle for ${crop.name.en.toLowerCase()}.`,
       window: "Today",
     };
   }
@@ -103,103 +82,133 @@ export function irrigationAdvice(farm: Farm, wx: WeatherWindow, today = new Date
 }
 
 /**
- * The single most valuable output of this product.
+ * The highest-value recommendation the app makes.
  *
- * Koleroga can take 30–50% of a coastal arecanut crop in a bad monsoon, and the
- * only defence is prophylactic Bordeaux mixture applied *before* the infection
- * window and given time to dry. Farmers routinely lose sprays to rain returning
- * two hours later. Government portals publish rainfall; none of them tell you
- * "spray Thursday between 9am and 3pm."
+ * A protective spray needs a dry spell to be applied and to set. Farmers
+ * routinely lose sprays to rain returning two hours later. Public portals
+ * publish rainfall; none of them say "Thursday, roughly nine dry hours."
  */
-export function korelogaAdvice(farm: Farm, wx: WeatherWindow, today = new Date()): Recommendation {
-  const inMonsoon = MONSOON_MONTHS.has(today.getMonth());
+export function diseaseAdvice(
+  farm: Farm,
+  crop: CropConfig,
+  rule: DiseaseRule,
+  wx: WeatherWindow,
+  pricePerQtl: number,
+  expectedQtl: number,
+  today = new Date(),
+): Recommendation {
+  const inSeason = rule.months.includes(today.getMonth() + 1);
 
-  const wetStreak = wx.days.filter(
+  const wetDays = wx.days.filter(
     (d) =>
       d.rainMm > 2 &&
-      d.humidityMaxPct >= KOLEROGA.humidityPct &&
-      d.tempMinC >= KOLEROGA.tempMinC &&
-      d.tempMaxC <= KOLEROGA.tempMaxC,
+      d.humidityMaxPct >= rule.humidityPct &&
+      d.tempMinC >= rule.tempMinC &&
+      d.tempMaxC <= rule.tempMaxC,
   ).length;
 
-  const sinceSpray = farm.lastSprayAt ? daysBetween(farm.lastSprayAt, today.toISOString()) : 999;
-  const protectionLeft = KOLEROGA.protectionDays - sinceSpray;
+  const lastSpray = farm.lastSprayAt?.[rule.id];
+  const sinceSpray = lastSpray ? daysBetween(lastSpray, today.toISOString()) : Infinity;
+  const protectionLeft = rule.treatment.protectionDays - sinceSpray;
 
-  // Find the first day that offers a workable spray window.
-  const sprayDay = wx.days.find((d) => d.dryHours >= KOLEROGA.sprayDryHours);
+  const sprayDay = wx.days.find((d) => d.dryHours >= rule.treatment.dryHours);
+  const atRisk = inSeason && wetDays >= rule.wetDays;
+  const atStake = Math.round(expectedQtl * pricePerQtl * rule.lossShare);
 
-  const atRisk = inMonsoon && wetStreak >= KOLEROGA.wetDays;
-
-  if (protectionLeft > 7 && atRisk) {
+  if (atRisk && protectionLeft > 7) {
     return {
-      id: "koleroga",
+      id: rule.id,
       icon: "🌂",
       severity: "info",
-      title: "Koleroga conditions present — you are still protected",
-      why: `${wetStreak} wet days ahead with humidity above ${KOLEROGA.humidityPct}%, but your Bordeaux spray from ${sinceSpray} days ago still has about ${protectionLeft} days of cover left.`,
+      title: `${rule.name.en} conditions present — you are still protected`,
+      why: `${wetDays} wet days ahead with humidity above ${rule.humidityPct}%, but your spray from ${sinceSpray} days ago has about ${protectionLeft} days of cover left.`,
     };
   }
 
-  if (atRisk && protectionLeft <= 7) {
+  if (atRisk) {
     if (!sprayDay) {
       return {
-        id: "koleroga",
+        id: rule.id,
         icon: "🌂",
         severity: "urgent",
-        title: "Koleroga risk high — no dry window in the next 7 days",
-        why: `${wetStreak} days of wet, humid weather ahead and your last spray was ${sinceSpray === 999 ? "not recorded" : sinceSpray + " days ago"}. There is no ${KOLEROGA.sprayDryHours}-hour dry gap in the forecast. Cover the bunches if you can and watch for nut fall.`,
+        title: `${rule.name.en} risk high — no dry window in the next 7 days`,
+        why: `${wetDays} days of wet, humid weather ahead and ${Number.isFinite(sinceSpray) ? `your last spray was ${sinceSpray} days ago` : "no spray is recorded"}. There is no ${rule.treatment.dryHours}-hour dry gap in the forecast.`,
+        rupeeImpact: -atStake,
       };
     }
     const day = new Date(sprayDay.date);
+    const weekday = day.toLocaleDateString("en-IN", { weekday: "long" });
     return {
-      id: "koleroga",
+      id: rule.id,
       icon: "🌂",
       severity: "urgent",
-      title: `Spray Bordeaux 1% on ${day.toLocaleDateString("en-IN", { weekday: "long" })}`,
-      why: `Koleroga weather is setting in (${wetStreak} wet days, humidity above ${KOLEROGA.humidityPct}%) and your protection has run out. ${day.toLocaleDateString("en-IN", { weekday: "long" })} has about ${sprayDay.dryHours} dry hours — the only workable window this week.`,
-      // A lost crop share on a mature garden, valued conservatively.
-      rupeeImpact: Math.round(farm.acres * 9 * 30_000 * 0.3),
+      title: `Spray ${rule.treatment.name.en} on ${weekday}`,
+      why: `${rule.name.en} weather is setting in (${wetDays} wet days, humidity above ${rule.humidityPct}%) and your protection has run out. ${weekday} has about ${sprayDay.dryHours} dry hours — the only workable window this week.`,
+      rupeeImpact: -atStake,
       window: `${day.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}, roughly ${sprayDay.dryHours} dry hours`,
     };
   }
 
-  if (inMonsoon && protectionLeft <= 0) {
+  if (inSeason && protectionLeft <= 0) {
     return {
-      id: "koleroga",
+      id: rule.id,
       icon: "🌂",
       severity: "watch",
-      title: "Bordeaux cover has expired",
-      why:
-        sinceSpray === 999
-          ? "No prophylactic spray recorded this season. Standard practice is a 1% Bordeaux spray before the monsoon and again after about 40 days."
-          : `Your last spray was ${sinceSpray} days ago; cover lasts about ${KOLEROGA.protectionDays} days.`,
+      title: `${rule.treatment.name.en} cover has expired`,
+      why: Number.isFinite(sinceSpray)
+        ? `Your last spray was ${sinceSpray} days ago; cover lasts about ${rule.treatment.protectionDays} days.`
+        : `No protective spray recorded this season for ${rule.name.en.toLowerCase()}.`,
     };
   }
 
   return {
-    id: "koleroga",
+    id: rule.id,
     icon: "🌂",
     severity: "info",
-    title: "Koleroga risk low",
-    why: inMonsoon
-      ? `Only ${wetStreak} day(s) in the forecast meet the infection conditions.`
-      : "Outside the monsoon infection window.",
+    title: `${rule.name.en} risk low`,
+    why: inSeason
+      ? `Only ${wetDays} day(s) in the forecast meet the infection conditions.`
+      : `Outside the ${rule.name.en.toLowerCase()} season.`,
   };
 }
 
-/** Yellow Leaf Disease has no cure, so the product's job is early detection. */
-export function yldPrompt(farm: Farm): Recommendation {
-  const age = new Date().getFullYear() - farm.plantedYear;
+/** Crops with no curated rules say so, rather than pretending to advise. */
+export function coverageNote(crop: CropConfig): Recommendation {
   return {
-    id: "yld",
-    icon: "📸",
-    severity: "watch",
-    title: "Photograph any yellowing fronds",
-    why: `Yellow Leaf Disease is spreading through ${farm.district}. It cannot be cured, so the only thing that helps is catching it early enough to stop replanting into an infected block. Your garden is ${age} years old.`,
-    window: "Weekly",
+    id: "coverage",
+    icon: "📋",
+    severity: "info",
+    title: `No disease rules for ${crop.name.en.toLowerCase()} yet`,
+    why: "Market prices, irrigation timing and your cost book all work. Pest and disease advice needs this crop to be added to the registry — everything else on this screen is live.",
   };
 }
 
-export function agronomyPlan(farm: Farm, wx: WeatherWindow, today = new Date()): Recommendation[] {
-  return [irrigationAdvice(farm, wx, today), korelogaAdvice(farm, wx, today), yldPrompt(farm)];
+export function agronomyPlan(
+  farm: Farm,
+  crop: CropConfig,
+  wx: WeatherWindow,
+  pricePerQtl: number,
+  expectedQtl: number,
+  today = new Date(),
+): Recommendation[] {
+  const out: Recommendation[] = [irrigationAdvice(farm, crop, wx, today)];
+
+  for (const rule of crop.diseases) {
+    out.push(diseaseAdvice(farm, crop, rule, wx, pricePerQtl, expectedQtl, today));
+  }
+
+  if (crop.diseases.length === 0) out.push(coverageNote(crop));
+
+  if (crop.notes) {
+    out.push({
+      id: "crop-note",
+      icon: "📸",
+      severity: "watch",
+      title: `${crop.name.en}: worth knowing`,
+      why: crop.notes,
+      window: "Weekly",
+    });
+  }
+
+  return out;
 }

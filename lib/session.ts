@@ -1,0 +1,73 @@
+"use client";
+
+/**
+ * Local sign-in state.
+ *
+ * IMPORTANT: this is NOT authentication. It records a phone number on the
+ * device so the app knows whose farm to load and can skip onboarding on the
+ * next open. There is no server, no OTP, and no verification — anyone with the
+ * phone can open the app.
+ *
+ * The real thing, when there is a backend: send an OTP over SMS, verify it
+ * server-side, and exchange it for a session token stored in an httpOnly
+ * cookie on web and in secure storage on mobile. Until then, do not put
+ * anything sensitive behind this.
+ */
+
+const SESSION_KEY = "kheti.session.v1";
+
+export interface Session {
+  phone: string;
+  name: string;
+  signedInAt: string;
+  /** False until the farm profile wizard has been completed. */
+  onboarded: boolean;
+}
+
+export function loadSession(): Session | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as Session) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveSession(session: Session): void {
+  try {
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch {
+    // Private mode — the session lasts this tab only, which still works.
+  }
+}
+
+export function signIn(phone: string, name: string): Session {
+  const existing = loadSession();
+  const session: Session = {
+    phone,
+    name,
+    signedInAt: new Date().toISOString(),
+    onboarded: existing?.phone === phone ? existing.onboarded : false,
+  };
+  saveSession(session);
+  return session;
+}
+
+export function markOnboarded(): void {
+  const session = loadSession();
+  if (session) saveSession({ ...session, onboarded: true });
+}
+
+export function signOut(): void {
+  try {
+    window.localStorage.removeItem(SESSION_KEY);
+  } catch {
+    /* nothing to clear */
+  }
+}
+
+/** Indian mobile numbers: 10 digits starting 6-9. */
+export function isValidPhone(raw: string): boolean {
+  return /^[6-9]\d{9}$/.test(raw.replace(/\D/g, ""));
+}

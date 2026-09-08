@@ -5,32 +5,31 @@ import type { CostEntry, Farm } from "./types";
 /**
  * Offline-first local store.
  *
- * Farmers in the arecanut belt work in patchy 4G under a canopy, so the farm
- * profile, cost book and last-known plan all live in localStorage and the app
- * renders fully without a network. Server sync is a later concern; nothing here
- * blocks on it. Swap this module for an IndexedDB-backed store when the cost
- * book outgrows a few hundred rows.
+ * Farmers work in patchy 4G, often under canopy, so the farm profile, cost book
+ * and last-known plan all live in localStorage and the app renders fully without
+ * a network. Server sync is a later concern; nothing here blocks on it.
  */
 
-const FARM_KEY = "kheti.farm.v1";
+const FARM_KEY = "kheti.farm.v2";
 const COSTS_KEY = "kheti.costs.v1";
 
-/** A realistic Dakshina Kannada garden, used for first run and for demos. */
+/** A realistic Dakshina Kannada arecanut garden, for first run and demos. */
 export const DEMO_FARM: Farm = {
   id: "demo",
   ownerName: "Suresh Bhat",
+  cropId: "arecanut",
   lat: 12.7597,
   lon: 75.2,
   village: "Kabaka",
   district: "Dakshina Kannada",
+  state: "Karnataka",
   acres: 3,
   plantedYear: 2014,
-  grades: ["rashi", "hosa_chali"],
   irrigation: "sprinkler",
   soil: "laterite",
   lang: "en",
   lastIrrigatedAt: new Date(Date.now() - 7 * 86_400_000).toISOString(),
-  lastSprayAt: new Date(Date.now() - 44 * 86_400_000).toISOString(),
+  lastSprayAt: { koleroga: new Date(Date.now() - 44 * 86_400_000).toISOString() },
   stockQtl: { rashi: 12, hosa_chali: 5 },
 };
 
@@ -62,12 +61,33 @@ function write(key: string, value: unknown): void {
 
 export const loadFarm = (): Farm => read(FARM_KEY, DEMO_FARM);
 export const saveFarm = (farm: Farm): void => write(FARM_KEY, farm);
-export const loadCosts = (): CostEntry[] => read(COSTS_KEY, DEMO_COSTS);
+/**
+ * The seeded cost book belongs to the demo garden only. A farmer who has just
+ * completed onboarding starts empty — inheriting somebody else's ₹1.34 lakh of
+ * arecanut expenses would poison every number on the profit screen.
+ */
+export const loadCosts = (): CostEntry[] =>
+  read(COSTS_KEY, loadFarm().id === "demo" ? DEMO_COSTS : []);
 export const saveCosts = (costs: CostEntry[]): void => write(COSTS_KEY, costs);
 
+/** Turn the pre-filled demo profile into this farmer's own farm. */
+export function claimFarm(farm: Farm, ownerName: string): Farm {
+  if (farm.id !== "demo") return farm;
+  return { ...farm, id: `farm-${Date.now().toString(36)}`, ownerName };
+}
+
 export function addCost(entry: Omit<CostEntry, "id">): CostEntry[] {
-  const costs = loadCosts();
-  const next = [...costs, { ...entry, id: `c${Date.now()}` }];
+  const next = [...loadCosts(), { ...entry, id: `c${Date.now()}` }];
   saveCosts(next);
   return next;
+}
+
+/**
+ * Switching crop invalidates stock and spray history — they were grades and
+ * diseases belonging to the old crop. Clearing them is the honest move; keeping
+ * "12 qtl of Rashi" against a tomato farm would produce confident nonsense.
+ */
+export function switchCrop(farm: Farm, cropId: string): Farm {
+  if (farm.cropId === cropId) return farm;
+  return { ...farm, cropId, stockQtl: {}, lastSprayAt: {} };
 }

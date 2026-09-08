@@ -29,7 +29,7 @@ export default function ProfitPage() {
     const c = loadCosts();
     setCosts(c);
     const farm = loadFarm();
-    apiGet<MarketView>("/api/market")
+    apiGet<MarketView>("/api/market", { crop: farm.cropId, state: farm.state })
       .then((m) => setEcon(economics(farm, m, c.reduce((s, e) => s + e.amount, 0))))
       .catch(() => setEcon(economics(farm, null, c.reduce((s, e) => s + e.amount, 0))));
   }, []);
@@ -59,16 +59,29 @@ export default function ProfitPage() {
           className="mt-4 rounded-2xl border p-4"
           style={{ borderColor: "var(--border)", background: "var(--surface)" }}
         >
-          <Row label="Expected yield" value={`${econ.expectedYieldQtl} qtl`} />
-          <Row label="Expected revenue" value={`₹${econ.expectedRevenue.toLocaleString("en-IN")}`} />
-          <Row label="Costs so far" value={`−₹${econ.totalCosts.toLocaleString("en-IN")}`} />
-          <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--border)" }}>
-            <Row
-              label="Expected profit"
-              value={`₹${econ.expectedProfit.toLocaleString("en-IN")}`}
-              strong
-            />
-          </div>
+          {econ.yieldKnown && econ.priceKnown ? (
+            <>
+              <Row label="Expected yield" value={`${econ.expectedYieldQtl} qtl`} />
+              <Row label="Expected revenue" value={`₹${econ.expectedRevenue.toLocaleString("en-IN")}`} />
+              <Row label="Costs so far" value={`−₹${econ.totalCosts.toLocaleString("en-IN")}`} />
+              <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+                <Row
+                  label="Expected profit"
+                  value={`₹${econ.expectedProfit.toLocaleString("en-IN")}`}
+                  strong
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <Row label="Costs so far" value={`₹${econ.totalCosts.toLocaleString("en-IN")}`} strong />
+              <p className="mt-2 text-sm" style={{ color: "var(--ink-soft)" }}>
+                {econ.yieldKnown
+                  ? "No mandi price for this crop today, so revenue and profit cannot be worked out yet. Your costs are still tracked."
+                  : "This crop has no harvest estimate in the registry yet, so revenue and profit cannot be worked out. Your costs are still tracked."}
+              </p>
+            </>
+          )}
         </section>
       )}
 

@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { AppGate } from "@/components/AppGate";
 import { BottomNav } from "@/components/BottomNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Kheti — Arecanut Copilot",
+  title: "Kheti — Farm Copilot",
   description:
-    "Daily irrigation, koleroga spray and selling decisions for arecanut growers in coastal Karnataka.",
+    "Daily irrigation, spray and selling decisions for Indian farmers, priced in rupees.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Kheti" },
 };
@@ -26,8 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <div className="mx-auto max-w-lg px-4">{children}</div>
-        <BottomNav />
+        <AppGate>
+          <div className="mx-auto max-w-lg px-4">{children}</div>
+          <BottomNav />
+        </AppGate>
       </body>
     </html>
   );

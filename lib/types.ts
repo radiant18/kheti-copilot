@@ -1,40 +1,40 @@
-// Domain types for the arecanut farm copilot.
+// Domain types for the farm copilot.
 // Everything the engine reasons about is defined here so the rules stay pure
 // and testable — no fetching, no React, no I/O.
 
 export type Lang = "kn" | "en";
 
-/** Arecanut grades actually quoted at Karnataka APMCs (see Agmarknet varieties). */
-export type ArecaGrade =
-  | "rashi"
-  | "hosa_chali"
-  | "hale_chali"
-  | "chippu"
-  | "bilegotu"
-  | "cqca";
+/**
+ * A grade id, scoped to a crop. Curated crops declare theirs in the registry
+ * (arecanut has "rashi", "chippu"…); crops nobody has curated take whatever
+ * variety string the Agmarknet feed carries, slugified.
+ */
+export type Grade = string;
+
+export type IrrigationMethod = "drip" | "sprinkler" | "flood" | "rainfed";
 
 export interface Farm {
   id: string;
   ownerName: string;
+  /** Crop id from the registry — decides which rules run. */
+  cropId: string;
   lat: number;
   lon: number;
   village: string;
   district: string;
-  /** Area under arecanut, in acres. */
+  /** State, used to scope the mandi price query. */
+  state: string;
   acres: number;
-  /** Year the garden was planted — drives yield expectations. */
+  /** Year planted for perennials; year of sowing for seasonals. */
   plantedYear: number;
-  /** Grades this garden typically produces, best-first. */
-  grades: ArecaGrade[];
-  irrigation: "drip" | "sprinkler" | "flood" | "rainfed";
-  soil: "laterite" | "alluvial" | "red_loam";
+  irrigation: IrrigationMethod;
+  soil: "laterite" | "alluvial" | "red_loam" | "black" | "sandy";
   lang: Lang;
-  /** Last time the farmer told us they irrigated (ISO date). */
   lastIrrigatedAt?: string;
-  /** Last prophylactic Bordeaux spray (ISO date). */
-  lastSprayAt?: string;
+  /** Last protective spray, per disease id. */
+  lastSprayAt?: Record<string, string>;
   /** Unsold stock on hand, by grade, in quintals. */
-  stockQtl: Partial<Record<ArecaGrade, number>>;
+  stockQtl: Record<Grade, number>;
 }
 
 export interface DayWeather {
@@ -43,79 +43,65 @@ export interface DayWeather {
   tempMaxC: number;
   tempMinC: number;
   humidityMaxPct: number;
-  /** Hours in the day with no rain and humidity under the spray threshold. */
+  /** Daylight hours with no rain and humidity low enough to spray. */
   dryHours: number;
 }
 
 export interface WeatherWindow {
   updatedAt: string;
   days: DayWeather[];
-  /** Rolling rain over the previous 7 days, from the archive endpoint. */
   past7dRainMm: number;
 }
 
 export interface MandiQuote {
   market: string;
   district: string;
-  grade: ArecaGrade;
-  /** Modal price in rupees per quintal. */
+  grade: Grade;
   modalPerQtl: number;
   minPerQtl: number;
   maxPerQtl: number;
   date: string;
-  /** Straight-line distance from the farm, km. */
   distanceKm?: number;
 }
 
 export interface MarketView {
   updatedAt: string;
   quotes: MandiQuote[];
-  /** Modal price per grade averaged across the state, for trend context. */
-  stateModal: Partial<Record<ArecaGrade, number>>;
-  /** Percent change in state modal vs 7 days ago, per grade. */
-  weekChangePct: Partial<Record<ArecaGrade, number>>;
+  stateModal: Record<Grade, number>;
+  weekChangePct: Record<Grade, number>;
   /** True when these are bundled fallback quotes, not a live Agmarknet pull. */
   sample?: boolean;
+  /** Which crop these quotes are for. */
+  cropId?: string;
 }
 
 export type Severity = "info" | "watch" | "act" | "urgent";
 
 /**
  * One concrete thing the farmer should do (or deliberately not do) today.
- * `why` is the deterministic reason string; the LLM layer may rewrite it into
- * Kannada, but it may never invent an action that the rules did not produce.
+ * `why` is the deterministic reason string; the translation layer may render it
+ * in Kannada, but it may never invent an action the rules did not produce.
  */
 export interface Recommendation {
   id: string;
   icon: string;
   severity: Severity;
-  /** Short imperative headline, e.g. "Do not irrigate today". */
   title: string;
-  /** The evidence, in plain numbers. */
   why: string;
-  /** Optional money impact in rupees, signed. */
   rupeeImpact?: number;
-  /** Deadline or window for the action. */
   window?: string;
-}
-
-export interface FarmPlan {
-  generatedAt: string;
-  farmId: string;
-  recommendations: Recommendation[];
-  weather: WeatherWindow;
-  market: MarketView | null;
-  economics: Economics;
 }
 
 export interface Economics {
   expectedYieldQtl: number;
-  /** Realisable value of standing crop + stock at today's best price. */
   expectedRevenue: number;
   totalCosts: number;
   expectedProfit: number;
-  /** Change in expected profit vs the snapshot 7 days ago. */
   weekDeltaRupees: number;
+  /** False when the registry has no yield model for this crop. */
+  yieldKnown: boolean;
+  /** False when no mandi price was available to value the harvest at. */
+  priceKnown: boolean;
 }
 
 export interface CostEntry {
@@ -125,4 +111,13 @@ export interface CostEntry {
   category: "seed" | "fertilizer" | "labour" | "pesticide" | "irrigation" | "transport" | "other";
   amount: number;
   note?: string;
+}
+
+export interface FarmPlan {
+  generatedAt: string;
+  farmId: string;
+  recommendations: Recommendation[];
+  weather: WeatherWindow;
+  market: MarketView | null;
+  economics: Economics;
 }

@@ -2,6 +2,7 @@
 
 import { ActionCard } from "@/components/ActionCard";
 import { WeatherStrip } from "@/components/WeatherStrip";
+import { getCrop } from "@/lib/crops";
 import { loadFarm } from "@/lib/farm";
 import { usePlan } from "@/lib/use-plan";
 import { useEffect, useState } from "react";
@@ -12,7 +13,7 @@ export default function TodayPage() {
 
   useEffect(() => {
     const f = loadFarm();
-    setFarmName(`${f.village}, ${f.acres} acres`);
+    setFarmName(`${getCrop(f.cropId).name.en} · ${f.acres} acres · ${f.village}`);
   }, []);
 
   const today = new Date().toLocaleDateString("en-IN", {
@@ -45,16 +46,34 @@ export default function TodayPage() {
           className="mb-5 rounded-2xl border p-4"
           style={{ borderColor: "var(--border)", background: "var(--surface)" }}
         >
-          <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
-            Expected profit this season
-          </p>
-          <p className="mt-1 text-3xl font-bold tabular-nums" style={{ color: "var(--money)" }}>
-            ₹{plan.economics.expectedProfit.toLocaleString("en-IN")}
-          </p>
-          <p className="mt-1 text-sm tabular-nums" style={{ color: "var(--ink-soft)" }}>
-            {plan.economics.expectedYieldQtl} qtl expected · ₹
-            {plan.economics.totalCosts.toLocaleString("en-IN")} spent so far
-          </p>
+          {plan.economics.yieldKnown && plan.economics.priceKnown ? (
+            <>
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
+                Expected profit this season
+              </p>
+              <p className="mt-1 text-3xl font-bold tabular-nums" style={{ color: "var(--money)" }}>
+                ₹{plan.economics.expectedProfit.toLocaleString("en-IN")}
+              </p>
+              <p className="mt-1 text-sm tabular-nums" style={{ color: "var(--ink-soft)" }}>
+                {plan.economics.expectedYieldQtl} qtl expected · ₹
+                {plan.economics.totalCosts.toLocaleString("en-IN")} spent so far
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>
+                Spent this season
+              </p>
+              <p className="mt-1 text-3xl font-bold tabular-nums">
+                ₹{plan.economics.totalCosts.toLocaleString("en-IN")}
+              </p>
+              <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
+                {plan.economics.yieldKnown
+                  ? "No mandi price for this crop today, so the harvest cannot be valued yet."
+                  : "No harvest estimate for this crop yet, so profit is not shown."}
+              </p>
+            </>
+          )}
         </section>
       )}
 

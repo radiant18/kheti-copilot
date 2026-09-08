@@ -7,7 +7,7 @@ import { loadCosts, loadFarm } from "./farm";
 import { withTrend } from "./price-history";
 import type { FarmPlan, MarketView, WeatherWindow } from "./types";
 
-const CACHE_KEY = "kheti.plan.v1";
+const cacheKeyFor = (cropId: string) => `kheti.plan.v2.${cropId}`;
 
 /**
  * Loads the day's plan.
@@ -30,21 +30,21 @@ export function usePlan() {
     try {
       const [wx, market] = await Promise.all([
         apiGet<WeatherWindow>("/api/weather", { lat: farm.lat, lon: farm.lon }),
-        apiGet<MarketView>("/api/market").catch(() => null),
+        apiGet<MarketView>("/api/market", { crop: farm.cropId, state: farm.state }).catch(() => null),
       ]);
       const enriched = market ? withTrend(market) : null;
       const next = buildPlan(farm, wx, enriched, costs);
       setPlan(next);
       setStale(false);
       try {
-        window.localStorage.setItem(CACHE_KEY, JSON.stringify({ wx, market }));
+        window.localStorage.setItem(cacheKeyFor(farm.cropId), JSON.stringify({ wx, market }));
       } catch {
         /* quota — cache is a nicety, not a requirement */
       }
     } catch {
       // Offline: replay the last known inputs through today's rules.
       try {
-        const raw = window.localStorage.getItem(CACHE_KEY);
+        const raw = window.localStorage.getItem(cacheKeyFor(farm.cropId));
         if (raw) {
           const { wx, market } = JSON.parse(raw) as { wx: WeatherWindow; market: MarketView | null };
           setPlan(buildPlan(farm, wx, market, costs));

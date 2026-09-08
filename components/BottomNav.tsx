@@ -10,8 +10,13 @@ const TABS = [
   { href: "/onboarding", label: "Farm", icon: "⚙️" },
 ];
 
+/** Hidden during sign-in and setup — those flows own the whole screen. */
+const CHROMELESS = new Set(["/login", "/onboarding"]);
+
 export function BottomNav() {
   const path = usePathname();
+  if (CHROMELESS.has(path)) return null;
+
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-10 border-t"
