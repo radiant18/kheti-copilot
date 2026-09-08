@@ -1,0 +1,1093 @@
+<title>Kheti Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  /* Monsoon slate. Coastal Karnataka in September: rain-washed grey-green
+     ground, areca-canopy green as the single accent, amber reserved for
+     things that cost money if ignored. */
+  :root {
+    --ground: #eaeeec;
+    --surface: #ffffff;
+    --surface-2: #f2f5f3;
+    --ink: #101817;
+    --ink-soft: #566664;
+    --ink-faint: #849693;
+    --line: #d3dcd8;
+    --line-strong: #b6c4bf;
+    --accent: #14614a;
+    --accent-soft: #dfece7;
+    --signal: #a85206;
+    --signal-soft: #f8ece0;
+    --risk: #96202f;
+    --risk-soft: #f8e6e8;
+    --shadow: 0 1px 2px rgba(16, 24, 23, .06);
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --ground: #0d1312;
+      --surface: #151d1b;
+      --surface-2: #1b2422;
+      --ink: #e9efec;
+      --ink-soft: #97a8a4;
+      --ink-faint: #6d7f7b;
+      --line: #26312e;
+      --line-strong: #35433f;
+      --accent: #5fc39a;
+      --accent-soft: #16302a;
+      --signal: #e39c56;
+      --signal-soft: #2e2314;
+      --risk: #ee8a95;
+      --risk-soft: #331a1e;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0d1312;
+    --surface: #151d1b;
+    --surface-2: #1b2422;
+    --ink: #e9efec;
+    --ink-soft: #97a8a4;
+    --ink-faint: #6d7f7b;
+    --line: #26312e;
+    --line-strong: #35433f;
+    --accent: #5fc39a;
+    --accent-soft: #16302a;
+    --signal: #e39c56;
+    --signal-soft: #2e2314;
+    --risk: #ee8a95;
+    --risk-soft: #331a1e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+  }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0 48px;
+  }
+
+  @media (min-width: 1000px) {
+    .wrap { grid-template-columns: 184px minmax(0, 1fr); }
+  }
+
+  /* ---- masthead ---- */
+  header.top {
+    grid-column: 1 / -1;
+    padding: 56px 0 32px;
+    border-bottom: 1px solid var(--line-strong);
+    margin-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+
+  h1 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5.2vw, 3.4rem);
+    line-height: 1.02;
+    letter-spacing: -.022em;
+    text-wrap: balance;
+    margin: 0 0 18px;
+  }
+
+  .standfirst {
+    font-size: 1.16rem;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 0;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    margin-top: 26px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: .05em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+
+  .meta b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---- side rail ---- */
+  nav.rail { display: none; }
+
+  @media (min-width: 1000px) {
+    nav.rail {
+      display: block;
+      grid-column: 1;
+      position: sticky;
+      top: 32px;
+      align-self: start;
+      padding-top: 4px;
+    }
+    nav.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+    nav.rail a {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 11.5px;
+      letter-spacing: .03em;
+      color: var(--ink-faint);
+      text-decoration: none;
+      display: block;
+      line-height: 1.4;
+    }
+    nav.rail a:hover, nav.rail a:focus-visible { color: var(--accent); }
+  }
+
+  main { grid-column: 1 / -1; min-width: 0; }
+  @media (min-width: 1000px) { main { grid-column: 2; } }
+
+  section { margin-bottom: 60px; scroll-margin-top: 24px; }
+
+  h2 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.62rem;
+    letter-spacing: -.014em;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin: 0 0 6px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+
+  h3 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.06rem;
+    letter-spacing: -.005em;
+    margin: 32px 0 8px;
+  }
+
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 20px;
+  }
+
+  p { max-width: 66ch; margin: 0 0 16px; }
+  ul, ol { max-width: 66ch; padding-left: 20px; margin: 0 0 16px; }
+  li { margin-bottom: 7px; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  code, .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .88em;
+  }
+
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: .08em .34em;
+  }
+
+  /* ---- the thesis pull ---- */
+  .thesis {
+    border-left: 3px solid var(--accent);
+    padding: 4px 0 4px 22px;
+    margin: 0 0 24px;
+  }
+  .thesis p {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: 1.28rem;
+    line-height: 1.36;
+    font-weight: 600;
+    letter-spacing: -.011em;
+    color: var(--ink);
+    margin: 0;
+    max-width: 40ch;
+  }
+
+  /* ---- data slabs ---- */
+  .slab {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px;
+    margin: 24px 0;
+    box-shadow: var(--shadow);
+  }
+
+  .slab-title {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0 0 3px;
+  }
+
+  .slab-note {
+    font-size: .87rem;
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+    max-width: 58ch;
+  }
+
+  .scroller { overflow-x: auto; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .92rem;
+    min-width: 520px;
+  }
+
+  th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-align: left;
+    padding: 0 14px 9px 0;
+    border-bottom: 1px solid var(--line-strong);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 11px 14px 11px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+
+  td:first-child { color: var(--ink); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  .num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ---- price spread chart ---- */
+  .bars { display: grid; gap: 11px; }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr) 92px;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .bar-label {
+    font-size: .88rem;
+    line-height: 1.25;
+  }
+  .bar-label small {
+    display: block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .bar-track { background: var(--surface-2); border-radius: 2px; height: 26px; position: relative; }
+  .bar-fill { background: var(--accent); height: 100%; border-radius: 2px; }
+  .bar-fill.low { background: var(--line-strong); }
+
+  .bar-value {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: .85rem;
+    font-weight: 500;
+    text-align: right;
+    color: var(--ink);
+  }
+
+  .axis {
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr) 92px;
+    gap: 14px;
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+  .axis-ticks {
+    grid-column: 2;
+    display: flex;
+    justify-content: space-between;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    border-top: 1px solid var(--line);
+    padding-top: 5px;
+  }
+
+  .spread-call {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: .92rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+  .spread-call b { color: var(--ink); font-weight: 600; }
+
+  /* ---- verdict chips ---- */
+  .chip {
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .chip.ok { background: var(--accent-soft); color: var(--accent); }
+  .chip.warn { background: var(--signal-soft); color: var(--signal); }
+  .chip.bad { background: var(--risk-soft); color: var(--risk); }
+
+  /* ---- decisions grid ---- */
+  .decisions { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin: 24px 0; }
+  @media (min-width: 640px) { .decisions { grid-template-columns: 1fr 1fr; } }
+
+  .decision { background: var(--surface); padding: 20px; }
+  .decision h4 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 7px;
+  }
+  .decision p { font-size: .9rem; color: var(--ink-soft); margin: 0; max-width: none; }
+  .decision .q {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 9px;
+  }
+
+  /* ---- phased roadmap: numbering is real here, these run in order ---- */
+  .phases { display: grid; gap: 0; margin: 24px 0; }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 20px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .phase:first-child { border-top: 1px solid var(--line-strong); }
+
+  .phase-n {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--accent);
+    padding-top: 3px;
+  }
+  .phase-n small { display: block; color: var(--ink-faint); font-weight: 400; margin-top: 3px; letter-spacing: 0; }
+
+  .phase h4 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: 1.06rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  .phase p { margin: 0 0 10px; font-size: .95rem; }
+  .phase ul { margin: 0; font-size: .93rem; }
+  .phase .gate {
+    margin-top: 12px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: .04em;
+    color: var(--signal);
+  }
+
+  /* ---- flow ---- */
+  .flow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12.5px;
+    line-height: 1.85;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin: 20px 0;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--ink-soft);
+  }
+
+  .risk-list { display: grid; gap: 14px; margin: 22px 0; }
+  .risk-item {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .risk-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .risk-item p { margin: 0; font-size: .93rem; }
+  .risk-item b { display: block; margin-bottom: 3px; color: var(--ink); font-weight: 600; }
+
+  footer {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--line-strong);
+    padding-top: 22px;
+    font-size: .85rem;
+    color: var(--ink-faint);
+  }
+  footer p { max-width: 70ch; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <p class="eyebrow">Product research &amp; build plan</p>
+    <h1>An arecanut copilot for coastal Karnataka</h1>
+    <p class="standfirst">
+      Not another advisory chatbot. A decision engine that answers the four questions a
+      grower in Dakshina Kannada actually has each morning — irrigate, spray, inspect,
+      sell — and puts a rupee figure next to each one.
+    </p>
+    <div class="meta">
+      <span><b>Wedge</b> Arecanut · DK &amp; Uttara Kannada</span>
+      <span><b>Shape</b> Next.js PWA → Capacitor</span>
+      <span><b>Path</b> Hackathon MVP → real product</span>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Contents">
+    <ol>
+      <li><a href="#bet">The bet</a></li>
+      <li><a href="#thread">Reworking the idea</a></li>
+      <li><a href="#market">Who is already here</a></li>
+      <li><a href="#wedge">Why arecanut</a></li>
+      <li><a href="#product">The four decisions</a></li>
+      <li><a href="#data">Data inventory</a></li>
+      <li><a href="#arch">Architecture</a></li>
+      <li><a href="#scope">Scope</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#validate">Validation</a></li>
+      <li><a href="#risks">Honest risks</a></li>
+      <li><a href="#money">Business model</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section id="bet">
+      <h2>The bet</h2>
+      <p class="kicker">What this product is, in one sentence</p>
+
+      <div class="thesis">
+        <p>Government platforms hand farmers information. This turns information into a
+        decision, with the money attached.</p>
+      </div>
+
+      <p>
+        The thread you started with landed on the right instinct and the wrong scope. The
+        instinct — stop building "ask me anything about farming" and start building "tell
+        me what to do today" — is correct and is the whole basis of this plan. The scope,
+        "Indian farmers," is where products like this die.
+      </p>
+      <p>
+        So the plan narrows hard: <strong>arecanut growers in the Dakshina Kannada and
+        Uttara Kannada belt.</strong> One crop, one region, one language, roughly
+        20&ndash;30 households you can drive to. Everything below follows from that choice.
+      </p>
+    </section>
+
+    <section id="thread">
+      <h2>What to keep from the thread, and what to change</h2>
+      <p class="kicker">Reworking the original idea</p>
+
+      <h3>Keep</h3>
+      <ul>
+        <li><strong>The "Farm Today" screen as the whole product.</strong> One screen, a
+          handful of actions, ranked. This is right and it is the hard part.</li>
+        <li><strong>Profit as the spine.</strong> Framing advice as rupees rather than
+          agronomy is what makes a farmer open the app twice.</li>
+        <li><strong>Not competing with government portals on information.</strong> Correct,
+          and the research below makes it more true than the thread knew.</li>
+      </ul>
+
+      <h3>Change</h3>
+      <ul>
+        <li><strong>"Pick one crop" was advice; make it the architecture.</strong> A generic
+          engine with arecanut configured in is still a generic engine. The rules here are
+          arecanut rules — koleroga windows, chali grades, a 40-day Bordeaux cycle. That
+          specificity <em>is</em> the moat.</li>
+        <li><strong>Photo disease diagnosis is the wrong opening move.</strong> The thread
+          ranks Crop Doctor as the easiest MVP. It is also the most crowded (Plantix owns
+          it), needs a labelled arecanut dataset that does not really exist publicly, and
+          for the disease that actually matters here — Yellow Leaf Disease — a correct
+          diagnosis changes nothing, because there is no cure. Ship photo capture as
+          <em>evidence collection</em>, not diagnosis.</li>
+        <li><strong>Add the decision the thread missed entirely: which yard, which grade.</strong>
+          This turns out to be where the money is. See below.</li>
+        <li><strong>The LLM does not decide anything.</strong> The thread assumes an "AI
+          decision engine." Make the engine deterministic rules; let the model translate
+          and explain. A hallucinated fungicide dose is a destroyed crop.</li>
+      </ul>
+    </section>
+
+    <section id="market">
+      <h2>Who is already standing here</h2>
+      <p class="kicker">Competitive landscape, 2026</p>
+
+      <p>
+        This is a crowded category, and it is worth being blunt about that before writing
+        more code. The relevant question is not "is anyone doing farm advisory" — many
+        people are — but "is anyone giving an arecanut grower in Puttur a specific,
+        priced instruction in Kannada."
+      </p>
+
+      <div class="slab">
+        <p class="slab-title">The field</p>
+        <p class="slab-note">Everyone below is bigger than you. None of them is doing the specific thing.</p>
+        <div class="scroller">
+          <table>
+            <thead>
+              <tr><th>Player</th><th>What it does</th><th>Why it leaves room</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Bharat-VISTAAR</td>
+                <td>Government AI advisory DPI. Launched 17 Feb 2026. Wires together IMD weather, Agmarknet prices, NPSS pest alerts, ICAR advisory, 10 central schemes.</td>
+                <td>Phase 1 ships in <strong>Hindi and English</strong> across <strong>Maharashtra, Bihar, Gujarat</strong>. Karnataka and Kannada are not in it. It also answers questions rather than issuing ranked, priced instructions.</td>
+              </tr>
+              <tr>
+                <td>AgroStar</td>
+                <td>5M+ farmers, advisory bundled with an agri-input marketplace. Raised $30M Nov 2025.</td>
+                <td>Strongest in GJ / RJ / MH / MP / UP. Advisory exists to sell inputs, so it will never tell you to spray less.</td>
+              </tr>
+              <tr>
+                <td>DeHaat</td>
+                <td>Full-stack inputs, credit, advisory, market linkage, with physical field agents.</td>
+                <td>East and north India. Its economics need the whole value chain, not a subscription.</td>
+              </tr>
+              <tr>
+                <td>BharatAgri</td>
+                <td>Paid subscription crop calendar: scheduled sow / irrigate / spray tasks.</td>
+                <td>Closest analogue, and proof farmers <em>will</em> pay. Calendar-driven rather than weather-reactive, and horticulture-light.</td>
+              </tr>
+              <tr>
+                <td>Plantix</td>
+                <td>Photo-based disease diagnosis, very large image corpus.</td>
+                <td>Diagnosis only, no economics, weak on arecanut specifically.</td>
+              </tr>
+              <tr>
+                <td>Fasal / Fyllo</td>
+                <td>IoT sensors plus satellite for precision horticulture.</td>
+                <td>Requires hardware on the farm. Different price point, different customer.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p>
+        The pattern: national players optimise for the largest crops and the states with the
+        most farmers, and the government platform is starting where the political weight is.
+        A high-value perennial in a two-district coastal belt, in a language nobody has
+        shipped in yet, is exactly the shape of thing a large player rationally skips.
+      </p>
+    </section>
+
+    <section id="wedge">
+      <h2>Why arecanut, and why this belt</h2>
+      <p class="kicker">The wedge</p>
+
+      <p>
+        Four things make arecanut in coastal Karnataka unusually good ground for this, and
+        the fourth is the one that decided it.
+      </p>
+
+      <ol>
+        <li><strong>The crop is worth enough to be worth optimising.</strong> A three-acre
+          mature garden yields roughly 27 quintals; at current Rashi prices that is around
+          ₹13&ndash;14 lakh of gross revenue. A 5% improvement is real money, unlike on paddy.</li>
+        <li><strong>Two simultaneous crises create urgency.</strong> Yellow Leaf Disease is
+          destroying mature gardens across Shivamogga and spreading; Karnataka has asked the
+          Centre for ₹197 crore just to research it. Around 50 lakh people in the state
+          depend on the crop.</li>
+        <li><strong>Prices are violent.</strong> Arecanut moved from about ₹58,000 to
+          ₹39,000 per quintal inside a single season. Growers hold stock and guess.</li>
+        <li><strong>There is a large, unclaimed pricing inefficiency.</strong> ⤦</li>
+      </ol>
+
+      <div class="slab">
+        <p class="slab-title">One day's Karnataka arecanut board, by grade</p>
+        <p class="slab-note">
+          Agmarknet modal prices, 7 September 2026. Same crop, same fortnight, same
+          two-district belt.
+        </p>
+
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">Rashi<small>Yellapur</small></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 95.4%"></div></div>
+            <div class="bar-value">₹50,899</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Hale Chali<small>Kumta</small></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 89.1%"></div></div>
+            <div class="bar-value">₹47,529</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Hosa Chali<small>Puttur</small></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 84.4%"></div></div>
+            <div class="bar-value">₹45,000</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Hosa Chali<small>Kumta</small></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 79.9%"></div></div>
+            <div class="bar-value">₹42,639</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Chippu<small>Kumta</small></div>
+            <div class="bar-track"><div class="bar-fill low" style="width: 57.5%"></div></div>
+            <div class="bar-value">₹30,689</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Bilegotu<small>Yellapur</small></div>
+            <div class="bar-track"><div class="bar-fill low" style="width: 55.5%"></div></div>
+            <div class="bar-value">₹29,615</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">CQCA<small>Sullia</small></div>
+            <div class="bar-track"><div class="bar-fill low" style="width: 50.6%"></div></div>
+            <div class="bar-value">₹27,000</div>
+          </div>
+        </div>
+
+        <div class="axis">
+          <div class="axis-ticks">
+            <span>₹0</span><span>₹15,000</span><span>₹30,000</span><span>₹45,000</span><span>₹53,350</span>
+          </div>
+        </div>
+
+        <p class="spread-call">
+          <b>Rashi cleared 88% more per quintal than CQCA on the same day.</b> Some of that
+          spread is genuine quality difference the grower cannot change. But grading
+          decisions, drying decisions, which yard to carry to, and which day to carry are
+          all choices — and nobody is computing them. On 12 quintals, choosing the right
+          yard net of transport is worth a few thousand rupees; grading one tier better is
+          worth lakhs. <b>This is the feature no competitor and no government portal offers.</b>
+        </p>
+      </div>
+
+      <p>
+        The strategic read: Bharat-VISTAAR will eventually cover Karnataka and Kannada, and
+        when it does it will do weather, prices and schemes better than you can. It will
+        not do <em>"take your Rashi to Holalkere, not Puttur, it is ₹2,950 better after the
+        lorry."</em> Build toward the thing that stays yours.
+      </p>
+    </section>
+
+    <section id="product">
+      <h2>The four decisions</h2>
+      <p class="kicker">Product definition</p>
+
+      <p>
+        The entire product is one screen answering four questions, ranked by urgency and
+        then by rupees at stake. If a feature does not serve one of these, it is out of scope.
+      </p>
+
+      <div class="decisions">
+        <div class="decision">
+          <h4>Irrigation</h4>
+          <span class="q">Do I water today?</span>
+          <p>
+            Cycle length by delivery method against 48-hour rainfall. Answering "no" is as
+            valuable as answering "yes" — a skipped cycle on three acres is roughly ₹540 of
+            diesel and pump time.
+          </p>
+        </div>
+        <div class="decision">
+          <h4>Koleroga spray window</h4>
+          <span class="q">When can I actually spray?</span>
+          <p>
+            <em>Phytophthora meadii</em> takes 30&ndash;50% of a coastal crop in a bad
+            monsoon, and Bordeaux mixture needs about six dry hours to set. The app derives
+            dry hours from hourly forecast data and names the day. Portals publish rainfall;
+            none of them say "Thursday, roughly nine dry hours."
+          </p>
+        </div>
+        <div class="decision">
+          <h4>Garden health</h4>
+          <span class="q">Is this Yellow Leaf Disease?</span>
+          <p>
+            Deliberately not a diagnosis. Timestamped, geotagged photographs of yellowing
+            fronds, building a per-block record. The decision it eventually informs is the
+            expensive one: whether to replant into that block at all.
+          </p>
+        </div>
+        <div class="decision">
+          <h4>Selling</h4>
+          <span class="q">Which yard, which grade, which day?</span>
+          <p>
+            Every mandi quoting your grade, ranked by what you actually pocket after
+            transport, with the gap over the next-best yard stated in rupees. The one
+            feature nobody else has.
+          </p>
+        </div>
+      </div>
+
+      <h3>The non-negotiable design constraints</h3>
+      <ul>
+        <li><strong>Rules decide, the model explains.</strong> The engine is pure and
+          deterministic. An LLM layer may translate a recommendation into Kannada or read it
+          aloud; it may never originate one.</li>
+        <li><strong>Every recommendation shows its arithmetic.</strong> "7 days since your
+          last irrigation and only 4mm expected" earns trust in a way "AI recommends
+          irrigation" never will.</li>
+        <li><strong>Offline is the normal case, not the error case.</strong> Gardens are
+          under canopy with patchy 4G. Cached inputs replayed through today's rules, clearly
+          labelled as stale.</li>
+        <li><strong>Kannada first.</strong> Not a translation layer added in month four.</li>
+      </ul>
+    </section>
+
+    <section id="data">
+      <h2>What data actually exists</h2>
+      <p class="kicker">Verified inventory</p>
+
+      <p>
+        I tested these rather than assuming them. Two are working in the scaffold now; the
+        rest are graded honestly.
+      </p>
+
+      <div class="slab">
+        <div class="scroller">
+          <table>
+            <thead>
+              <tr><th>Source</th><th>Gives you</th><th>Status</th><th>Catch</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Open-Meteo</td>
+                <td>7-day forecast, hourly precipitation and humidity → derived dry hours</td>
+                <td><span class="chip ok">Working</span></td>
+                <td>Free tier is <strong>non-commercial</strong>. Needs a paid plan or an IMD licence before you charge anyone.</td>
+              </tr>
+              <tr>
+                <td>Agmarknet via data.gov.in</td>
+                <td>Daily mandi prices, 3,000+ markets, by commodity and variety</td>
+                <td><span class="chip ok">Working</span></td>
+                <td>Get your own key — the sample key in the public docs is rate-limited and will 429 mid-demo. Variety names are free text and drift by clerk.</td>
+              </tr>
+              <tr>
+                <td>Price history</td>
+                <td>Week-on-week trend per grade</td>
+                <td><span class="chip warn">Self-built</span></td>
+                <td>Agmarknet returns only today's board. The app records its own daily snapshots; server-side history is the upgrade.</td>
+              </tr>
+              <tr>
+                <td>Bhashini / AI4Bharat</td>
+                <td>Kannada ASR, TTS, translation. Apache-2.0 models, free government APIs at low volume.</td>
+                <td><span class="chip ok">Available</span></td>
+                <td>ASR word error rates are meaningfully worse on telephony-grade audio and on dialect. Test with real Tulu-accented Kannada before promising voice.</td>
+              </tr>
+              <tr>
+                <td>IMD</td>
+                <td>Official district forecasts and severe-weather warnings</td>
+                <td><span class="chip warn">Untested</span></td>
+                <td>The credible commercial path off Open-Meteo. Worth a licence conversation early.</td>
+              </tr>
+              <tr>
+                <td>AgriStack farmer registry</td>
+                <td>Farmer ID, land parcels, crop registry. Karnataka is live.</td>
+                <td><span class="chip warn">Gated</span></td>
+                <td>Developer access exists but is not self-serve. Would remove most of onboarding. Pursue in parallel, do not depend on it.</td>
+              </tr>
+              <tr>
+                <td>Arecanut disease imagery</td>
+                <td>Labelled YLD / koleroga training data</td>
+                <td><span class="chip bad">Does not exist</span></td>
+                <td>The reason photo diagnosis is out of v1. You would have to build the dataset, which is a real 12-month project on its own.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="arch">
+      <h2>One codebase, three targets</h2>
+      <p class="kicker">Architecture</p>
+
+      <p>
+        You wanted a web app you can later package for Android and iOS. That works, but only
+        if you make one decision correctly at the start, because retrofitting it is painful.
+      </p>
+
+      <div class="flow">next build                  →  web app on Vercel, API routes live
+MOBILE_BUILD=1 next build   →  static bundle in ./out
+npx cap sync                →  Android + iOS shells wrapping that bundle</div>
+
+      <p>
+        The mobile shells have no server. They are served from
+        <code>capacitor://localhost</code>, so a same-origin call to <code>/api/weather</code>
+        resolves to nothing. Every network call therefore goes through one helper that
+        prefixes <code>NEXT_PUBLIC_API_BASE</code> — empty on web, the deployed origin in the
+        app. That single indirection is the whole trick, and it is already in the scaffold.
+      </p>
+
+      <p>
+        The second structural decision: <strong>the engine runs on the client.</strong>
+        <code>lib/engine/</code> is pure TypeScript with no I/O and no dependencies. It takes
+        a farm profile, a weather window and a market view, and returns ranked
+        recommendations. Because it is pure, it runs identically on the server, in the
+        browser, and in the app with no signal at all — which is how a grower under canopy
+        still gets an answer.
+      </p>
+
+      <h3>Why not React Native or Flutter</h3>
+      <p>
+        Because the web app is not a stepping stone here, it is a permanent channel. A
+        grower's son shares a WhatsApp link; that has to open something useful without an
+        install. Capacitor keeps one codebase across the link, the Play Store and the App
+        Store. The cost is that anything needing deep native performance — heavy on-device
+        vision, background location — gets awkward, and none of v1 needs that.
+      </p>
+    </section>
+
+    <section id="scope">
+      <h2>What ships when</h2>
+      <p class="kicker">Scope discipline</p>
+
+      <h3>Hackathon build — already scaffolded and running</h3>
+      <ul>
+        <li>Farm profile: location, acreage, planting year, irrigation method, stock by grade</li>
+        <li>Live weather with derived dry hours per day</li>
+        <li>Deterministic rules: irrigation cycle, koleroga spray window, YLD photo prompt</li>
+        <li>Mandi ranking net of transport, with the gap over next-best in rupees</li>
+        <li>Cost book and season P&amp;L</li>
+        <li>Offline-first, installable PWA, dark and light</li>
+      </ul>
+
+      <h3>Cut from v1, on purpose</h3>
+      <p>
+        Photo <em>diagnosis</em> (no dataset, no cure for the disease that matters).
+        Marketplace or input sales (changes what the advice is for). Multi-crop (dilutes the
+        rules). Sensors (different product). Scheme eligibility (the government does this
+        well and it is not why anyone opens the app twice).
+      </p>
+    </section>
+
+    <section id="roadmap">
+      <h2>Roadmap</h2>
+      <p class="kicker">These run in order; each gate is a real stop</p>
+
+      <div class="phases">
+        <div class="phase">
+          <div class="phase-n">00<small>now</small></div>
+          <div>
+            <h4>Get the agronomy reviewed</h4>
+            <p>
+              This blocks everything and costs almost nothing. The thresholds in the engine
+              — 40-day Bordeaux cover, six dry hours, a six-day sprinkler cycle, the humidity
+              and temperature bands for koleroga — come from published practice, not from an
+              agronomist reviewing your code.
+            </p>
+            <ul>
+              <li>Take the rules to ICAR-CPCRI or a Krishi Vigyan Kendra in Puttur or Sirsi</li>
+              <li>Ask CAMPCO how grading disputes actually get settled at the yard</li>
+            </ul>
+            <p class="gate">Gate: do not show a spray recommendation to a real grower until someone qualified has signed off on it.</p>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase-n">01<small>wks 1–3</small></div>
+          <div>
+            <h4>Ten farmers, Kannada, WhatsApp</h4>
+            <p>
+              Do not scale the app. Recruit ten growers you can physically visit, put the app
+              in Kannada, and send each of them the day's plan as a WhatsApp message every
+              morning at 6am — by hand if necessary.
+            </p>
+            <ul>
+              <li>Kannada UI via Bhashini; voice can wait</li>
+              <li>Log every recommendation and whether they acted on it</li>
+              <li>Server-side price history so trends become real</li>
+            </ul>
+            <p class="gate">Gate: at least 4 of 10 open it unprompted in week three. If nobody does, the product is wrong, not the marketing.</p>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase-n">02<small>wks 4–8</small></div>
+          <div>
+            <h4>Package and harden</h4>
+            <p>
+              Only now does mobile packaging earn its place — you have proof the daily plan is
+              worth a notification.
+            </p>
+            <ul>
+              <li><code>cap add android</code>, Play Store internal testing track</li>
+              <li>Push notifications at 6am; this is the actual retention mechanism</li>
+              <li>Accounts and sync, replacing localStorage</li>
+              <li>Kannada voice output for the daily plan — text is a barrier for older growers</li>
+              <li>Move off the Open-Meteo free tier</li>
+            </ul>
+            <p class="gate">Gate: iOS only after Android retention holds. It doubles review overhead and the belt is overwhelmingly Android.</p>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase-n">03<small>wks 9–16</small></div>
+          <div>
+            <h4>Deepen the sell engine</h4>
+            <p>
+              The defensible part. Everything else is replicable; this compounds with data
+              you accumulate and nobody else has.
+            </p>
+            <ul>
+              <li>Grade-transition modelling: what better drying is worth, in rupees</li>
+              <li>Price forecasting from your own accumulated history plus arrivals volume</li>
+              <li>Hold-versus-sell with storage loss factored in</li>
+              <li>Aggregate anonymised yard data into a belt-level price view — the network effect</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="validate">
+      <h2>What to ask ten growers</h2>
+      <p class="kicker">Validation, before more code</p>
+
+      <p>
+        Do not ask whether they would use an app; everyone says yes. Ask about last season,
+        where the answers are checkable:
+      </p>
+      <ul>
+        <li>Where did you sell your last lot, and did you check any other yard's price first?</li>
+        <li>How did you decide it was Rashi and not Chippu? Who decided — you or the trader?</li>
+        <li>How many Bordeaux rounds did you do last monsoon? Did rain waste any of them?</li>
+        <li>What did you spend on the garden last year? <em>(If they cannot answer, the cost book has a real job.)</em></li>
+        <li>Show them a screenshot: which line here would you actually have acted on?</li>
+      </ul>
+      <p>
+        The one number that matters from this: <strong>how many of the ten checked more than
+        one mandi price before their last sale.</strong> If it is most of them, the sell
+        engine is a convenience. If it is one or two, it is the business.
+      </p>
+    </section>
+
+    <section id="risks">
+      <h2>Honest risks</h2>
+      <p class="kicker">The things most likely to kill this</p>
+
+      <div class="risk-list">
+        <div class="risk-item">
+          <span class="chip bad">Highest</span>
+          <p><b>Wrong advice destroys a crop.</b> A mistimed spray recommendation on a
+          three-acre garden is a six-figure loss and the end of your reputation in a belt
+          where everyone knows each other. Mitigation: deterministic rules only, agronomist
+          sign-off, visible arithmetic, and conservative defaults that say "check with your
+          KVK" rather than guessing.</p>
+        </div>
+        <div class="risk-item">
+          <span class="chip bad">High</span>
+          <p><b>Agmarknet is late, thin, or wrong.</b> Yards report at different times, some
+          skip days, variety spellings drift. A confident price recommendation built on a
+          three-day-old quote is worse than no recommendation. Mitigation: always show the
+          quote date, drop unrecognised varieties rather than guessing, and eventually
+          crowdsource actual realised prices from your own users.</p>
+        </div>
+        <div class="risk-item">
+          <span class="chip warn">Medium</span>
+          <p><b>The commission agent relationship.</b> Many growers do not choose their yard
+          freely — they are tied to a trader by credit taken against the standing crop. Your
+          arbitrage advice may be unusable for exactly the farmers who need it most. Find
+          this out in week one, not month six; it may reframe the feature toward negotiating
+          leverage rather than switching.</p>
+        </div>
+        <div class="risk-item">
+          <span class="chip warn">Medium</span>
+          <p><b>Bharat-VISTAAR expands.</b> Karnataka and Kannada will arrive. Plan to be
+          complementary — the thing that does the arithmetic on top of public information —
+          rather than betting they stay away.</p>
+        </div>
+        <div class="risk-item">
+          <span class="chip warn">Medium</span>
+          <p><b>Nobody pays.</b> Advisory has a long history of free. BharatAgri's paid
+          subscription is the counter-evidence, and arecanut's economics are far better than
+          the crops where free is the norm.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="money">
+      <h2>How it could make money</h2>
+      <p class="kicker">Business model, ranked by fit</p>
+
+      <p>
+        <strong>Subscription, per garden, per season.</strong> ₹1,200&ndash;2,000 a year
+        against a ₹13 lakh gross on three acres is a rounding error, and one good yard
+        recommendation pays for it. BharatAgri has already demonstrated Indian farmers will
+        pay a subscription for structured advisory. This is the clean model: your incentive
+        stays aligned with the grower's, which is precisely what an input-selling advisory
+        cannot claim.
+      </p>
+      <p>
+        <strong>Grower collectives and FPOs.</strong> Sell to the organisation, not the
+        individual — one contract covers a few hundred gardens and solves distribution, which
+        is the genuinely hard part.
+      </p>
+      <p>
+        <strong>What to refuse:</strong> commission on input sales, or any trader
+        relationship that pays you for where the crop goes. The moment the sell
+        recommendation has a kickback behind it, the only feature nobody else has becomes
+        worthless.
+      </p>
+    </section>
+
+    <footer>
+      <p>
+        Research current to September 2026. Price figures are Agmarknet modal prices for
+        7 September 2026 and move daily. Agronomic thresholds cited here follow published
+        ICAR-CPCRI practice for the Dakshina Kannada / Uttara Kannada belt and are
+        <strong>pending expert review</strong> — they are not yet safe to put in front of a
+        grower.
+      </p>
+    </footer>
+
+  </main>
+</div>
