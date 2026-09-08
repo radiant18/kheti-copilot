@@ -1,27 +1,20 @@
-import { CROPS, OTHER_COMMODITIES, genericCrop } from "./registry";
+import { CROPS, genericCrop } from "./registry";
 import type { CropConfig } from "./types";
 
 export * from "./types";
-export { CROPS, OTHER_COMMODITIES };
+export { CROPS };
 
 export interface CropOption {
   id: string;
   en: string;
   kn: string;
-  depth: CropConfig["depth"];
 }
 
-/** Everything a farmer can pick, modelled crops first. */
+/** Everything a farmer can pick, alphabetically so it is scannable. */
 export function listCrops(): CropOption[] {
-  return [
-    ...CROPS.map((c) => ({ id: c.id, en: c.name.en, kn: c.name.kn, depth: c.depth })),
-    ...OTHER_COMMODITIES.map((c) => ({
-      id: c.id,
-      en: c.en,
-      kn: c.kn,
-      depth: "basic" as const,
-    })),
-  ];
+  return CROPS.map((c) => ({ id: c.id, en: c.name.en, kn: c.name.kn })).sort((a, b) =>
+    a.en.localeCompare(b.en),
+  );
 }
 
 /** Never throws — an unknown id degrades to a generic crop rather than a crash. */
@@ -29,8 +22,6 @@ export function getCrop(id: string): CropConfig {
   const modelled = CROPS.find((c) => c.id === id);
   if (modelled) return modelled;
 
-  const other = OTHER_COMMODITIES.find((c) => c.id === id);
-  if (other) return genericCrop(other.id, other.en, other.kn, other.commodity);
 
   return genericCrop(id, id, id, id);
 }

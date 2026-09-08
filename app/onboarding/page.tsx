@@ -174,37 +174,17 @@ export default function OnboardingPage() {
                 >
                   <span>
                     <span className="block font-semibold">{c.en}</span>
-                    <span className="block text-sm" style={{ color: "var(--ink-soft)" }}>{c.kn}</span>
+                    {/* Some crops have no established Kannada name in the
+                        registry; repeating the English one just looks broken. */}
+                    {c.kn !== c.en && (
+                      <span className="block text-sm" style={{ color: "var(--ink-soft)" }}>{c.kn}</span>
+                    )}
                   </span>
-                  {c.depth === "modelled" ? (
-                    <span
-                      className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                      style={{ color: "var(--accent)", border: "1px solid var(--accent)" }}
-                    >
-                      Full advice
-                    </span>
-                  ) : c.depth === "partial" ? (
-                    <span className="shrink-0 text-[11px]" style={{ color: "var(--ink-soft)" }}>
-                      No disease rules
-                    </span>
-                  ) : (
-                    <span className="shrink-0 text-[11px]" style={{ color: "var(--ink-soft)" }}>
-                      Prices only
-                    </span>
-                  )}
                 </button>
               </li>
             ))}
           </ul>
 
-          <p className="mt-4 text-xs leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-            <strong>Full advice</strong> crops get irrigation timing plus disease and spray
-            windows. <strong>No disease rules</strong> crops get watering cycles and a harvest
-            estimate, but no spray warnings — often because the main threat is an insect or a
-            dry-weather mildew, which these rules cannot detect.
-            <strong> Prices only</strong> crops get mandi prices, selling advice and your cost
-            book. Every crop gets live prices.
-          </p>
         </>
       )}
 

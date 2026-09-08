@@ -10,15 +10,6 @@
 
 export type IrrigationMethod = "drip" | "sprinkler" | "flood" | "rainfed";
 
-/**
- * How well we actually model this crop. Shown to the farmer, not hidden.
- *
- * - "modelled": yield, irrigation and weather-driven disease rules
- * - "partial":  yield and irrigation, but no disease rule we trust
- * - "basic":    prices and the cost book only
- */
-export type CropDepth = "modelled" | "partial" | "basic";
-
 export interface GradeDef {
   /** Stable internal id. */
   id: string;
@@ -82,7 +73,6 @@ export interface CropConfig {
    * the market route falls back to a loose match when the exact filter is empty.
    */
   agmarknetCommodity: string;
-  depth: CropDepth;
   /** Grades quoted for this crop. Empty means accept whatever the feed says. */
   grades: GradeDef[];
   irrigation: {
