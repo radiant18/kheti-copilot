@@ -9,6 +9,7 @@ import { withTrend } from "@/lib/price-history";
 import { PageHeader } from "@/components/PageHeader";
 import { YardBar } from "@/components/YardBar";
 import { GradeBoard } from "@/components/GradeBoard";
+import Link from "next/link";
 import { useLang } from "@/lib/use-lang";
 import type { Farm, Grade, MarketView } from "@/lib/types";
 
@@ -210,6 +211,20 @@ export default function MarketPage() {
           ))}
         </ol>
       )}
+
+      {/* The yards above are the mandi route. This is the other one. */}
+      <Link
+        href="/market/direct"
+        className="press card mt-5 flex items-center justify-between gap-3 p-4"
+      >
+        <span>
+          <span className="block font-bold">{t("directTitle")}</span>
+          <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-soft)" }}>
+            {t("directBlurb")}
+          </span>
+        </span>
+        <span aria-hidden style={{ color: "var(--accent)" }}>→</span>
+      </Link>
 
       {/* The yard list answers "where do I take what I have". This answers what
           the crop is worth at each grade, which is the larger number. */}
