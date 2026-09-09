@@ -222,11 +222,12 @@ export function sellAdvice(
           icon: "💰",
           severity: "info",
           title: msg(lang, "mkt.worth.t", {
-            grade: gradeLabel(crop, grade, lang),
+            crop: cropName(crop, lang),
             net: best.net.toLocaleString("en-IN"),
           }),
           why: msg(lang, "mkt.worth.w", {
             qtl,
+            grade: gradeLabel(crop, grade, lang),
             market: best.quote.market,
             price: best.quote.modalPerQtl.toLocaleString("en-IN"),
             transport: best.distanceKnown
@@ -242,10 +243,13 @@ export function sellAdvice(
         icon: "💰",
         severity: "info",
         title: msg(lang, "mkt.best.t", {
-          grade: gradeLabel(crop, top.grade, lang),
+          crop: cropName(crop, lang),
           price: top.modalPerQtl.toLocaleString("en-IN"),
         }),
-        why: msg(lang, "mkt.best.w", { market: top.market }),
+        why: msg(lang, "mkt.best.w", {
+          market: top.market,
+          grade: gradeLabel(crop, top.grade, lang),
+        }),
       });
     }
   }

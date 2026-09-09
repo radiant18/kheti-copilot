@@ -172,7 +172,8 @@ export default function SellPage() {
               </span>
             </p>
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-soft)" }}>
-              {gradeLabel(crop, headline.grade)} · {headline.market} · {headline.date}
+              {cropName(crop, lang)} · {t("gradeSuffix", { grade: gradeLabel(crop, headline.grade) })} ·{" "}
+              {headline.market} · {headline.date}
             </p>
             {trend !== 0 && (
               <p className="mt-1 text-sm font-semibold" style={{ color: trend > 0 ? "var(--money)" : "var(--urgent)" }}>
