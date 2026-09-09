@@ -170,6 +170,14 @@ export default function OnboardingPage() {
               : t("pickMainCrop")}
           </p>
 
+          <button
+            onClick={() => router.push("/login?change=1")}
+            className="press mt-4 text-sm font-bold"
+            style={{ color: "var(--accent)" }}
+          >
+            ← {t("back")}
+          </button>
+
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}

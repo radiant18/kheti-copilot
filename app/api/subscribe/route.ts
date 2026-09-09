@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     farm?: Farm;
     costs?: CostEntry[];
     enabled?: boolean;
+    role?: string;
   };
   try {
     body = await req.json();
@@ -33,6 +34,13 @@ export async function POST(req: Request) {
   const phone = (body.phone ?? "").replace(/\D/g, "");
   if (!isValidPhone(phone)) {
     return NextResponse.json({ error: "bad_phone" }, { status: 400 });
+  }
+
+  // The 5am message is a farm plan. A buyer has no farm, so subscribing one
+  // would send them somebody else's irrigation advice. The settings screen no
+  // longer offers it; this makes sure the endpoint agrees.
+  if (body.role === "buyer") {
+    return NextResponse.json({ error: "not_for_buyers" }, { status: 400 });
   }
 
   if (body.enabled === false) {

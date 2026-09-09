@@ -59,6 +59,7 @@ export function DailyPlanToggle({
           phone,
           name: session?.name ?? "",
           lang: session?.lang ?? "en",
+          role: session?.role ?? "farmer",
           enabled: next,
           farm: next ? loadFarm() : undefined,
           costs: next ? loadCosts() : undefined,

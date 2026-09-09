@@ -12,7 +12,8 @@ import {
   removeFarm,
   setActiveFarm,
 } from "@/lib/farm";
-import { loadSession, signOut, type Session } from "@/lib/session";
+import { loadSession, setSessionLang, signOut, type Session } from "@/lib/session";
+import { LANGUAGES } from "@/lib/i18n";
 import { useLang } from "@/lib/use-lang";
 import { DailyPlanToggle } from "@/components/DailyPlanToggle";
 import type { Farm } from "@/lib/types";
@@ -216,15 +217,47 @@ export default function SettingsPage() {
         )}
       </section>
 
-      <Section title={t("dailyPlanTitle")}>
-        <DailyPlanToggle
-          title={t("dailyPlanTitle")}
-          note={t("dailyPlanNote")}
-          onLabel={t("dailyPlanOn")}
-          offLabel={t("dailyPlanOff")}
-          needsPhone={t("dailyPlanNeedsPhone")}
-        />
+      <Section title={t("chooseLanguage")}>
+        <div className="grid grid-cols-2 gap-2">
+          {LANGUAGES.map((l) => {
+            const on = lang === l.code;
+            return (
+              <button
+                key={l.code}
+                onClick={() => {
+                  setSessionLang(l.code);
+                  // A full reload is the honest way to re-render every string
+                  // on the page, including the ones already rendered above.
+                  window.location.reload();
+                }}
+                className="press rounded-xl border px-4 py-3 text-left font-semibold"
+                style={{
+                  borderColor: on ? "var(--accent)" : "var(--line)",
+                  background: on ? "var(--accent-soft)" : "var(--surface)",
+                  color: on ? "var(--accent)" : "var(--ink)",
+                }}
+              >
+                {l.native}
+              </button>
+            );
+          })}
+        </div>
       </Section>
+
+      {/* The morning message is a farm plan — irrigation, spray windows, the
+          day's actions. A buyer has no farm, so the setting has nothing to
+          offer them and would only be one more thing to wonder about. */}
+      {session?.role !== "buyer" && (
+        <Section title={t("dailyPlanTitle")}>
+          <DailyPlanToggle
+            title={t("dailyPlanTitle")}
+            note={t("dailyPlanNote")}
+            onLabel={t("dailyPlanOn")}
+            offLabel={t("dailyPlanOff")}
+            needsPhone={t("dailyPlanNeedsPhone")}
+          />
+        </Section>
+      )}
 
       <Section title="About">
         <p className="text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>

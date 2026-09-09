@@ -109,6 +109,12 @@ export function isDemo(): boolean {
   return loadSession()?.demo === true;
 }
 
+/** Change the interface language for an existing session. */
+export function setSessionLang(lang: Lang): void {
+  const session = loadSession();
+  if (session) saveSession({ ...session, lang });
+}
+
 export function markOnboarded(): void {
   const session = loadSession();
   if (session) saveSession({ ...session, onboarded: true });

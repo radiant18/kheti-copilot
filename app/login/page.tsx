@@ -25,7 +25,23 @@ export default function LoginPage() {
 
   useEffect(() => {
     const session = loadSession();
-    if (session) router.replace(session.onboarded ? "/" : "/onboarding");
+    if (!session) return;
+
+    // Arriving here from the setup wizard's Back is deliberate: the farmer
+    // wants to change something they chose on this screen, usually the
+    // language. Prefill what they picked and stay put instead of bouncing them
+    // straight back, which is what made the choice feel permanent.
+    // Read from location rather than useSearchParams: this page is statically
+    // rendered and the hook would demand a Suspense boundary around it.
+    if (new URLSearchParams(window.location.search).has("change")) {
+      setLang(session.lang);
+      setRole(session.role ?? "farmer");
+      setName(session.name);
+      setPhone(session.phone);
+      return;
+    }
+
+    router.replace(session.onboarded ? "/" : "/onboarding");
   }, [router]);
 
   const digits = phone.replace(/\D/g, "");
