@@ -7,7 +7,7 @@ import { loadSession } from "@/lib/session";
 const PUBLIC_ROUTES = new Set(["/login"]);
 
 /** Screens that only make sense with a farm behind them. */
-const FARMER_ONLY = new Set(["/", "/onboarding", "/profit", "/ask", "/market"]);
+const FARMER_ONLY = new Set(["/", "/onboarding", "/profit", "/ask"]);
 
 /**
  * Sends a signed-out visitor to /login, and a signed-in one who never finished
@@ -37,7 +37,7 @@ export function AppGate({ children }: { children: React.ReactNode }) {
     // A buyer has no farm, so the farm screens have nothing to show them —
     // Today would render irrigation advice for a garden that does not exist.
     if (session?.role === "buyer" && FARMER_ONLY.has(path)) {
-      router.replace("/market/direct");
+      router.replace("/market");
       return;
     }
     setReady(true);

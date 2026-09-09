@@ -39,7 +39,7 @@ export default function LoginPage() {
     if (!canSubmit) return;
     const session = signIn(digits, name.trim(), lang, role);
     // A buyer has no farm to set up; send them straight to the board.
-    router.push(role === "buyer" ? "/market/direct" : session.onboarded ? "/" : "/onboarding");
+    router.push(role === "buyer" ? "/market" : session.onboarded ? "/" : "/onboarding");
   }
 
   return (
@@ -188,7 +188,7 @@ export default function LoginPage() {
         type="button"
         onClick={() => {
           startDemo(lang, role);
-          router.push(role === "buyer" ? "/market/direct" : "/");
+          router.push(role === "buyer" ? "/market" : "/");
         }}
         className="press card mt-4 w-full py-3.5 text-base font-bold"
         style={{ color: "var(--accent)" }}

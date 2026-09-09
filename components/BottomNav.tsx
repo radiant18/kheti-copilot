@@ -25,7 +25,7 @@ const TABS: Record<Role, { href: string; key: string; icon: string }[]> = {
     { href: "/settings", key: "navSettings", icon: "⚙️" },
   ],
   buyer: [
-    { href: "/market/direct", key: "navBuy", icon: "🤝" },
+    { href: "/market", key: "navBuy", icon: "🤝" },
     { href: "/settings", key: "navSettings", icon: "⚙️" },
   ],
 };
