@@ -3,82 +3,98 @@
 /*
  * Kheti's surface.
  *
- * Built for a phone held at arm's length in coastal sun, so contrast is high
- * and type is large. The palette is a deep field green on a cool paper ground —
- * one accent, spent carefully, with amber and red reserved for things that cost
- * money if ignored. Severity is never carried by colour alone: every card also
- * has a word and an icon.
+ * The palette comes from the ground this app is used on: the red-brown
+ * laterite soil of the arecanut belt, and the palm canopy standing in it.
+ * Light mode is sunlit husk and paper; dark mode is damp soil after rain, not
+ * black — a near-black ground reads as a generic tech app, and this is a tool
+ * a farmer opens standing in a field before dawn.
+ *
+ * Warm neutrals also behave better outdoors: less blue glare in hard coastal
+ * sun than the cool greys they replace.
+ *
+ * One accent, spent carefully. Amber and red are reserved for things that cost
+ * money if ignored, and severity is never carried by colour alone — every card
+ * carries a word and an icon too.
  */
 :root {
-  --ground: #f6f8f7;
-  --surface: #ffffff;
-  --surface-2: #eef2f0;
-  --ink: #0c1512;
-  --ink-soft: #566862;
-  --ink-faint: #859892;
-  --line: #e0e7e3;
-  --line-strong: #c8d4ce;
+  /* Sunlit husk: warm paper, the colour of dried areca. */
+  --ground: #f7f3ea;
+  --surface: #fffcf6;
+  --surface-2: #efe8db;
+  --ink: #1b1610;
+  --ink-soft: #6a5c4a;
+  --ink-faint: #94836c;
+  --line: #e5dccb;
+  --line-strong: #cfc1a9;
 
-  --accent: #0f5d43;
-  --accent-bright: #14805c;
-  --accent-soft: #e6f2ec;
+  /* Canopy green, dark enough to carry white type on a button. */
+  --accent: #2e6b3e;
+  --accent-bright: #3a8850;
+  --accent-soft: #e4eee1;
 
-  --signal: #9a5200;
-  --signal-soft: #fdf1e3;
-  --urgent: #961d2f;
-  --urgent-soft: #fbe9eb;
-  --money: #0f5d43;
+  --signal: #9a5008;
+  --signal-soft: #fbeedd;
+  --urgent: #9b2028;
+  --urgent-soft: #f9e7e5;
+  --money: #2e6b3e;
 
-  --shadow-sm: 0 1px 2px rgba(12, 21, 18, 0.05);
-  --shadow-md: 0 2px 8px -2px rgba(12, 21, 18, 0.08), 0 1px 2px rgba(12, 21, 18, 0.04);
+  --shadow-sm: 0 1px 2px rgba(43, 32, 20, 0.06);
+  --shadow-md: 0 2px 8px -2px rgba(43, 32, 20, 0.10), 0 1px 2px rgba(43, 32, 20, 0.05);
   --radius: 14px;
 }
 
 :root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
-    --ground: #0a0f0e;
-    --surface: #121a17;
-    --surface-2: #18221f;
-    --ink: #e9f1ed;
-    --ink-soft: #92a49e;
-    --ink-faint: #6b7d77;
-    --line: #212e29;
-    --line-strong: #30413a;
+    /* Damp soil after rain — warm and dark, deliberately not black. */
+    --ground: #17120d;
+    --surface: #211a13;
+    --surface-2: #2a2119;
+    --ink: #f2ece1;
+    --ink-soft: #a89985;
+    --ink-faint: #7c6f5e;
+    --line: #322820;
+    --line-strong: #45392d;
 
-    --accent: #4fd1a1;
-    --accent-bright: #63e0b2;
-    --accent-soft: #122a22;
+    /* Young leaf, light enough to carry dark type on a button. */
+    --accent: #7fc98c;
+    --accent-bright: #97dba3;
+    --accent-soft: #1d2a1c;
 
-    --signal: #e5a25c;
-    --signal-soft: #2b2113;
-    --urgent: #f2919c;
-    --urgent-soft: #2f171b;
-    --money: #6fdcae;
+    --signal: #e0a460;
+    --signal-soft: #2f2415;
+    --urgent: #f0949a;
+    --urgent-soft: #33191b;
+    --money: #8ed79b;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 2px 10px -2px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 2px 10px -2px rgba(0, 0, 0, 0.55);
   }
 }
 
 :root[data-theme="dark"] {
-  --ground: #0a0f0e;
-  --surface: #121a17;
-  --surface-2: #18221f;
-  --ink: #e9f1ed;
-  --ink-soft: #92a49e;
-  --ink-faint: #6b7d77;
-  --line: #212e29;
-  --line-strong: #30413a;
-  --accent: #4fd1a1;
-  --accent-bright: #63e0b2;
-  --accent-soft: #122a22;
-  --signal: #e5a25c;
-  --signal-soft: #2b2113;
-  --urgent: #f2919c;
-  --urgent-soft: #2f171b;
-  --money: #6fdcae;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 2px 10px -2px rgba(0, 0, 0, 0.5);
+  /* Damp soil after rain — warm and dark, deliberately not black. */
+  --ground: #17120d;
+  --surface: #211a13;
+  --surface-2: #2a2119;
+  --ink: #f2ece1;
+  --ink-soft: #a89985;
+  --ink-faint: #7c6f5e;
+  --line: #322820;
+  --line-strong: #45392d;
+
+  /* Young leaf, light enough to carry dark type on a button. */
+  --accent: #7fc98c;
+  --accent-bright: #97dba3;
+  --accent-soft: #1d2a1c;
+
+  --signal: #e0a460;
+  --signal-soft: #2f2415;
+  --urgent: #f0949a;
+  --urgent-soft: #33191b;
+  --money: #8ed79b;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 2px 10px -2px rgba(0, 0, 0, 0.55);
 }
 
 * { box-sizing: border-box; }

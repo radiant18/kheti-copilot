@@ -4,8 +4,8 @@
   "description": "Daily irrigation, spray and selling decisions for Indian farmers, priced in rupees.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6f4ef",
-  "theme_color": "#1f6b3a",
+  "background_color": "#f7f3ea",
+  "theme_color": "#2e6b3e",
   "orientation": "portrait",
   "icons": [
     {
