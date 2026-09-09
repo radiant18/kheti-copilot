@@ -1,5 +1,3 @@
-"use client";
-
 import { cropName, getCrop, gradeLabel } from "./crops";
 import { t, type Lang } from "./i18n";
 import { rankSellOptions } from "./engine/market";
@@ -9,10 +7,11 @@ import type { Farm, FarmPlan } from "./types";
  * The day's plan as a WhatsApp message.
  *
  * Farmers do not open apps; they read WhatsApp. Sending the plan there rather
- * than waiting to be visited is the whole point, and it costs nothing — no
- * backend, no Business API approval, no push permission. The farmer picks the
- * recipient, which also means the plan spreads: one grower forwards it to his
- * neighbour or his FPO group.
+ * than waiting to be visited is the whole point.
+ *
+ * This module has no "use client" and touches no browser API, because the 5am
+ * job builds the same message on the server. Keep it that way — anything that
+ * reaches for window belongs in share.ts instead.
  *
  * The recommendations arrive here already in the farmer's language, because the
  * engine builds them that way, so nothing is translated twice.
@@ -86,9 +85,4 @@ function priceLine(farm: Farm, plan: FarmPlan, lang: Lang): string {
     price: top.modalPerQtl.toLocaleString("en-IN"),
     market: top.market,
   })}`;
-}
-
-/** Opens WhatsApp with the message ready; the farmer chooses who gets it. */
-export function shareOnWhatsapp(text: string): void {
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
 }

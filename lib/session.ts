@@ -103,7 +103,4 @@ export function signOut(): void {
   }
 }
 
-/** Indian mobile numbers: 10 digits starting 6-9. */
-export function isValidPhone(raw: string): boolean {
-  return /^[6-9]\d{9}$/.test(raw.replace(/\D/g, ""));
-}
+export { isValidPhone } from "./session-shared";

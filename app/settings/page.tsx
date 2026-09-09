@@ -13,6 +13,7 @@ import {
 } from "@/lib/farm";
 import { loadSession, signOut, type Session } from "@/lib/session";
 import { useLang } from "@/lib/use-lang";
+import { DailyPlanToggle } from "@/components/DailyPlanToggle";
 import type { Farm } from "@/lib/types";
 
 /**
@@ -213,6 +214,16 @@ export default function SettingsPage() {
           </Link>
         )}
       </section>
+
+      <Section title={t("dailyPlanTitle")}>
+        <DailyPlanToggle
+          title={t("dailyPlanTitle")}
+          note={t("dailyPlanNote")}
+          onLabel={t("dailyPlanOn")}
+          offLabel={t("dailyPlanOff")}
+          needsPhone={t("dailyPlanNeedsPhone")}
+        />
+      </Section>
 
       <Section title="About">
         <p className="text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>
