@@ -7,6 +7,7 @@ import { WeatherStrip } from "@/components/WeatherStrip";
 import { cropName, getCrop } from "@/lib/crops";
 import { harvestNote } from "@/components/HarvestNote";
 import { loadFarm, loadFarms } from "@/lib/farm";
+import { farmSizeLabel } from "@/lib/crops/planting";
 import { isDemo, signOut } from "@/lib/session";
 import { t as translate } from "@/lib/i18n";
 import { useLang } from "@/lib/use-lang";
@@ -22,8 +23,7 @@ export default function TodayPage() {
 
   useEffect(() => {
     const f = loadFarm();
-    const unit = translate(lang, f.acres === 1 ? "acre" : "acres");
-    setFarmName(`${cropName(getCrop(f.cropId), lang)} · ${f.acres} ${unit} · ${f.village}`);
+    setFarmName(`${cropName(getCrop(f.cropId), lang)} · ${farmSizeLabel(f, lang)} · ${f.village}`);
     setPlotCount(loadFarms().length);
     setDemo(isDemo());
   }, [lang]);

@@ -31,6 +31,7 @@ export const DEMO_FARM: Farm = {
   district: "Dakshina Kannada",
   state: "Karnataka",
   acres: 3,
+  plantCount: 1680,
   plantedYear: 2014,
   irrigation: "sprinkler",
   soil: "laterite",

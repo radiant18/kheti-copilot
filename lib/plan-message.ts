@@ -1,4 +1,5 @@
 import { cropName, getCrop, gradeLabel } from "./crops";
+import { farmSizeLabel } from "./crops/planting";
 import { t, type Lang } from "./i18n";
 import { rankSellOptions } from "./engine/market";
 import type { Farm, FarmPlan } from "./types";
@@ -22,7 +23,6 @@ const WORTH_SENDING = new Set(["urgent", "act", "watch"]);
 
 export function buildShareMessage(farm: Farm, plan: FarmPlan, lang: Lang): string {
   const crop = getCrop(farm.cropId);
-  const unit = t(lang, farm.acres === 1 ? "acre" : "acres");
   const date = new Date().toLocaleDateString(`${lang}-IN`, {
     weekday: "long",
     day: "numeric",
@@ -31,7 +31,7 @@ export function buildShareMessage(farm: Farm, plan: FarmPlan, lang: Lang): strin
 
   const lines: string[] = [
     `🌴 *${t(lang, "shareToday")}*`,
-    `${cropName(crop, lang)} · ${farm.acres} ${unit}${farm.village ? ` · ${farm.village}` : ""}`,
+    `${cropName(crop, lang)} · ${farmSizeLabel(farm, lang)}${farm.village ? ` · ${farm.village}` : ""}`,
     date,
     "",
   ];

@@ -4,6 +4,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { cropName, estimatedQtlPerAcre, getCrop, listCrops } from "@/lib/crops";
 import { CropIcon } from "@/components/CropIcon";
+import { acresFromCount, plantingFor, type PlantUnit } from "@/lib/crops/planting";
+
+/** Plant units are translated words, so they go through the dictionary too. */
+const UNIT_KEY: Record<PlantUnit, string> = {
+  palms: "unitPalms",
+  trees: "unitTrees",
+  plants: "unitPlants",
+  vines: "unitVines",
+};
 import { blankFarm, DEMO_FARM, hasFarm, loadFarm, loadFarms, saveFarm, switchCrop } from "@/lib/farm";
 import { placesIn, STATES, type Place } from "@/lib/places";
 import { loadSession, markOnboarded } from "@/lib/session";
@@ -65,6 +74,7 @@ export default function OnboardingPage() {
 
   if (!farm) return null;
   const crop = getCrop(farm.cropId);
+  const planting = plantingFor(farm.cropId);
 
   function update<K extends keyof Farm>(key: K, value: Farm[K]) {
     setFarm((f) => (f ? { ...f, [key]: value } : f));
@@ -297,18 +307,49 @@ export default function OnboardingPage() {
           </p>
 
           <div className="mt-4 space-y-4">
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                {t("areaUnder", { crop: cropName(crop, lang) })}
-              </span>
-              <input
-                inputMode="decimal"
-                value={farm.acres || ""}
-                onChange={(e) => update("acres", Number(e.target.value) || 0)}
-                className="w-full rounded-xl border px-3 text-base"
-                style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
-              />
-            </label>
+            {/* A grower of trees knows the count, not the acreage. Ask for what
+                they actually know and derive the area, showing it back so an
+                obviously wrong number gets caught here rather than silently
+                distorting every yield figure downstream. */}
+            {planting ? (
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
+                  {t("howManyPlants", { unit: t(UNIT_KEY[planting.unit]) })}
+                </span>
+                <input
+                  inputMode="numeric"
+                  value={farm.plantCount || ""}
+                  onChange={(e) => {
+                    const count = Number(e.target.value) || 0;
+                    setFarm((f) =>
+                      f
+                        ? { ...f, plantCount: count, acres: acresFromCount(f.cropId, count) }
+                        : f,
+                    );
+                  }}
+                  className="w-full rounded-xl border px-3 text-base tabular-nums"
+                  style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
+                />
+                {farm.plantCount ? (
+                  <span className="mt-1.5 block text-xs" style={{ color: "var(--ink-faint)" }}>
+                    {t("plantsDerived", { acres: farm.acres, spacing: planting.spacing })}
+                  </span>
+                ) : null}
+              </label>
+            ) : (
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
+                  {t("areaUnder", { crop: cropName(crop, lang) })}
+                </span>
+                <input
+                  inputMode="decimal"
+                  value={farm.acres || ""}
+                  onChange={(e) => update("acres", Number(e.target.value) || 0)}
+                  className="w-full rounded-xl border px-3 text-base"
+                  style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
+                />
+              </label>
+            )}
 
             {crop.yield.kind === "perennial" ? (
               <label className="block">

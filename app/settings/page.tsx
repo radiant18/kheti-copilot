@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getCrop, harvestOutlook } from "@/lib/crops";
+import { farmSizeLabel } from "@/lib/crops/planting";
 import {
   activeFarmId,
   clearFarmData,
@@ -30,7 +31,7 @@ export default function SettingsPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingPlot, setConfirmingPlot] = useState<string | null>(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   function refresh() {
     setFarms(loadFarms());
@@ -126,7 +127,7 @@ export default function SettingsPage() {
                         {crop.name.en} · {crop.name.kn}
                       </h3>
                       <p className="mt-0.5 text-sm" style={{ color: "var(--ink-soft)" }}>
-                        {f.acres} {f.acres === 1 ? "acre" : "acres"}
+                        {farmSizeLabel(f, lang)}
                         {f.village ? ` · ${f.village}` : ""}
                       </p>
                       <p className="mt-0.5 text-sm" style={{ color: "var(--ink-soft)" }}>

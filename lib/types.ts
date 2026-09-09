@@ -27,6 +27,13 @@ export interface Farm {
   /** State, used to scope the mandi price query. */
   state: string;
   acres: number;
+  /**
+   * What the farmer actually counted, for crops that are counted rather than
+   * measured. `acres` stays the engine's unit and is derived from this; keeping
+   * the original means the app can show back the number they gave us instead of
+   * a converted figure they would not recognise.
+   */
+  plantCount?: number;
   /** Year planted. Coarse, but enough for a perennial's age in years. */
   plantedYear: number;
   /**
