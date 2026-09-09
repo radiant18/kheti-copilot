@@ -11,6 +11,8 @@ export interface CropOption {
   label: string;
   /** English, shown underneath — unless English is what they chose. */
   english: string;
+  /** Photograph path when the crop declares one; otherwise the emoji is used. */
+  image?: string;
 }
 
 /**
@@ -24,6 +26,7 @@ export function listCrops(lang: Lang = "en"): CropOption[] {
     id: c.id,
     label: cropName(c, lang),
     english: c.name.en,
+    ...(c.image ? { image: c.image } : {}),
   })).sort((a, b) => a.label.localeCompare(b.label, lang));
 }
 

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { cropName, estimatedQtlPerAcre, getCrop, listCrops } from "@/lib/crops";
+import { CropIcon } from "@/components/CropIcon";
 import { blankFarm, DEMO_FARM, hasFarm, loadFarm, loadFarms, saveFarm, switchCrop } from "@/lib/farm";
 import { placesIn, STATES, type Place } from "@/lib/places";
 import { loadSession, markOnboarded } from "@/lib/session";
@@ -178,15 +179,18 @@ export default function OnboardingPage() {
                     background: c.id === farm.cropId ? "var(--accent-soft)" : "var(--surface)",
                   }}
                 >
-<span>
-                    <span className="block text-[17px] font-bold leading-snug">{c.label}</span>
-                    {/* Only show English underneath when it adds something —
-                        never the same word twice. */}
-                    {c.label !== c.english && (
-                      <span className="mt-0.5 block text-[13px]" style={{ color: "var(--ink-faint)" }}>
-                        {c.english}
-                      </span>
-                    )}
+<span className="flex min-w-0 items-center gap-3">
+                    <CropIcon cropId={c.id} image={c.image} />
+                    <span className="min-w-0">
+                      <span className="block text-[17px] font-bold leading-snug">{c.label}</span>
+                      {/* Only show English underneath when it adds something —
+                          never the same word twice. */}
+                      {c.label !== c.english && (
+                        <span className="mt-0.5 block text-[13px]" style={{ color: "var(--ink-faint)" }}>
+                          {c.english}
+                        </span>
+                      )}
+                    </span>
                   </span>
                 </button>
               </li>

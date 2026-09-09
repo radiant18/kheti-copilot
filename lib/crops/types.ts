@@ -94,6 +94,12 @@ export interface CropConfig {
   /** Anything the farmer should be told about this crop that is not a rule. */
   notes?: string;
   /**
+   * Path under /public to a photograph of this crop. When absent the picker
+   * falls back to the emoji in lib/crops/icons.ts, so photos can be added one
+   * crop at a time.
+   */
+  image?: string;
+  /**
    * Where the yield figure came from and how much to trust it. Yields swing by
    * a factor of three across variety, season, soil and management, so this is
    * always an opening estimate the farmer is expected to correct.
