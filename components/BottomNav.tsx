@@ -3,22 +3,44 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLang } from "@/lib/use-lang";
+import { currentRole, type Role } from "@/lib/session";
+import { useEffect, useState } from "react";
 
 /** Hidden during sign-in and setup — those flows own the whole screen. */
 const CHROMELESS = new Set(["/login", "/onboarding"]);
 
-const TABS = [
-  { href: "/", key: "navToday", icon: "🌴" },
-  { href: "/market", key: "navSell", icon: "💰" },
-  { href: "/profit", key: "navProfit", icon: "📊" },
-  { href: "/ask", key: "navAsk", icon: "🎤" },
-  { href: "/settings", key: "navSettings", icon: "⚙️" },
-];
+/**
+ * The app a buyer gets is a different app.
+ *
+ * A trader has no garden to irrigate and no season to cost out, so showing them
+ * Today, Profit and Ask would be five tabs of which three are noise. They get
+ * the board and their settings.
+ */
+const TABS: Record<Role, { href: string; key: string; icon: string }[]> = {
+  farmer: [
+    { href: "/", key: "navToday", icon: "🌴" },
+    { href: "/market", key: "navSell", icon: "💰" },
+    { href: "/profit", key: "navProfit", icon: "📊" },
+    { href: "/ask", key: "navAsk", icon: "🎤" },
+    { href: "/settings", key: "navSettings", icon: "⚙️" },
+  ],
+  buyer: [
+    { href: "/market/direct", key: "navBuy", icon: "🤝" },
+    { href: "/settings", key: "navSettings", icon: "⚙️" },
+  ],
+};
 
 export function BottomNav() {
   const path = usePathname();
   const { t } = useLang();
+  const [role, setRole] = useState<Role>("farmer");
+
+  // Read after mount: the session lives in localStorage, which the server
+  // render cannot see, and guessing would flash the wrong set of tabs.
+  useEffect(() => setRole(currentRole()), [path]);
+
   if (CHROMELESS.has(path)) return null;
+  const tabs = TABS[role];
 
   return (
     <nav
@@ -30,7 +52,7 @@ export function BottomNav() {
       }}
     >
       <ul className="mx-auto flex max-w-[30rem] px-2">
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = path === tab.href;
           return (
             <li key={tab.href} className="flex-1">

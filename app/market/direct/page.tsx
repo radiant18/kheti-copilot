@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet } from "@/lib/api";
-import { cropName, getCrop, gradeLabel } from "@/lib/crops";
+import { cropName, getCrop, gradeLabel, type CropConfig } from "@/lib/crops";
 import { loadFarm } from "@/lib/farm";
-import { loadSession } from "@/lib/session";
+import { currentRole, loadSession, type Role } from "@/lib/session";
 import { useLang } from "@/lib/use-lang";
 import type { Listing } from "@/lib/listings";
+import type { Requirement } from "@/lib/requirements";
+import { RequirementCard } from "@/components/RequirementCard";
+import { RequirementForm } from "@/components/RequirementForm";
 import type { Farm, MarketView } from "@/lib/types";
 
 /**
@@ -28,20 +31,27 @@ export default function DirectSalePage() {
   const [phone, setPhone] = useState("");
   const [market, setMarket] = useState<MarketView | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
+  const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [posting, setPosting] = useState(false);
+  const [role, setRole] = useState<Role>("farmer");
 
   const refresh = useCallback(async (f: Farm) => {
-    const { listings } = await apiGet<{ listings: Listing[] }>("/api/listings", {
-      crop: f.cropId,
-      state: f.state,
-    });
-    setListings(listings);
+    const [lots, reqs] = await Promise.all([
+      apiGet<{ listings: Listing[] }>("/api/listings", { crop: f.cropId, state: f.state }),
+      apiGet<{ requirements: Requirement[] }>("/api/requirements", {
+        crop: f.cropId,
+        state: f.state,
+      }).catch(() => ({ requirements: [] as Requirement[] })),
+    ]);
+    setListings(lots.listings);
+    setRequirements(reqs.requirements);
   }, []);
 
   useEffect(() => {
     const f = loadFarm();
     setFarm(f);
     setPhone(loadSession()?.phone ?? "");
+    setRole(currentRole());
     void refresh(f);
     apiGet<MarketView>("/api/market", { crop: f.cropId, state: f.state })
       .then(setMarket)
@@ -63,11 +73,18 @@ export default function DirectSalePage() {
 
   return (
     <main className="py-5">
-      <p className="mb-1 text-sm">
-        <Link href="/market" style={{ color: "var(--accent)" }}>← {t("navSell")}</Link>
+      {/* Buyers have no Sell tab to go back to; this board is their home. */}
+      {role === "farmer" && (
+        <p className="mb-1 text-sm">
+          <Link href="/market" style={{ color: "var(--accent)" }}>← {t("navSell")}</Link>
+        </p>
+      )}
+      <h1 className="text-2xl font-bold tracking-tight">
+        {role === "buyer" ? t("buyerHomeTitle") : t("directTitle")}
+      </h1>
+      <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
+        {role === "buyer" ? t("buyerHomeBlurb") : t("directBlurb")}
       </p>
-      <h1 className="text-2xl font-bold tracking-tight">{t("directTitle")}</h1>
-      <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>{t("directBlurb")}</p>
 
       {!posting && (
         <button
@@ -75,25 +92,53 @@ export default function DirectSalePage() {
           className="press mt-4 w-full rounded-xl py-3.5 text-base font-bold"
           style={{ background: "var(--accent)", color: "var(--ground)" }}
         >
-          {t("directPostCta")}
+          {role === "buyer" ? t("postRequirement") : t("directPostCta")}
         </button>
       )}
 
-      {posting && (
-        <PostForm
-          farm={farm}
+      {posting &&
+        (role === "buyer" ? (
+          <RequirementForm
+            crop={crop}
+            phone={phone}
+            state={farm.state}
+            district={farm.district}
+            t={t}
+            onDone={() => {
+              setPosting(false);
+              void refresh(farm);
+            }}
+            onCancel={() => setPosting(false)}
+          />
+        ) : (
+          <PostForm
+            farm={farm}
+            phone={phone}
+            t={t}
+            onDone={() => {
+              setPosting(false);
+              void refresh(farm);
+            }}
+            onCancel={() => setPosting(false)}
+          />
+        ))}
+
+      {/* Demand first for a grower — knowing somebody will pay ₹51,500 is more
+          use than seeing what neighbours are asking. Buyers get supply first
+          for the same reason reversed. */}
+      {role === "farmer" && (
+        <BuyersSection
+          requirements={requirements}
+          crop={crop}
+          mandi={mandi}
           phone={phone}
           t={t}
-          onDone={() => {
-            setPosting(false);
-            void refresh(farm);
-          }}
-          onCancel={() => setPosting(false)}
+          onChanged={() => void refresh(farm)}
         />
       )}
 
       <h2 className="eyebrow mt-7 mb-2.5">
-        {t("directOpen")} · {cropName(crop, "en")}
+        {t("lotsForSale")} · {cropName(crop, "en")}
       </h2>
 
       {listings.length === 0 && (
@@ -162,10 +207,71 @@ export default function DirectSalePage() {
         })}
       </ul>
 
+      {role === "buyer" && (
+        <BuyersSection
+          requirements={requirements}
+          crop={crop}
+          mandi={mandi}
+          phone={phone}
+          t={t}
+          onChanged={() => void refresh(farm)}
+        />
+      )}
+
       <p className="mt-6 text-xs leading-relaxed" style={{ color: "var(--ink-faint)" }}>
         {t("directUnverified")}
       </p>
     </main>
+  );
+}
+
+function BuyersSection({
+  requirements,
+  crop,
+  mandi,
+  phone,
+  t,
+  onChanged,
+}: {
+  requirements: Requirement[];
+  crop: CropConfig;
+  mandi: Map<string, { price: number; market: string }>;
+  phone: string;
+  t: (k: string, p?: Record<string, string | number>) => string;
+  onChanged: () => void;
+}) {
+  /** Best mandi price for the crop, used when a buyer wants any grade. */
+  const topMandi = Math.max(0, ...[...mandi.values()].map((m) => m.price));
+
+  return (
+    <section className="mt-7">
+      <h2 className="eyebrow mb-2.5">{t("buyersReady")}</h2>
+
+      {requirements.length === 0 ? (
+        <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{t("buyersNone")}</p>
+      ) : (
+        <ul className="space-y-3">
+          {requirements.map((req) => (
+            <RequirementCard
+              key={req.id}
+              req={req}
+              crop={crop}
+              mandiPrice={req.grade ? mandi.get(req.grade)?.price : topMandi || undefined}
+              mine={req.phone === phone}
+              t={t}
+              onClose={async () => {
+                await fetch("/api/requirements", {
+                  method: "PATCH",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ id: req.id, phone }),
+                });
+                onChanged();
+              }}
+            />
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

@@ -18,11 +18,22 @@ const SESSION_KEY = "kheti.session.v1";
 
 import type { Lang } from "./i18n";
 
+/**
+ * Who is using the app.
+ *
+ * A farmer needs irrigation timing, spray windows and a profit book. A buyer —
+ * trader, mill, FPO, exporter — needs none of that and would be baffled by a
+ * home screen telling them to spray. The role decides which app they get, so it
+ * is asked first, before anything else.
+ */
+export type Role = "farmer" | "buyer";
+
 export interface Session {
   phone: string;
   name: string;
   /** Chosen at sign-in, before a farm exists, so the setup flow is translated too. */
   lang: Lang;
+  role: Role;
   signedInAt: string;
   /** False until the farm profile wizard has been completed. */
   onboarded: boolean;
@@ -52,14 +63,16 @@ export function saveSession(session: Session): void {
   }
 }
 
-export function signIn(phone: string, name: string, lang: Lang): Session {
+export function signIn(phone: string, name: string, lang: Lang, role: Role): Session {
   const existing = loadSession();
   const session: Session = {
     phone,
     name,
     lang,
+    role,
     signedInAt: new Date().toISOString(),
-    onboarded: existing?.phone === phone ? existing.onboarded : false,
+    // A buyer has no farm to set up, so there is nothing to onboard them into.
+    onboarded: role === "buyer" ? true : existing?.phone === phone ? existing.onboarded : false,
   };
   saveSession(session);
   return session;
@@ -73,17 +86,23 @@ export function signIn(phone: string, name: string, lang: Lang): Session {
  * number. Nothing here is verified and nothing is sent anywhere; it is the same
  * local session as any other, flagged so it can be left cleanly.
  */
-export function startDemo(lang: Lang): Session {
+export function startDemo(lang: Lang, role: Role = "farmer"): Session {
   const session: Session = {
     phone: "",
-    name: "Suresh Bhat",
+    name: role === "buyer" ? "Kadamba Traders" : "Suresh Bhat",
     lang,
+    role,
     signedInAt: new Date().toISOString(),
     onboarded: true,
     demo: true,
   };
   saveSession(session);
   return session;
+}
+
+/** Defaults to farmer so a session stored before roles existed still works. */
+export function currentRole(): Role {
+  return loadSession()?.role ?? "farmer";
 }
 
 export function isDemo(): boolean {

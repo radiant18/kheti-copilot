@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LANGUAGES, t, type Lang } from "@/lib/i18n";
-import { isValidPhone, loadSession, signIn, startDemo } from "@/lib/session";
+import { isValidPhone, loadSession, signIn, startDemo, type Role } from "@/lib/session";
 
 /**
  * Sign-in.
@@ -18,6 +18,7 @@ import { isValidPhone, loadSession, signIn, startDemo } from "@/lib/session";
 export default function LoginPage() {
   const router = useRouter();
   const [lang, setLang] = useState<Lang>("en");
+  const [role, setRole] = useState<Role>("farmer");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [touched, setTouched] = useState(false);
@@ -36,8 +37,9 @@ export default function LoginPage() {
     e.preventDefault();
     setTouched(true);
     if (!canSubmit) return;
-    const session = signIn(digits, name.trim(), lang);
-    router.push(session.onboarded ? "/" : "/onboarding");
+    const session = signIn(digits, name.trim(), lang, role);
+    // A buyer has no farm to set up; send them straight to the board.
+    router.push(role === "buyer" ? "/market/direct" : session.onboarded ? "/" : "/onboarding");
   }
 
   return (
@@ -55,6 +57,40 @@ export default function LoginPage() {
           {t(lang, "tagline")}
         </p>
       </header>
+
+      <fieldset className="mb-7">
+        <legend className="eyebrow mb-2.5">{t(lang, "chooseRole")}</legend>
+        <div className="grid gap-2">
+          {(
+            [
+              ["farmer", "roleFarmer", "roleFarmerNote"],
+              ["buyer", "roleBuyer", "roleBuyerNote"],
+            ] as const
+          ).map(([value, label, note]) => {
+            const on = role === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setRole(value)}
+                aria-pressed={on}
+                className="press rounded-xl border px-4 py-3 text-left"
+                style={{
+                  borderColor: on ? "var(--accent)" : "var(--line)",
+                  background: on ? "var(--accent-soft)" : "var(--surface)",
+                }}
+              >
+                <span className="block font-bold" style={{ color: on ? "var(--accent)" : "var(--ink)" }}>
+                  {t(lang, label)}
+                </span>
+                <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-soft)" }}>
+                  {t(lang, note)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
 
       <fieldset className="mb-7">
         <legend className="eyebrow mb-2.5">{t(lang, "chooseLanguage")}</legend>
@@ -151,8 +187,8 @@ export default function LoginPage() {
       <button
         type="button"
         onClick={() => {
-          startDemo(lang);
-          router.push("/");
+          startDemo(lang, role);
+          router.push(role === "buyer" ? "/market/direct" : "/");
         }}
         className="press card mt-4 w-full py-3.5 text-base font-bold"
         style={{ color: "var(--accent)" }}
