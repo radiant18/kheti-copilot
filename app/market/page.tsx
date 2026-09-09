@@ -8,6 +8,8 @@ import { rankSellOptions } from "@/lib/engine/market";
 import { withTrend } from "@/lib/price-history";
 import { PageHeader } from "@/components/PageHeader";
 import { YardBar } from "@/components/YardBar";
+import { GradeBoard } from "@/components/GradeBoard";
+import { useLang } from "@/lib/use-lang";
 import type { Farm, Grade, MarketView } from "@/lib/types";
 
 /**
@@ -21,6 +23,7 @@ export default function MarketPage() {
   const [market, setMarket] = useState<MarketView | null>(null);
   const [farm, setFarm] = useState<Farm | null>(null);
   const [grade, setGrade] = useState<Grade | null>(null);
+  const { t } = useLang();
   const [editing, setEditing] = useState(false);
 
   useEffect(() => {
@@ -206,6 +209,18 @@ export default function MarketPage() {
             />
           ))}
         </ol>
+      )}
+
+      {/* The yard list answers "where do I take what I have". This answers what
+          the crop is worth at each grade, which is the larger number. */}
+      {market && market.quotes.length > 0 && (
+        <GradeBoard
+          crop={crop}
+          quotes={market.quotes}
+          held={heldGrades}
+          heading={t("todaysBoard")}
+          note={(spread) => t("boardSpread", { spread })}
+        />
       )}
     </main>
   );

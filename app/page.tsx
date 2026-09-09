@@ -7,6 +7,7 @@ import { WeatherStrip } from "@/components/WeatherStrip";
 import { cropName, getCrop } from "@/lib/crops";
 import { harvestNote } from "@/components/HarvestNote";
 import { loadFarm, loadFarms } from "@/lib/farm";
+import { isDemo, signOut } from "@/lib/session";
 import { buildShareMessage, shareOnWhatsapp } from "@/lib/share";
 import { t as translate } from "@/lib/i18n";
 import { useLang } from "@/lib/use-lang";
@@ -18,12 +19,14 @@ export default function TodayPage() {
   const { lang, t } = useLang();
   const [farmName, setFarmName] = useState("");
   const [plotCount, setPlotCount] = useState(1);
+  const [demo, setDemo] = useState(false);
 
   useEffect(() => {
     const f = loadFarm();
     const unit = translate(lang, f.acres === 1 ? "acre" : "acres");
     setFarmName(`${cropName(getCrop(f.cropId), lang)} · ${f.acres} ${unit} · ${f.village}`);
     setPlotCount(loadFarms().length);
+    setDemo(isDemo());
   }, [lang]);
 
   const today = new Date().toLocaleDateString("en-IN", {
@@ -34,6 +37,25 @@ export default function TodayPage() {
 
   return (
     <main className="py-5">
+      {/* Nobody should mistake the seeded garden for a farm they entered. */}
+      {demo && (
+        <div
+          className="mb-4 flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-xs font-semibold"
+          style={{ background: "var(--signal-soft)", color: "var(--signal)" }}
+        >
+          <span>{t("demoBadge")}</span>
+          <button
+            onClick={() => {
+              signOut();
+              window.location.href = "/login";
+            }}
+            className="underline underline-offset-2"
+          >
+            {t("demoExit")}
+          </button>
+        </div>
+      )}
+
       <header className="mb-5">
         <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{today}</p>
         <h1 className="mt-0.5 text-[1.75rem] font-extrabold leading-tight">{t("yourFarmToday")}</h1>

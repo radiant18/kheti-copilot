@@ -26,6 +26,12 @@ export interface Session {
   signedInAt: string;
   /** False until the farm profile wizard has been completed. */
   onboarded: boolean;
+  /**
+   * True for the look-around session started from the login screen. The app
+   * badges it and offers a way out, so nobody mistakes the seeded arecanut
+   * garden for a farm they entered themselves.
+   */
+  demo?: boolean;
 }
 
 export function loadSession(): Session | null {
@@ -57,6 +63,31 @@ export function signIn(phone: string, name: string, lang: Lang): Session {
   };
   saveSession(session);
   return session;
+}
+
+/**
+ * Start a look-around session on the seeded demo garden.
+ *
+ * Someone opening this app for the first time — a judge, a farmer's son, an
+ * extension officer — should see what it does before being asked for a phone
+ * number. Nothing here is verified and nothing is sent anywhere; it is the same
+ * local session as any other, flagged so it can be left cleanly.
+ */
+export function startDemo(lang: Lang): Session {
+  const session: Session = {
+    phone: "",
+    name: "Suresh Bhat",
+    lang,
+    signedInAt: new Date().toISOString(),
+    onboarded: true,
+    demo: true,
+  };
+  saveSession(session);
+  return session;
+}
+
+export function isDemo(): boolean {
+  return loadSession()?.demo === true;
 }
 
 export function markOnboarded(): void {

@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import type { AskContext } from "@/lib/ask-context";
+import { answerLocally } from "@/lib/ask-local";
 import { languageName, type Lang } from "@/lib/i18n";
 
 /**
@@ -45,17 +46,6 @@ HOW TO SPEAK
 - Reply entirely in the language named in the user message. Do not mix in English words the farmer would not use.`;
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json(
-      {
-        error: "no_key",
-        answer:
-          "The assistant is not switched on yet. Add an ANTHROPIC_API_KEY to enable it — everything else in the app works without it.",
-      },
-      { status: 200 },
-    );
-  }
-
   let body: { question?: string; context?: AskContext; lang?: string; history?: { role: string; text: string }[] };
   try {
     body = await req.json();
@@ -67,6 +57,21 @@ export async function POST(req: Request) {
   if (!question) return NextResponse.json({ error: "no_question" }, { status: 400 });
   if (question.length > 500) {
     return NextResponse.json({ error: "too_long", answer: "That question is too long. Ask it in a sentence." }, { status: 200 });
+  }
+
+  /**
+   * No key: answer from the plan directly rather than turning the tab off.
+   * The wording is blunter, but it is drawn from the same rules and is already
+   * in the farmer's language, so the feature works for everyone out of the box.
+   */
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!body.context) {
+      return NextResponse.json({ mode: "local", answer: "Open your farm plan first, then ask." });
+    }
+    return NextResponse.json({
+      mode: "local",
+      answer: answerLocally(body.context, question, (body.lang as Lang) ?? "en"),
+    });
   }
 
   const client = new Anthropic();

@@ -24,7 +24,7 @@ export interface AskContext {
     stockQtl: Record<string, number>;
   };
   /** What the rules decided today, in priority order. */
-  plan: { title: string; why: string; urgency: string; rupees?: number }[];
+  plan: { id: string; title: string; why: string; urgency: string; rupees?: number }[];
   weather: { date: string; rainMm: number; dryHours: number; humidityMaxPct: number }[];
   market: { market: string; grade: string; rupeesPerQuintal: number; date: string }[];
   money: {
@@ -61,6 +61,7 @@ export function buildAskContext(farm: Farm, plan: FarmPlan): AskContext {
       stockQtl: farm.stockQtl,
     },
     plan: plan.recommendations.map((r) => ({
+      id: r.id,
       title: r.title,
       why: r.why,
       urgency: r.severity,

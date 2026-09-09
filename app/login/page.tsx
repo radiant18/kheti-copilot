@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LANGUAGES, t, type Lang } from "@/lib/i18n";
-import { isValidPhone, loadSession, signIn } from "@/lib/session";
+import { isValidPhone, loadSession, signIn, startDemo } from "@/lib/session";
 
 /**
  * Sign-in.
@@ -135,8 +135,32 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-xs leading-relaxed" style={{ color: "var(--ink-faint)" }}>
+      <p className="mt-5 text-xs leading-relaxed" style={{ color: "var(--ink-faint)" }}>
         {t(lang, "privacy")}
+      </p>
+
+      {/* Someone opening this for the first time should be able to see what it
+          does before handing over a phone number. Judges, extension officers and
+          a farmer's curious son all arrive the same way. */}
+      <div className="mt-7 flex items-center gap-3" aria-hidden>
+        <span className="h-px flex-1" style={{ background: "var(--line)" }} />
+        <span className="eyebrow">{t(lang, "orDivider")}</span>
+        <span className="h-px flex-1" style={{ background: "var(--line)" }} />
+      </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          startDemo(lang);
+          router.push("/");
+        }}
+        className="press card mt-4 w-full py-3.5 text-base font-bold"
+        style={{ color: "var(--accent)" }}
+      >
+        {t(lang, "tryDemo")}
+      </button>
+      <p className="mt-2 text-xs leading-relaxed" style={{ color: "var(--ink-faint)" }}>
+        {t(lang, "tryDemoNote")}
       </p>
     </main>
   );

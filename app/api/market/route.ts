@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCrop, normaliseGrade } from "@/lib/crops";
 import type { Grade, MandiQuote, MarketView } from "@/lib/types";
-import { SAMPLE_ARECANUT_QUOTES } from "@/lib/sample-market";
+import { sampleQuotesFor } from "@/lib/sample-market";
 
 /**
  * Agmarknet prices via the data.gov.in Open Government Data platform, for any
@@ -112,11 +112,10 @@ export async function GET(req: Request) {
   // No key: only arecanut has bundled sample data. Everything else says so.
   const key = process.env.DATA_GOV_API_KEY;
   if (!key) {
-    return NextResponse.json(
-      cropId === "arecanut"
-        ? summarise(SAMPLE_ARECANUT_QUOTES, cropId, "unconfigured")
-        : summarise([], cropId, "unconfigured"),
-    );
+    // Every crop has a fallback board, so no crop is ever a dead end. The
+    // response is tagged so the Sell screen can say these are not today's
+    // prices — the app degrades honestly rather than silently.
+    return NextResponse.json(summarise(sampleQuotesFor(cropId), cropId, "unconfigured"));
   }
 
   try {
@@ -128,15 +127,13 @@ export async function GET(req: Request) {
     }
 
     const quotes = toQuotes(records);
-    if (quotes.length === 0 && cropId === "arecanut") {
-      return NextResponse.json(summarise(SAMPLE_ARECANUT_QUOTES, cropId, "sample"));
+    // A live pull that comes back empty — a crop that did not trade in this
+    // state today — still beats a blank screen, so fall back and say so.
+    if (quotes.length === 0) {
+      return NextResponse.json(summarise(sampleQuotesFor(cropId), cropId, "sample"));
     }
     return NextResponse.json(summarise(quotes, cropId, "live"));
   } catch {
-    return NextResponse.json(
-      cropId === "arecanut"
-        ? summarise(SAMPLE_ARECANUT_QUOTES, cropId, "sample")
-        : summarise([], cropId, "sample"),
-    );
+    return NextResponse.json(summarise(sampleQuotesFor(cropId), cropId, "sample"));
   }
 }

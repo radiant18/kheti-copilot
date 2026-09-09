@@ -59,6 +59,12 @@ export const MANDI_GAZETTEER: Record<string, { lat: number; lon: number; distric
   Ballari: { lat: 15.1394, lon: 76.9214, district: "Ballari" },
   Tumakuru: { lat: 13.3379, lon: 77.101, district: "Tumakuru" },
   Mandya: { lat: 12.5223, lon: 76.8955, district: "Mandya" },
+  Tiptur: { lat: 13.2561, lon: 76.4776, district: "Tumakuru" },
+  Sakleshpur: { lat: 12.9421, lon: 75.7855, district: "Hassan" },
+  Raichur: { lat: 16.2076, lon: 77.3463, district: "Raichur" },
+  Haveri: { lat: 14.7951, lon: 75.404, district: "Haveri" },
+  Chamarajanagar: { lat: 11.9261, lon: 76.9437, district: "Chamarajanagar" },
+  Bagalkote: { lat: 16.1691, lon: 75.6615, district: "Bagalkote" },
 };
 
 export function haversineKm(aLat: number, aLon: number, bLat: number, bLon: number): number {
