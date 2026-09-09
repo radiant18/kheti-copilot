@@ -59,6 +59,12 @@ export interface Farm {
 }
 
 export interface DayWeather {
+  /**
+   * FAO-56 reference evapotranspiration: how much water a standard grass
+   * surface lost that day. Multiplied by the crop coefficient this becomes what
+   * the garden actually drank, which is the number no farmer can see.
+   */
+  et0Mm: number;
   date: string;
   rainMm: number;
   tempMaxC: number;
@@ -70,7 +76,21 @@ export interface DayWeather {
 
 export interface WeatherWindow {
   updatedAt: string;
+  /** Today onward. */
   days: DayWeather[];
+  /** The last seven days, for the water balance and disease pressure counts. */
+  past: DayWeather[];
+  /**
+   * Hour-by-hour, past week through the coming week. Kept as parallel arrays
+   * rather than objects because this is the largest thing the app downloads and
+   * the farmer is often on a village connection.
+   */
+  hourly: {
+    time: string[];
+    rainMm: number[];
+    humidity: number[];
+    tempC: number[];
+  };
   past7dRainMm: number;
 }
 

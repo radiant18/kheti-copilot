@@ -3,6 +3,8 @@ import { cropName } from "../crops";
 import { t, type Lang } from "../i18n";
 import { msg } from "../messages";
 import type { DayWeather, Farm, Recommendation, WeatherWindow } from "../types";
+import { waterBalance } from "./water";
+import { diseasePressure, nextSprayWindow } from "./pressure";
 
 /**
  * Weather-driven agronomy, generalised across crops and languages.
@@ -36,65 +38,68 @@ export function irrigationAdvice(
   crop: CropConfig,
   wx: WeatherWindow,
   lang: Lang,
-  today = new Date(),
 ): Recommendation {
-  const rain48 = rainOver(wx.days, 2);
-  const { intervalDays, rainSkipMm } = crop.irrigation;
-  const name = cropName(crop, lang);
-  const rain = rain48.toFixed(0);
-
   if (farm.irrigation === "rainfed") {
     return {
       id: "irrigation",
       icon: "💧",
       severity: "info",
       title: msg(lang, "irr.rainfed.t"),
-      why: msg(lang, "irr.rainfed.w", { rain }),
+      why: msg(lang, "irr.rainfed.w", { rain: rainOver(wx.days, 2).toFixed(0) }),
     };
   }
 
-  if (rain48 >= rainSkipMm) {
-    // Diesel and pump time saved is the concrete win the farmer feels.
+  const bal = waterBalance(farm, wx);
+
+  // Without history there is no balance to report; say nothing rather than guess.
+  if (!bal) {
+    return {
+      id: "irrigation",
+      icon: "💧",
+      severity: "info",
+      title: msg(lang, "water.ok.t"),
+      why: msg(lang, "irr.rainfed.w", { rain: rainOver(wx.days, 2).toFixed(0) }),
+    };
+  }
+
+  if (bal.deficitMm <= 0) {
+    return {
+      id: "irrigation",
+      icon: "💧",
+      severity: "info",
+      title: msg(lang, "water.ok.t"),
+      why: msg(lang, "water.ok.w", { days: bal.days, used: bal.usedMm, rain: bal.rainMm }),
+    };
+  }
+
+  if (bal.rainWillCover) {
     return {
       id: "irrigation",
       icon: "💧",
       severity: "act",
-      title: msg(lang, "irr.skip.t"),
-      why: msg(lang, "irr.skip.w", { rain, crop: name }),
+      title: msg(lang, "water.wait.t"),
+      why: msg(lang, "water.wait.w", { deficit: bal.deficitMm, ahead: bal.rainAheadMm }),
+      // Diesel and pump time not spent is money the farmer can feel.
       rupeeImpact: Math.round(farm.acres * 180),
       window: msg(lang, "win.today"),
     };
   }
 
-  const interval = intervalDays[farm.irrigation];
-  const since = farm.lastIrrigatedAt ? daysBetween(farm.lastIrrigatedAt, today.toISOString()) : interval;
-  const due = interval - since;
-
-  if (due <= 0) {
-    return {
-      id: "irrigation",
-      icon: "💧",
-      severity: "act",
-      title: msg(lang, "irr.due.t"),
-      why: msg(lang, "irr.due.w", {
-        since,
-        rain,
-        method: t(lang, `irr.${farm.irrigation}`),
-        interval,
-        crop: name,
-      }),
-      window: msg(lang, "win.today"),
-    };
-  }
-
-  const when = new Date(today.getTime() + due * 86_400_000);
   return {
     id: "irrigation",
     icon: "💧",
-    severity: "info",
-    title: due === 1 ? msg(lang, "irr.next1.t") : msg(lang, "irr.next.t", { due }),
-    why: msg(lang, "irr.next.w", { since, interval }),
-    window: weekday(when, lang),
+    severity: "act",
+    title: msg(lang, "water.t", { deficit: bal.deficitMm }),
+    why:
+      bal.litresPerPlant !== undefined
+        ? msg(lang, "water.w", {
+            days: bal.days,
+            used: bal.usedMm,
+            rain: bal.rainMm,
+            litres: bal.litresPerPlant,
+          })
+        : msg(lang, "water.area.w", { days: bal.days, used: bal.usedMm, rain: bal.rainMm }),
+    window: msg(lang, "win.today"),
   };
 }
 
@@ -115,88 +120,74 @@ export function diseaseAdvice(
   lang: Lang,
   today = new Date(),
 ): Recommendation {
-  const inSeason = rule.months.includes(today.getMonth() + 1);
   const disease = rule.name[lang === "kn" ? "kn" : "en"] ?? rule.name.en;
   const treatment = rule.treatment.name[lang === "kn" ? "kn" : "en"] ?? rule.treatment.name.en;
+  const inSeason = rule.months.includes(today.getMonth() + 1);
 
-  const wetDays = wx.days.filter(
-    (d) =>
-      d.rainMm > 2 &&
-      d.humidityMaxPct >= rule.humidityPct &&
-      d.tempMinC >= rule.tempMinC &&
-      d.tempMaxC <= rule.tempMaxC,
-  ).length;
-
-  const lastSpray = farm.lastSprayAt?.[rule.id];
-  const sinceSpray = lastSpray ? daysBetween(lastSpray, today.toISOString()) : Infinity;
-  const protectionLeft = rule.treatment.protectionDays - sinceSpray;
-  const sprayDay = wx.days.find((d) => d.dryHours >= rule.treatment.dryHours);
-  const atRisk = inSeason && wetDays >= rule.wetDays;
+  const pressure = diseasePressure(rule, wx, today);
   const atStake = Math.round(expectedQtl * pricePerQtl * rule.lossShare);
 
-  if (atRisk && protectionLeft > 7) {
+  if (!pressure || !inSeason || pressure.fraction < 0.5) {
     return {
       id: rule.id,
       icon: "🌂",
       severity: "info",
-      title: msg(lang, "dis.safe.t", { disease }),
-      why: msg(lang, "dis.safe.w", {
-        wetDays,
-        humidity: rule.humidityPct,
-        since: sinceSpray,
-        left: protectionLeft,
-      }),
+      title: msg(lang, "press.low.t", { disease }),
+      why:
+        inSeason && pressure
+          ? msg(lang, "press.low.w", {
+              disease,
+              hours: pressure.hoursSoFar,
+              threshold: pressure.threshold,
+            })
+          : msg(lang, "dis.off.w", { disease }),
     };
   }
 
-  if (atRisk) {
-    if (!sprayDay) {
-      return {
-        id: rule.id,
-        icon: "🌂",
-        severity: "urgent",
-        title: msg(lang, "dis.nowindow.t", { disease }),
-        why: msg(lang, "dis.nowindow.w", { wetDays, hours: rule.treatment.dryHours }),
-        rupeeImpact: -atStake,
-      };
-    }
-    const date = new Date(sprayDay.date);
-    const day = weekday(date, lang);
+  const window = nextSprayWindow(wx, rule.treatment.dryHours, 85, today);
+  const clock = (h: number) => `${((h + 11) % 12) + 1}${h < 12 ? "am" : "pm"}`;
+
+  // Pressure is building but there is nowhere to put a spray this week.
+  if (!window) {
     return {
       id: rule.id,
       icon: "🌂",
       severity: "urgent",
-      title: msg(lang, "dis.spray.t", { treatment, day }),
-      why: msg(lang, "dis.spray.w", {
+      title: msg(lang, "press.t", { disease }),
+      why: msg(lang, "press.ahead.w", {
+        hours: pressure.hoursSoFar,
+        ahead: pressure.hoursAhead,
         disease,
-        wetDays,
-        humidity: rule.humidityPct,
-        day,
-        dryHours: sprayDay.dryHours,
+        threshold: pressure.threshold,
       }),
       rupeeImpact: -atStake,
-      window: date.toLocaleDateString(`${lang}-IN`, { day: "numeric", month: "short" }),
     };
   }
 
-  if (inSeason && protectionLeft <= 0) {
-    return {
-      id: rule.id,
-      icon: "🌂",
-      severity: "watch",
-      title: msg(lang, "dis.expired.t", { treatment }),
-      why: Number.isFinite(sinceSpray)
-        ? msg(lang, "dis.expired.w", { since: sinceSpray, days: rule.treatment.protectionDays })
-        : msg(lang, "dis.never.w", { disease }),
-    };
-  }
+  const day = weekday(new Date(window.date), lang);
 
   return {
     id: rule.id,
     icon: "🌂",
-    severity: "info",
-    title: msg(lang, "dis.low.t", { disease }),
-    why: inSeason ? msg(lang, "dis.low.w", { wetDays }) : msg(lang, "dis.off.w", { disease }),
+    severity: pressure.fraction >= 1 ? "urgent" : "act",
+    title: msg(lang, "spray.t", {
+      treatment,
+      day,
+      from: clock(window.fromHour),
+      to: clock(window.toHour),
+    }),
+    why: `${msg(lang, "press.w", {
+      disease,
+      hours: pressure.hoursSoFar,
+      threshold: pressure.threshold,
+      run: pressure.longestRunHours,
+    })} ${
+      window.rainReturnsHour !== undefined
+        ? msg(lang, "spray.rain.w", { hours: window.hours, rain: clock(window.rainReturnsHour) })
+        : msg(lang, "spray.w", { hours: window.hours })
+    }`,
+    rupeeImpact: -atStake,
+    window: `${day} ${clock(window.fromHour)}–${clock(window.toHour)}`,
   };
 }
 
@@ -220,7 +211,7 @@ export function agronomyPlan(
   lang: Lang,
   today = new Date(),
 ): Recommendation[] {
-  const out: Recommendation[] = [irrigationAdvice(farm, crop, wx, lang, today)];
+  const out: Recommendation[] = [irrigationAdvice(farm, crop, wx, lang)];
 
   for (const rule of crop.diseases) {
     out.push(diseaseAdvice(farm, crop, rule, wx, pricePerQtl, expectedQtl, lang, today));
