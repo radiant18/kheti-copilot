@@ -453,7 +453,7 @@ export default function OnboardingPage() {
                 className="w-full rounded-xl border px-3 text-base"
                 style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               >
-                {(["drip", "sprinkler", "flood", "rainfed"] as const).map((i) => (
+                {(["drip", "sprinkler", "rainfed"] as const).map((i) => (
                   <option key={i} value={i}>{t(`irr.${i}`)}</option>
                 ))}
               </select>
