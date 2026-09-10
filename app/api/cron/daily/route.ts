@@ -8,7 +8,8 @@ import type { MarketView, WeatherWindow } from "@/lib/types";
 /**
  * The 5am send.
  *
- * Vercel Cron calls this once a day (see vercel.json — 23:30 UTC is 05:00 IST).
+ * A scheduler calls this once a day — see .github/workflows/daily-plan.yml,
+ * which fires at 23:30 UTC, or 05:00 IST the next morning.
  * For each farmer who opted in it rebuilds today's plan from live weather and
  * mandi prices, renders the same message the app shows, and sends it.
  *
@@ -24,7 +25,7 @@ import type { MarketView, WeatherWindow } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-/** Vercel sets this header on cron invocations; refuse anything else in prod. */
+/** The scheduler sends this bearer token; refuse anything else in production. */
 function authorised(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return process.env.NODE_ENV !== "production";
