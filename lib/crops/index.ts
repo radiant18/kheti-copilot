@@ -110,13 +110,6 @@ export function harvestOutlook(
   plantedYear: number,
   plantedOn?: string,
   today = new Date(),
-  /**
-   * The grower's own quintals-per-acre. Always wins over the registry figure,
-   * which is a national ballpark that can be out by a factor of three on any
-   * particular block. It does not override *timing*: an override cannot make a
-   * crop bear before it is planted or ripe.
-   */
-  overrideQtlPerAcre?: number,
 ): HarvestOutlook {
   if (crop.yield.kind === "seasonal") {
     const { qtlPerAcre, cycleDays } = crop.yield;
@@ -131,7 +124,7 @@ export function harvestOutlook(
     const harvestAt = new Date(sown + cycleDays * 86_400_000);
     const bearing = today.getTime() >= harvestAt.getTime();
     return {
-      qtlPerAcre: bearing ? (overrideQtlPerAcre ?? qtlPerAcre) : 0,
+      qtlPerAcre: bearing ? qtlPerAcre : 0,
       bearing,
       firstHarvestOn: harvestAt.toISOString().slice(0, 10),
     };
@@ -152,7 +145,7 @@ export function harvestOutlook(
 
   const bearing = value > 0;
   return {
-    qtlPerAcre: bearing ? (overrideQtlPerAcre ?? value) : 0,
+    qtlPerAcre: bearing ? value : 0,
     bearing,
     firstHarvestOn: bearing ? null : String(plantedYear + firstBearingAge),
   };

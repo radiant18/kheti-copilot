@@ -4,7 +4,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { cropName, estimatedQtlPerAcre, getCrop, listCrops } from "@/lib/crops";
 import { CropIcon } from "@/components/CropIcon";
-import { acresFromCount, plantingFor, type PlantUnit } from "@/lib/crops/planting";
+import { countFromAcres, plantingFor, type PlantUnit } from "@/lib/crops/planting";
+import {
+  plantUnitFor,
+  toAcres,
+  UNIT_LABEL_KEY,
+  unitsFor,
+  type SizeUnit,
+} from "@/lib/crops/units";
 
 /** Plant units are translated words, so they go through the dictionary too. */
 const UNIT_KEY: Record<PlantUnit, string> = {
@@ -36,6 +43,8 @@ export default function OnboardingPage() {
   const [query, setQuery] = useState("");
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState<string | null>(null);
+  const [sizeUnit, setSizeUnit] = useState<SizeUnit>("acre");
+  const [sizeValue, setSizeValue] = useState("");
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { lang, t } = useLang();
@@ -315,49 +324,78 @@ export default function OnboardingPage() {
           </p>
 
           <div className="mt-4 space-y-4">
-            {/* A grower of trees knows the count, not the acreage. Ask for what
-                they actually know and derive the area, showing it back so an
-                obviously wrong number gets caught here rather than silently
-                distorting every yield figure downstream. */}
-            {planting ? (
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                  {t("howManyPlants", { unit: t(UNIT_KEY[planting.unit]) })}
+            {/* Nobody knows their holding in one fixed unit. A grower reads
+                guntas off their RTC, talks in cents, or counts mara — so they
+                answer in whichever they know and the app converts. */}
+            <div>
+              <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
+                {t("howBig", { crop: cropName(crop, lang) })}
+              </span>
+
+              <div className="mb-2 flex flex-wrap gap-2">
+                {unitsFor(farm.cropId).map((u) => {
+                  const on = sizeUnit === u;
+                  const label =
+                    u === "plant"
+                      ? t(UNIT_KEY[plantUnitFor(farm.cropId) ?? "plants"])
+                      : t(UNIT_LABEL_KEY[u]);
+                  return (
+                    <button
+                      key={u}
+                      type="button"
+                      onClick={() => setSizeUnit(u)}
+                      className="rounded-full border px-3 py-1.5 text-sm font-medium"
+                      style={{
+                        borderColor: on ? "var(--accent)" : "var(--line)",
+                        background: on ? "var(--accent-soft)" : "var(--surface)",
+                        color: on ? "var(--accent)" : "var(--ink-soft)",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <input
+                inputMode="decimal"
+                value={sizeValue}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  setSizeValue(raw);
+                  const n = Number(raw) || 0;
+                  const acres = toAcres(farm.cropId, sizeUnit, n);
+                  setFarm((f) =>
+                    f
+                      ? {
+                          ...f,
+                          acres,
+                          sizeUnit,
+                          plantCount:
+                            sizeUnit === "plant" ? n : countFromAcres(f.cropId, acres) || undefined,
+                        }
+                      : f,
+                  );
+                }}
+                className="w-full rounded-xl border px-3 text-base tabular-nums"
+                style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
+              />
+
+              {/* Show the conversion so an implausible answer is caught here. */}
+              {farm.acres > 0 && (
+                <span className="mt-1.5 block text-xs" style={{ color: "var(--ink-faint)" }}>
+                  {sizeUnit === "plant"
+                    ? t("sizeDerivedArea", { acres: farm.acres })
+                    : plantUnitFor(farm.cropId)
+                      ? t("sizeDerivedPlants", {
+                          n: countFromAcres(farm.cropId, farm.acres).toLocaleString("en-IN"),
+                          unit: t(UNIT_KEY[plantUnitFor(farm.cropId) ?? "plants"]),
+                          acres: farm.acres,
+                        })
+                      : t("sizeDerivedArea", { acres: farm.acres })}
                 </span>
-                <input
-                  inputMode="numeric"
-                  value={farm.plantCount || ""}
-                  onChange={(e) => {
-                    const count = Number(e.target.value) || 0;
-                    setFarm((f) =>
-                      f
-                        ? { ...f, plantCount: count, acres: acresFromCount(f.cropId, count) }
-                        : f,
-                    );
-                  }}
-                  className="w-full rounded-xl border px-3 text-base tabular-nums"
-                  style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
-                />
-                {farm.plantCount ? (
-                  <span className="mt-1.5 block text-xs" style={{ color: "var(--ink-faint)" }}>
-                    {t("plantsDerived", { acres: farm.acres, spacing: planting.spacing })}
-                  </span>
-                ) : null}
-              </label>
-            ) : (
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                  {t("areaUnder", { crop: cropName(crop, lang) })}
-                </span>
-                <input
-                  inputMode="decimal"
-                  value={farm.acres || ""}
-                  onChange={(e) => update("acres", Number(e.target.value) || 0)}
-                  className="w-full rounded-xl border px-3 text-base"
-                  style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
-                />
-              </label>
-            )}
+              )}
+            </div>
 
             {crop.yield.kind === "perennial" ? (
               <label className="block">
@@ -404,28 +442,6 @@ export default function OnboardingPage() {
                 </span>
               </label>
             )}
-
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>
-                {t("expectedHarvest")}
-              </span>
-              <input
-                inputMode="decimal"
-                value={farm.expectedQtlPerAcre ?? ""}
-                placeholder={t("harvestAbout", { n: estimatedQtlPerAcre(crop), crop: cropName(crop, lang) })}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  update("expectedQtlPerAcre", e.target.value === "" || !Number.isFinite(v) ? undefined : v);
-                }}
-                className="w-full rounded-xl border px-3 text-base"
-                style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
-              />
-              <span className="mt-1.5 block text-xs leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-                {t("harvestHint")}
-                {/* yieldNote is free text in the registry and exists only in English. */}
-                {crop.yieldNote ? ` ${crop.yieldNote}` : ""}
-              </span>
-            </label>
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium" style={{ color: "var(--ink-soft)" }}>

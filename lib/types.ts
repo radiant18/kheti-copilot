@@ -34,6 +34,12 @@ export interface Farm {
    * a converted figure they would not recognise.
    */
   plantCount?: number;
+  /**
+   * The unit the farmer answered in — guntas, cents, acres, or plants. Stored
+   * so the app can show the size back in the words they used rather than a
+   * conversion they would not recognise.
+   */
+  sizeUnit?: string;
   /** Year planted. Coarse, but enough for a perennial's age in years. */
   plantedYear: number;
   /**
@@ -41,7 +47,6 @@ export interface Farm {
    * registry estimate. Registry figures are national ballparks; the grower
    * knows what their block actually gives. Undefined means use the estimate.
    */
-  expectedQtlPerAcre?: number;
   /**
    * Exact planting/sowing date, ISO. Required to be useful for seasonal crops:
    * a banana sucker takes ~11 months to its first bunch, so a year alone cannot

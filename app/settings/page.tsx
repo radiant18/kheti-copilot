@@ -110,7 +110,6 @@ export default function SettingsPage() {
                 f.plantedYear,
                 f.plantedOn,
                 new Date(),
-                f.expectedQtlPerAcre,
               );
               const active = f.id === activeId;
               return (

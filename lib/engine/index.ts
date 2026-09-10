@@ -27,7 +27,7 @@ export function buildPlan(
   // The rupee figure on a spray warning is only as good as the yield behind it,
   // so the farmer's own number wins here too.
   const expectedQtl =
-    harvestOutlook(crop, farm.plantedYear, farm.plantedOn, today, farm.expectedQtlPerAcre)
+    harvestOutlook(crop, farm.plantedYear, farm.plantedOn, today)
       .qtlPerAcre * farm.acres;
 
   const recommendations: Recommendation[] = [

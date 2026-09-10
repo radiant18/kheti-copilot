@@ -202,5 +202,5 @@ export function clearFarmData(): void {
  */
 export function switchCrop(farm: Farm, cropId: string): Farm {
   if (farm.cropId === cropId) return farm;
-  return { ...farm, cropId, stockQtl: {}, lastSprayAt: {}, plantedOn: undefined, expectedQtlPerAcre: undefined };
+  return { ...farm, cropId, stockQtl: {}, lastSprayAt: {}, plantedOn: undefined };
 }

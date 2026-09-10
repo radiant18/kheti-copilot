@@ -275,7 +275,6 @@ export function economics(farm: Farm, market: MarketView | null, costs: number):
     farm.plantedYear,
     farm.plantedOn,
     new Date(),
-    farm.expectedQtlPerAcre,
   );
   const yieldQtl = outlook.qtlPerAcre * farm.acres;
   const price = referencePrice(farm, market);
