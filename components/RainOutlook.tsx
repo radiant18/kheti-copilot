@@ -6,52 +6,34 @@ import type { SprayWindow } from "@/lib/engine/pressure";
 import type { WeatherWindow } from "@/lib/types";
 
 /**
- * When it will rain, hour by hour.
+ * When it will rain, in sentences.
  *
- * "3 mm" tells a farmer almost nothing — is that a shower or a washout? What
- * they need is *when*, because that is what decides whether the morning is
- * usable, whether a spray will survive, whether the drying yard should be
- * covered. A day total hides all of it: 3 mm at four in the morning and 3 mm across
- * the working afternoon are completely different days.
+ * This replaced an hour-by-hour heat grid. The grid was more precise and it was
+ * the wrong tool: it needed a four-item colour legend, and reading "rain on
+ * Saturday afternoon" off it meant counting squares against column headings.
+ * A farmer glancing at their phone before walking out will not do that, and a
+ * chart nobody reads is worth less than a sentence they do.
  *
- * So each day is a row of working hours, shaded by how hard it is raining, and
- * the recommended spray window is drawn on top. The pattern — "it rains every
- * afternoon" — is visible without reading a single number.
- *
- * The grid only works if a square's position reads as a time of day, so the
- * columns are labelled morning / afternoon / evening, the first row says Today
- * rather than a weekday, and each day ends in the same one word the legend
- * uses. Millimetres stay, but as the small print — the words carry the meaning.
+ * So each day gets one line in plain words — how much, and roughly when. The
+ * millimetres stay as small print for anyone who wants them, and the day with
+ * the spray window is called out, since that is the one a decision hangs on.
  */
 
-/** The working day. Nobody is spraying at 3am and the row would not fit. */
-const FIRST_HOUR = 6;
-const LAST_HOUR = 19;
+const MORNING: [number, number] = [6, 12];
+const AFTERNOON: [number, number] = [12, 17];
+const EVENING: [number, number] = [17, 21];
 
-/** Column headings, so nobody has to count squares to find the afternoon. */
-const PARTS = [
-  { key: "partMorning", hours: 6, align: "text-left" },
-  { key: "partAfternoon", hours: 5, align: "text-center" },
-  { key: "partEvening", hours: 3, align: "text-right" },
-] as const;
-
-/**
- * Four steps, spaced far enough apart to read at a glance on a cheap screen in
- * sunlight. A subtle ramp is useless here — the whole point is that the shape
- * of the day is obvious without squinting.
- */
-function intensity(mm: number): string {
-  if (mm < 0.1) return "var(--surface-2)";
-  if (mm < 1) return "color-mix(in srgb, var(--rain) 30%, var(--surface-2))";
-  if (mm < 4) return "color-mix(in srgb, var(--rain) 65%, var(--surface-2))";
-  return "var(--rain)";
+interface DayLine {
+  date: string;
+  label: string;
+  mm: number;
+  sentence: string;
+  icon: string;
+  spray: boolean;
 }
 
-/** A whole day in one word — the same three words the legend explains. */
-function dayWord(totalMm: number): "rainDry" | "rainLight" | "rainHeavy" {
-  if (totalMm < 1) return "rainDry";
-  if (totalMm < 10) return "rainLight";
-  return "rainHeavy";
+function sum(hours: number[], rain: number[], from: number, to: number, hourOf: (i: number) => number) {
+  return hours.reduce((acc, i) => (hourOf(i) >= from && hourOf(i) < to ? acc + (rain[i] ?? 0) : acc), 0);
 }
 
 export function RainOutlook({
@@ -63,158 +45,80 @@ export function RainOutlook({
   lang: Lang;
   spray?: SprayWindow | null;
 }) {
-  const rows = useMemo(() => {
-    const byDay = new Map<string, Map<number, number>>();
-    wx.hourly.time.forEach((stamp, i) => {
+  const lines = useMemo<DayLine[]>(() => {
+    const h = wx.hourly;
+    if (!h?.time?.length) return [];
+
+    const byDay = new Map<string, number[]>();
+    h.time.forEach((stamp, i) => {
       const day = stamp.slice(0, 10);
-      const hour = Number(stamp.slice(11, 13));
-      if (hour < FIRST_HOUR || hour > LAST_HOUR) return;
-      if (!byDay.has(day)) byDay.set(day, new Map());
-      byDay.get(day)!.set(hour, wx.hourly.rainMm[i] ?? 0);
+      if (!byDay.has(day)) byDay.set(day, []);
+      byDay.get(day)!.push(i);
     });
 
-    return wx.days.slice(0, 5).map((d) => ({
-      date: d.date,
-      total: d.rainMm,
-      hours: byDay.get(d.date) ?? new Map<number, number>(),
-    }));
-  }, [wx]);
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const hourOf = (i: number) => Number(h.time[i].slice(11, 13));
 
-  const hourList = Array.from({ length: LAST_HOUR - FIRST_HOUR + 1 }, (_, i) => FIRST_HOUR + i);
+    return [...byDay.entries()]
+      .filter(([day]) => day >= todayIso)
+      .slice(0, 5)
+      .map(([day, hours]) => {
+        const mm = hours.reduce((acc, i) => acc + (h.rainMm[i] ?? 0), 0);
+        const parts: string[] = [];
+        if (sum(hours, h.rainMm, ...MORNING, hourOf) >= 0.5) parts.push(t(lang, "whenMorning"));
+        if (sum(hours, h.rainMm, ...AFTERNOON, hourOf) >= 0.5) parts.push(t(lang, "whenAfternoon"));
+        if (sum(hours, h.rainMm, ...EVENING, hourOf) >= 0.5) parts.push(t(lang, "whenEvening"));
 
-  /**
-   * A count of rainy days and the worst one beats a five-day millimetre total,
-   * which a farmer would have to divide in their head before it meant anything.
-   */
-  const wet = rows.filter((r) => r.total >= 1);
-  const wettest = wet.length
-    ? wet.reduce((worst, r) => (r.total > worst.total ? r : worst))
-    : null;
-  const summary = wettest
-    ? t(lang, wet.length === rows.length ? "rainSummaryAll" : "rainSummarySome", {
-        n: wet.length,
-        days: rows.length,
-        day:
-          rows.indexOf(wettest) === 0
-            ? t(lang, "navToday")
-            : new Date(wettest.date).toLocaleDateString(localeFor(lang), { weekday: "long" }),
-      })
-    : t(lang, "rainSummaryNone", { days: rows.length });
+        const strength =
+          mm < 1 ? "rainNone" : mm < 5 ? "rainSoftLight" : mm < 20 ? "rainMod" : "rainSoftHeavy";
+        const when = parts.length >= 3 ? t(lang, "partAllDay") : parts.join(", ");
+
+        return {
+          date: day,
+          label:
+            day === todayIso
+              ? t(lang, "rainToday")
+              : new Date(`${day}T12:00`).toLocaleDateString(localeFor(lang), { weekday: "long" }),
+          mm: Math.round(mm * 10) / 10,
+          sentence: mm < 1 ? t(lang, "rainNone") : `${t(lang, strength)}${when ? ` ${when}` : ""}`,
+          icon: mm < 1 ? "☀️" : mm < 5 ? "🌤️" : mm < 20 ? "🌦️" : "🌧️",
+          spray: spray ? spray.date.slice(0, 10) === day : false,
+        };
+      });
+  }, [wx, lang, spray]);
+
+  if (lines.length === 0) return null;
 
   return (
     <section>
-      <h2 className="eyebrow mb-1">{t(lang, "rainHeading")}</h2>
-      <p className="mb-3 text-sm" style={{ color: "var(--ink-soft)" }}>
-        {summary}
-      </p>
-
-      <div className="mb-1 flex items-center gap-2">
-        <span className="w-12 shrink-0" />
-        <div className="flex min-w-0 flex-1 gap-[2px]">
-          {PARTS.map((p) => (
-            <span
-              key={p.key}
-              className={`${p.align} text-[10px] uppercase tracking-wide`}
-              style={{ flex: p.hours, color: "var(--ink-faint)" }}
-            >
-              {t(lang, p.key)}
-            </span>
-          ))}
-        </div>
-        <span className="w-12 shrink-0" />
-      </div>
-
-      <div className="space-y-1.5">
-        {rows.map((row, rowIndex) => {
-          const day = new Date(row.date);
-          const isSprayDay = spray?.date === row.date;
-          const word = dayWord(row.total);
-
-          return (
-            <div key={row.date} className="flex items-center gap-2">
-              <span
-                className="w-12 shrink-0 text-[11px] font-bold uppercase"
-                style={{ color: rowIndex === 0 ? "var(--accent)" : "var(--ink-faint)" }}
-              >
-                {rowIndex === 0
-                  ? t(lang, "navToday")
-                  : day.toLocaleDateString(localeFor(lang), { weekday: "short" })}
-              </span>
-
-              <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
-                <div className="flex gap-[2px]">
-                  {hourList.map((h) => {
-                    const mm = row.hours.get(h) ?? 0;
-                    return (
-                      <span
-                        key={h}
-                        title={`${h}:00 — ${mm.toFixed(1)} mm`}
-                        className="h-5 flex-1 rounded-[3px]"
-                        style={{ background: intensity(mm) }}
-                      />
-                    );
-                  })}
-                </div>
-
-                {/* The recommended window, drawn under the hours it covers. */}
-                <div className="flex gap-[2px]" aria-hidden>
-                  {hourList.map((h) => {
-                    const inWindow =
-                      isSprayDay && spray && h >= spray.fromHour && h < spray.toHour;
-                    return (
-                      <span
-                        key={h}
-                        className="h-[3px] flex-1 rounded-full"
-                        style={{ background: inWindow ? "var(--accent)" : "transparent" }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              <span className="w-12 shrink-0 text-right leading-tight">
-                <span
-                  className="block text-[11px] font-semibold"
-                  style={{ color: word === "rainHeavy" ? "var(--rain)" : "var(--ink-soft)" }}
-                >
-                  {t(lang, word)}
-                </span>
-                {/* Zero millimetres beside the word "dry" is a number that
-                    earns nothing, so a dry day just says dry. */}
-                {row.total >= 1 && (
-                  <span className="tabular block text-[10px]" style={{ color: "var(--ink-faint)" }}>
-                    {row.total.toFixed(0)}mm
+      <h2 className="eyebrow mb-2">{t(lang, "rainSimpleHeading")}</h2>
+      <ul className="card divide-y overflow-hidden" style={{ borderColor: "var(--line)" }}>
+        {lines.map((d) => (
+          <li
+            key={d.date}
+            className="flex items-center gap-3 px-4 py-3"
+            style={{ borderColor: "var(--line)" }}
+          >
+            <span aria-hidden className="text-[20px] leading-none">{d.icon}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[15px] font-bold capitalize">{d.label}</span>
+              <span className="block text-[13px]" style={{ color: "var(--ink-soft)" }}>
+                {d.sentence}
+                {d.spray && (
+                  <span className="ml-1 font-semibold" style={{ color: "var(--accent)" }}>
+                    · {t(lang, "raySprayOk")}
                   </span>
                 )}
               </span>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]" style={{ color: "var(--ink-faint)" }}>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-4 rounded-[2px]" style={{ background: "var(--surface-2)" }} />
-          {t(lang, "rainDry")}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span
-            className="h-2.5 w-4 rounded-[2px]"
-            style={{ background: "color-mix(in srgb, var(--rain) 30%, var(--surface-2))" }}
-          />
-          {t(lang, "rainLight")}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-4 rounded-[2px]" style={{ background: "var(--rain)" }} />
-          {t(lang, "rainHeavy")}
-        </span>
-        {spray && (
-          <span className="flex items-center gap-1.5">
-            <span className="h-[3px] w-4 rounded-full" style={{ background: "var(--accent)" }} />
-            {t(lang, "sprayWindowLegend")}
-          </span>
-        )}
-      </div>
+            </span>
+            {d.mm >= 1 && (
+              <span className="tabular text-[13px] font-semibold" style={{ color: "var(--ink-faint)" }}>
+                {d.mm} mm
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

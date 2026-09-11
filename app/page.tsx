@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { ActionCard } from "@/components/ActionCard";
+import { TodayCard } from "@/components/TodayCard";
+import { todayCards } from "@/lib/engine/today";
 import { CropIcon } from "@/components/CropIcon";
 import { RainOutlook } from "@/components/RainOutlook";
 import { harvestNote } from "@/components/HarvestNote";
 import { cropName, getCrop } from "@/lib/crops";
 import { farmSizeLabel } from "@/lib/crops/planting";
 import { nextSprayWindow } from "@/lib/engine/pressure";
-import { loadFarm, loadFarms } from "@/lib/farm";
+import { loadFarm, loadFarms, saveFarm } from "@/lib/farm";
 import { isDemo, signOut } from "@/lib/session";
 import { useLang } from "@/lib/use-lang";
 import { usePlan } from "@/lib/use-plan";
@@ -48,7 +49,24 @@ export default function TodayPage() {
     return nextSprayWindow(plan.weather, crop.diseases[0].treatment.dryHours);
   }, [plan, crop]);
 
-  const [lead, ...rest] = plan?.recommendations ?? [];
+  /**
+   * Five fixed boxes rather than a ranked list. The screen is checked in thirty
+   * seconds every morning by the same person, and knowing that water is always
+   * first and fertiliser always second beats putting the most expensive item on
+   * top. Urgency still reads, through each card's own tone.
+   */
+  const cards = useMemo(
+    () => (plan && farm ? todayCards(farm, plan, lang) : []),
+    [plan, farm, lang],
+  );
+
+  function recordFertiliser() {
+    const saved = saveFarm({ ...loadFarm(), lastFertilisedAt: new Date().toISOString() });
+    // The cards read from component state, so writing to storage alone leaves
+    // the screen showing "not recorded" over a record that now exists.
+    setFarm(saved);
+    void refresh();
+  }
 
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
@@ -103,20 +121,15 @@ export default function TodayPage() {
         <p className="py-10 text-center" style={{ color: "var(--ink-soft)" }}>{t("loadingPlan")}</p>
       )}
 
-      {/* The single thing worth acting on, given room to say why. */}
-      {lead && (
-        <section>
-          <h2 className="eyebrow mb-2">{t("todayLead")}</h2>
-          <ActionCard rec={lead} />
-        </section>
-      )}
-
-      {rest.length > 0 && (
-        <section className="mt-6">
-          <h2 className="eyebrow mb-2">{t("alsoToday")}</h2>
-          <div className="space-y-3">
-            {rest.map((rec) => <ActionCard key={rec.id} rec={rec} />)}
-          </div>
+      {cards.length > 0 && (
+        <section className="space-y-3">
+          {cards.map((card) => (
+            <TodayCard
+              key={card.id}
+              card={card}
+              onAction={card.action ? recordFertiliser : undefined}
+            />
+          ))}
         </section>
       )}
 

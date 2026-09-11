@@ -57,6 +57,12 @@ export interface Farm {
   soil: "laterite" | "alluvial" | "red_loam" | "black" | "sandy";
   lang: Lang;
   lastIrrigatedAt?: string;
+  /**
+   * Last time the farmer put fertiliser out. Purely a record they keep — the
+   * app reminds them when the next round is due and never says what to apply
+   * or how much, because a dose is exactly the thing this app must not invent.
+   */
+  lastFertilisedAt?: string;
   /** Last protective spray, per disease id. */
   lastSprayAt?: Record<string, string>;
   /** Unsold stock on hand, by grade, in quintals. */
