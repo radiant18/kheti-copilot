@@ -18,6 +18,16 @@
  * photos can be added a few at a time rather than all at once.
  */
 export const CROP_ICONS: Record<string, string> = {
+  dragon_fruit: "🐉",
+  avocado: "🥑",
+  passion_fruit: "🍈",
+  kiwi: "🥝",
+  date_palm: "🌴",
+  saffron: "🌸",
+  marigold: "🌼",
+  rose: "🌹",
+  jasmine: "🤍",
+  chrysanthemum: "🌻",
   // Plantation
   arecanut: "🌴", coconut: "🥥", copra: "🥥", oil_palm: "🌴", rubber: "🌳",
   cocoa: "🍫", coffee: "☕", tea: "🍵", cashew: "🥜",
