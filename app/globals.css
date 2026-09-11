@@ -49,14 +49,14 @@
 :root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
     /* Damp soil after rain — warm and dark, deliberately not black. */
-    --ground: #17120d;
-    --surface: #211a13;
-    --surface-2: #2a2119;
+    --ground: #1a1510;
+    --surface: #251e17;
+    --surface-2: #302620;
     --ink: #f2ece1;
     --ink-soft: #a89985;
     --ink-faint: #7c6f5e;
-    --line: #322820;
-    --line-strong: #45392d;
+    --line: #3a2f26;
+    --line-strong: #4e4033;
 
     /* Young leaf, light enough to carry dark type on a button. */
     --accent: #7fc98c;
@@ -79,14 +79,14 @@
 
 :root[data-theme="dark"] {
   /* Damp soil after rain — warm and dark, deliberately not black. */
-  --ground: #17120d;
-  --surface: #211a13;
-  --surface-2: #2a2119;
+  --ground: #1a1510;
+  --surface: #251e17;
+  --surface-2: #302620;
   --ink: #f2ece1;
   --ink-soft: #a89985;
   --ink-faint: #7c6f5e;
-  --line: #322820;
-  --line-strong: #45392d;
+  --line: #3a2f26;
+  --line-strong: #4e4033;
 
   /* Young leaf, light enough to carry dark type on a button. */
   --accent: #7fc98c;
