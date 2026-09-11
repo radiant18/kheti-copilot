@@ -55,6 +55,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sans.variable} ${devanagari.variable} ${kannada.variable}`}>
       <body>
+        {/*
+          Runs before anything paints. Without it the page renders light for a
+          frame and then flips, which on a dark phone looks like a fault. Kept
+          inline and dependency-free for that reason — a React effect is already
+          too late.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("kheti.theme.v1");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})()`,
+          }}
+        />
         <ServiceWorker />
         <AppGate>
           <div className="mx-auto min-h-[100svh] w-full max-w-[30rem] px-5">{children}</div>

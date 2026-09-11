@@ -15,6 +15,7 @@ import {
 import { loadSession, setSessionLang, signOut, type Session } from "@/lib/session";
 import { LANGUAGES } from "@/lib/i18n";
 import { useLang } from "@/lib/use-lang";
+import { loadTheme, saveTheme, type Theme } from "@/lib/theme";
 import { DailyPlanToggle } from "@/components/DailyPlanToggle";
 import type { Farm } from "@/lib/types";
 
@@ -33,6 +34,9 @@ export default function SettingsPage() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingPlot, setConfirmingPlot] = useState<string | null>(null);
   const { t, lang } = useLang();
+  const [theme, setTheme] = useState<Theme>("system");
+
+  useEffect(() => setTheme(loadTheme()), []);
 
   function refresh() {
     setFarms(loadFarms());
@@ -215,6 +219,40 @@ export default function SettingsPage() {
           </Link>
         )}
       </section>
+
+      <Section title={t("appearance")}>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            ["light", "themeLight", "☀️"],
+            ["dark", "themeDark", "🌙"],
+            ["system", "themeSystem", "📱"],
+          ] as const).map(([value, key, icon]) => {
+            const on = theme === value;
+            return (
+              <button
+                key={value}
+                onClick={() => {
+                  // Takes effect immediately: the stylesheet keys off the root
+                  // attribute, so there is nothing to reload.
+                  saveTheme(value);
+                  setTheme(value);
+                }}
+                aria-pressed={on}
+                className="press rounded-xl border px-2 py-3 text-center"
+                style={{
+                  borderColor: on ? "var(--accent)" : "var(--line)",
+                  background: on ? "var(--accent-soft)" : "var(--surface)",
+                  color: on ? "var(--accent)" : "var(--ink-soft)",
+                  fontWeight: on ? 700 : 500,
+                }}
+              >
+                <span aria-hidden className="block text-[18px]">{icon}</span>
+                <span className="mt-1 block text-[12px]">{t(key)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </Section>
 
       <Section title={t("chooseLanguage")}>
         <div className="grid grid-cols-2 gap-2">
