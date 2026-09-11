@@ -122,15 +122,7 @@ export default function TodayPage() {
 
       {plan && (
         <section className="mt-7">
-          <RainOutlook
-            wx={plan.weather}
-            lang={lang}
-            spray={spray}
-            heading={t("rainHeading")}
-            summary={(total, days) => t("rainSummary", { total, days })}
-            legend={{ dry: t("rainDry"), light: t("rainLight"), heavy: t("rainHeavy") }}
-            sprayLabel={t("sprayWindowLegend")}
-          />
+          <RainOutlook wx={plan.weather} lang={lang} spray={spray} />
         </section>
       )}
 
