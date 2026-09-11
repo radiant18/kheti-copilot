@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet } from "@/lib/api";
-import { cropName, getCrop, gradeLabel, listCrops } from "@/lib/crops";
+import { cropName, getCrop, gradeLabel } from "@/lib/crops";
 import { loadFarm, saveFarm } from "@/lib/farm";
 import { rankSellOptions } from "@/lib/engine/market";
 import { withTrend } from "@/lib/price-history";
 import { currentRole, loadSession, type Role } from "@/lib/session";
 import { CropIcon } from "@/components/CropIcon";
 import { LotForm } from "@/components/LotForm";
+import { CropSearch } from "@/components/CropSearch";
 import { RequirementCard } from "@/components/RequirementCard";
 import { RequirementForm } from "@/components/RequirementForm";
 import { YardBar } from "@/components/YardBar";
@@ -137,22 +138,18 @@ export default function SellPage() {
 
       {/* A buyer deals in several crops; a farmer's is fixed by their farm. */}
       {buyer ? (
-        <label className="mt-3 flex items-center gap-3">
-          <CropIcon cropId={cropId} />
-          <select
-            value={cropId}
-            onChange={(e) => {
-              setCropId(e.target.value);
-              setGrade(null);
-            }}
-            className="card min-w-0 flex-1 px-3.5 py-3 text-base font-semibold"
-            style={{ color: "var(--ink)" }}
-          >
-            {listCrops(lang).map((c) => (
-              <option key={c.id} value={c.id}>{c.label}</option>
-            ))}
-          </select>
-        </label>
+        <CropSearch
+          value={cropId}
+          onChange={(id) => {
+            setCropId(id);
+            setGrade(null);
+          }}
+          lang={lang}
+          label={t("buyingWhat")}
+          changeLabel={t("changeCrop")}
+          searchLabel={t("searchCrops")}
+          emptyLabel={t("noCropMatch")}
+        />
       ) : (
         <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "var(--ink-soft)" }}>
           <CropIcon cropId={cropId} size={22} />

@@ -33,6 +33,11 @@ type Dict = Record<string, string>;
 
 const STRINGS: Record<Lang, Dict> = {
   en: {
+    buyingWhat: "What are you buying?",
+    changeCrop: "Change",
+    noCropMatch: "No crop matches that",
+    lotsOpen: "{n} lots on offer",
+    lotsNone: "No lots yet",
     rainSoftLight: "A little rain",
     rainSoftHeavy: "Heavy rain",
     whenMorning: "in the morning",
@@ -253,6 +258,11 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "Ask",
   },
   hi: {
+    buyingWhat: "आप क्या खरीदना चाहते हैं?",
+    changeCrop: "बदलें",
+    noCropMatch: "कोई फ़सल नहीं मिली",
+    lotsOpen: "{n} लॉट उपलब्ध",
+    lotsNone: "अभी कोई लॉट नहीं",
     rainSoftLight: "हल्की बारिश",
     rainSoftHeavy: "तेज़ बारिश",
     whenMorning: "सुबह",
@@ -473,6 +483,11 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "पूछें",
   },
   kn: {
+    buyingWhat: "ನೀವು ಏನು ಖರೀದಿಸುತ್ತೀರಿ?",
+    changeCrop: "ಬದಲಿಸಿ",
+    noCropMatch: "ಯಾವ ಬೆಳೆಯೂ ಹೊಂದಲಿಲ್ಲ",
+    lotsOpen: "{n} ಲಾಟ್ ಲಭ್ಯ",
+    lotsNone: "ಇನ್ನೂ ಲಾಟ್ ಇಲ್ಲ",
     rainSoftLight: "ಸ್ವಲ್ಪ ಮಳೆ",
     rainSoftHeavy: "ಭಾರೀ ಮಳೆ",
     whenMorning: "ಬೆಳಿಗ್ಗೆ",
@@ -693,6 +708,11 @@ const STRINGS: Record<Lang, Dict> = {
     ask: "ಕೇಳಿ",
   },
   mr: {
+    buyingWhat: "तुम्ही काय खरेदी करताय?",
+    changeCrop: "बदला",
+    noCropMatch: "कोणतेही पीक जुळले नाही",
+    lotsOpen: "{n} लॉट उपलब्ध",
+    lotsNone: "अजून लॉट नाही",
     rainSoftLight: "थोडा पाऊस",
     rainSoftHeavy: "जोरदार पाऊस",
     whenMorning: "सकाळी",
