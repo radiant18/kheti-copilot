@@ -1,20 +1,37 @@
-# Kheti — Arecanut Copilot
+# Kheti — Farmer's Copilot
 
-A daily decision engine for arecanut growers in coastal Karnataka. Not a chatbot:
-it answers the four questions a grower actually has each morning — *do I irrigate,
-do I spray, is my garden sick, where do I sell* — and puts a rupee figure on each.
+A daily decision engine for farmers in India. Not a chatbot: it answers the
+questions a farmer actually has each morning — *do I irrigate, do I spray, is my
+crop sick, where do I sell* — puts a rupee figure on each, and lets him sell the
+lot directly to a buyer instead of through a commission agent.
 
-## Why arecanut, why here
+**132 crops**, four languages (English, Hindi, Kannada, Marathi), and an engine
+that works the same for a tomato grower in Kolar as for an arecanut grower in
+Puttur.
 
-- Karnataka grows the majority of India's arecanut; roughly 50 lakh people in the
-  state depend on it.
-- Two acute, simultaneous crises: Yellow Leaf Disease wiping out mature gardens,
-  and prices that swung from ₹58,000 to ₹39,000 per quintal inside one season.
-- Agmarknet shows Rashi grade clearing ~₹50,900/qtl while CQCA clears ~₹27,000
-  on the same day in the same belt. Grade and yard choice is real, unclaimed money.
-- Bharat-VISTAAR, the government's AI advisory platform launched Feb 2026, ships
-  phase 1 in Hindi and English across Maharashtra, Bihar and Gujarat. Karnataka
-  and Kannada are not in it.
+## The two halves
+
+**Tell him what to do today.** Weather-driven irrigation and spray timing,
+disease pressure counted in canopy wet-hours rather than guessed from rainfall,
+and fertiliser reminders. Five fixed cards, same order every morning, because
+the screen gets thirty seconds at dawn and a farmer should not have to hunt.
+
+**Let him sell it himself.** A farmer posts a lot; a buyer searches by crop;
+both sides see what the mandi is paying for that grade *today*. That live
+reference price is the whole point — a grower who can see the yard clearing
+₹50,891 does not accept ₹44,000 from a trader who says the market is soft.
+
+Agmarknet routinely publishes wildly different prices for the same commodity on
+the same day in the same belt. Grade and yard choice is real, unclaimed money,
+and it is the same arithmetic whichever crop you grow.
+
+### What this deliberately is not
+
+No payments, no escrow, no delivery, no grading arbitration. Standing between
+two people's money needs a licence, a dispute process and insurance, none of
+which an app can improvise. Kheti introduces a farmer to a buyer and gets out of
+the way. A phone number appears on a listing only because the farmer ticked the
+consent box, listings are unverified, and the UI says so.
 
 ## Architecture
 
@@ -34,18 +51,39 @@ indirection is what keeps the three targets on identical screens.
 ### The engine is rules first, LLM second
 
 `lib/engine/` is pure, deterministic and dependency-free. It decides everything.
-An LLM layer may later translate a `Recommendation` into Kannada or read it
-aloud, but it may never originate one. A hallucinated fungicide dose is a
-destroyed crop, so the model is not allowed near the decision.
+An LLM layer may translate a `Recommendation` or read it aloud, but it may never
+originate one. A hallucinated fungicide dose is a destroyed crop, so the model is
+not allowed near the decision.
 
 | Module | Responsibility |
 | --- | --- |
-| `engine/agronomy.ts` | Irrigation cycles, koleroga spray windows, YLD prompts |
+| `engine/agronomy.ts` | Weather-driven spray and irrigation rules, crop-agnostic — thresholds come off the `CropConfig` |
+| `engine/water.ts` | How much water the sun and wind actually took out of the soil |
+| `engine/pressure.ts` | Disease pressure as canopy wet-hours inside a temperature band |
+| `engine/nutrition.ts` | Fertiliser timing — when the next round falls due, never what or how much |
+| `engine/conditions.ts` | What it is doing outside right now and across the rest of today |
 | `engine/market.ts` | Grade normalisation, mandi arbitrage net of transport, yield curve, P&L |
-| `engine/index.ts` | Composes and ranks the day's plan by urgency, then rupee impact |
+| `engine/today.ts` | The five cards on the Today screen, always in the same order |
+| `engine/index.ts` | Composes the day's plan for whatever crop this farm grows |
+
+Nothing in the engine knows what crop it is looking at, and nothing in it writes
+an English sentence — wording lives in `lib/messages.ts`, and the engine supplies
+the key and the numbers. That is what makes 132 crops and four languages one
+code path instead of 528.
 
 Because the engine is pure, it runs client-side against cached inputs — a farmer
 with no signal still gets yesterday's weather run through today's rules.
+
+### Crops and places
+
+`lib/crops/registry.ts` holds the 132 crop configs; an unknown id degrades to a
+generic crop rather than crashing, and renamed ids are migrated so a saved farm
+never silently loses its disease rules.
+
+`lib/places.ts` covers 16 states. Karnataka is at taluk level because that is the
+launch region; the rest carry their main agricultural districts. District
+centroids are close enough for weather, and the state is what scopes the mandi
+price query.
 
 ## Data sources
 
@@ -83,7 +121,7 @@ the repo.
 ## Offline
 
 `public/sw.js` caches the app shell so it opens with no signal — the case that
-matters, since a grower checks the plan at dawn under canopy on one bar. The
+matters, since a farmer checks the plan at dawn in the field on one bar. The
 rules then re-run on the inputs already in localStorage.
 
 It registers in production only. A service worker in development serves stale
@@ -108,8 +146,10 @@ an APK needs a JDK and the Android SDK, which Android Studio installs.
 
 ## Caveats
 
-- Agronomic thresholds in `engine/agronomy.ts` follow published ICAR-CPCRI
-  practice for the DK/UK belt but **have not been reviewed by an agronomist**.
-  Do that before any real grower sees a spray recommendation.
+- Agronomic thresholds follow published ICAR practice but **have not been
+  reviewed by an agronomist**. Do that before any real farmer sees a spray
+  recommendation.
 - Transport costs are a flat per-km tempo estimate, not real quotes.
-- The mandi gazetteer covers the arecanut yards only.
+- Listings are file-backed (`lib/listings.ts`, `lib/subscribers.ts`), which works
+  locally and on a normal server but needs a real database on serverless.
+- Listings are unverified. Anyone can post; a buyer must do their own diligence.
