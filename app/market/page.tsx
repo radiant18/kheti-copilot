@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiSend } from "@/lib/api";
 import { cropName, getCrop, gradeLabel } from "@/lib/crops";
 import { loadFarm, saveFarm } from "@/lib/farm";
 import { rankSellOptions } from "@/lib/engine/market";
 import { withTrend } from "@/lib/price-history";
-import { currentRole, loadSession, type Role } from "@/lib/session";
+import { currentRole, loadSession, phoneVerified, type Role } from "@/lib/session";
 import { CropIcon } from "@/components/CropIcon";
 import { LotForm } from "@/components/LotForm";
 import { CropSearch } from "@/components/CropSearch";
@@ -44,6 +45,8 @@ export default function SellPage() {
   const [grade, setGrade] = useState<Grade | null>(null);
   const [editingStock, setEditingStock] = useState(false);
   const [posting, setPosting] = useState(false);
+  /** Publishing a number takes a proved one — see lib/otp.ts. */
+  const [verified, setVerified] = useState(false);
 
   const load = useCallback(async (f: Farm, crop: string) => {
     const [m, lots, reqs] = await Promise.all([
@@ -66,6 +69,7 @@ export default function SellPage() {
     setFarm(f);
     setRole(currentRole());
     setPhone(loadSession()?.phone ?? "");
+    setVerified(phoneVerified());
     setCropId(f.cropId);
   }, []);
 
@@ -199,7 +203,17 @@ export default function SellPage() {
           </button>
         </div>
 
+        {posting && !verified && (
+          <p className="card mt-4 p-4 text-sm" style={{ color: "var(--ink-soft)" }}>
+            {t("verifyToPost")}{" "}
+            <Link href="/login?change" className="font-bold" style={{ color: "var(--accent)" }}>
+              {t("continue")}
+            </Link>
+          </p>
+        )}
+
         {posting &&
+          verified &&
           (buyer ? (
             <RequirementForm
               crop={crop}
@@ -247,11 +261,7 @@ export default function SellPage() {
                 mine={req.phone === phone}
                 t={t}
                 onClose={async () => {
-                  await fetch("/api/requirements", {
-                    method: "PATCH",
-                    headers: { "content-type": "application/json" },
-                    body: JSON.stringify({ id: req.id, phone }),
-                  });
+                  await apiSend("/api/requirements", "PATCH", { id: req.id });
                   refresh();
                 }}
               />
@@ -388,11 +398,7 @@ function LotCard({
         {mine ? (
           <button
             onClick={async () => {
-              await fetch("/api/listings", {
-                method: "PATCH",
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({ id: lot.id, phone, status: "withdrawn" }),
-              });
+              await apiSend("/api/listings", "PATCH", { id: lot.id, status: "withdrawn" });
               onChanged();
             }}
             className="press card px-3 py-2 text-sm font-semibold"
