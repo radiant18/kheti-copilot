@@ -10,12 +10,25 @@
 
 export type IrrigationMethod = "drip" | "sprinkler" | "flood" | "rainfed";
 
-/** A crop's name in each interface language. */
+/**
+ * A crop's name in each interface language.
+ *
+ * The first four are required, so a crop cannot enter the registry without
+ * them. The rest are optional because the 132 names have not been translated
+ * into those scripts yet; cropName() falls back to English for whatever is
+ * missing, which is honest and readable, where a blank label would not be.
+ */
 export interface CropName {
   en: string;
   hi: string;
   kn: string;
   mr: string;
+  te?: string;
+  ta?: string;
+  bn?: string;
+  gu?: string;
+  pa?: string;
+  or?: string;
 }
 
 export interface GradeDef {

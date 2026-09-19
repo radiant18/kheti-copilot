@@ -111,8 +111,11 @@
 body {
   background: var(--ground);
   color: var(--ink);
-  /* Latin first, then the Indic faces, so a mixed string keeps one voice. */
+  /* Latin first, then the Indic faces, so a mixed string keeps one voice.
+     The scripts do not overlap, so the browser picks by glyph, not by order. */
   font-family: var(--font-sans), var(--font-devanagari), var(--font-kannada),
+    var(--font-telugu), var(--font-tamil), var(--font-bengali),
+    var(--font-gujarati), var(--font-gurmukhi), var(--font-oriya),
     ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "cv05" 1;
   -webkit-font-smoothing: antialiased;
