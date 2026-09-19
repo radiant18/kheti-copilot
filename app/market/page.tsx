@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiSend } from "@/lib/api";
 import { cropName, getCrop, gradeLabel } from "@/lib/crops";
 import { loadFarm, saveFarm } from "@/lib/farm";
-import { rankSellOptions } from "@/lib/engine/market";
 import { withTrend } from "@/lib/price-history";
 import { currentRole, loadSession, phoneVerified, type Role } from "@/lib/session";
 import { CropIcon } from "@/components/CropIcon";
@@ -13,7 +12,6 @@ import { LotForm } from "@/components/LotForm";
 import { CropSearch } from "@/components/CropSearch";
 import { RequirementCard } from "@/components/RequirementCard";
 import { RequirementForm } from "@/components/RequirementForm";
-import { YardBar } from "@/components/YardBar";
 import { useLang } from "@/lib/use-lang";
 import type { Listing } from "@/lib/listings";
 import type { Requirement } from "@/lib/requirements";
@@ -26,9 +24,9 @@ import type { Farm, Grade, MarketView } from "@/lib/types";
  * wrong. A grower opening "Sell" wants today's price and someone to sell to,
  * and burying half the answer one tap away meant most people never saw it.
  *
- * So the order is: what my crop is worth today, who wants it right now, then
- * the yards as the fallback route. A buyer gets the same screen with the two
- * middle sections swapped — the price, then the growers who have the crop.
+ * So the order is: what my crop is worth today, then who wants it right now. A
+ * buyer gets the same screen with those two swapped — the price, then the
+ * growers who have the crop.
  */
 export default function SellPage() {
   const { t, lang } = useLang();
@@ -92,12 +90,6 @@ export default function SellPage() {
     if (grade !== null) return;
     setGrade(heldGrades[0] ?? availableGrades[0] ?? null);
   }, [grade, heldGrades, availableGrades]);
-
-  const quintals = farm && grade ? farm.stockQtl[grade] || 1 : 1;
-  const yards = useMemo(
-    () => (farm && market && grade ? rankSellOptions(farm, market, grade, quintals) : []),
-    [farm, market, grade, quintals],
-  );
 
   /** Best price on the board for the grade in focus — the headline number. */
   const headline = useMemo(() => {
@@ -270,7 +262,7 @@ export default function SellPage() {
         )}
       </section>
 
-      {/* 3. The yard route, and the stock it is priced against. */}
+      {/* 3. The stock the price above is being quoted against. */}
       {!buyer && availableGrades.length > 0 && (
         <section className="mt-6">
           <div className="mb-2 flex items-baseline justify-between">
@@ -319,28 +311,6 @@ export default function SellPage() {
           ) : (
             <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{t("stockHint")}</p>
           )}
-        </section>
-      )}
-
-      {!buyer && yards.length > 0 && (
-        <section className="mt-6">
-          <h2 className="eyebrow mb-2.5">{t("yardsHeading")}</h2>
-          <ol className="space-y-3">
-            {yards.map((o, i) => (
-              <YardBar
-                key={`${o.quote.market}-${o.quote.grade}`}
-                option={o}
-                best={yards[0].net}
-                floor={yards[yards.length - 1].net * 0.9}
-                rank={i}
-                gapLabel={
-                  i === 0 && yards[1]
-                    ? `₹${(o.net - yards[1].net).toLocaleString("en-IN")} better than the next yard`
-                    : undefined
-                }
-              />
-            ))}
-          </ol>
         </section>
       )}
 
