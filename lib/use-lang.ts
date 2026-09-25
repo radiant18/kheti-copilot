@@ -27,5 +27,19 @@ export function useLang(): {
     const s = loadSession();
     setLang(s?.lang ?? "en");
   }, [path]);
+
+  // The type scale tracks tightly, which suits Jakarta and closes up the Indic
+  // faces — they have no capitals and hang taller, so the headline steps need
+  // their spacing back. globals.css keys that off the root, so tell it which
+  // kind of script is on screen. Written from here because this hook is the
+  // one place that knows the language; the write is idempotent, which is why
+  // several components calling it at once is harmless.
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-script",
+      lang === "en" ? "latin" : "indic",
+    );
+  }, [lang]);
+
   return { lang, t: (key: string, params?: Record<string, string | number>) => translate(lang, key, params) };
 }

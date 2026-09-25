@@ -8,6 +8,7 @@ import { loadFarm, saveFarm } from "@/lib/farm";
 import { withTrend } from "@/lib/price-history";
 import { currentRole, loadSession, phoneVerified, type Role } from "@/lib/session";
 import { CropIcon } from "@/components/CropIcon";
+import { PageHeader } from "@/components/PageHeader";
 import { LotForm } from "@/components/LotForm";
 import { CropSearch } from "@/components/CropSearch";
 import { RequirementCard } from "@/components/RequirementCard";
@@ -127,13 +128,21 @@ export default function SellPage() {
   const buyer = role === "buyer";
 
   return (
-    <main className="py-5">
-      <h1 className="text-2xl font-bold tracking-tight">
-        {buyer ? t("buyerHomeTitle") : t("navSell")}
-      </h1>
+    <main className="py-4">
+      <PageHeader
+        title={buyer ? t("buyerHomeTitle") : t("navSell")}
+        subtitle={
+          buyer ? undefined : (
+            <>
+              <CropIcon cropId={cropId} size={20} />
+              {cropName(crop, lang)} · {farm.state}
+            </>
+          )
+        }
+      />
 
       {/* A buyer deals in several crops; a farmer's is fixed by their farm. */}
-      {buyer ? (
+      {buyer && (
         <CropSearch
           value={cropId}
           onChange={(id) => {
@@ -146,36 +155,39 @@ export default function SellPage() {
           searchLabel={t("searchCrops")}
           emptyLabel={t("noCropMatch")}
         />
-      ) : (
-        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "var(--ink-soft)" }}>
-          <CropIcon cropId={cropId} size={22} />
-          {cropName(crop, lang)} · {farm.state}
-        </p>
       )}
 
       {/* 1. What it is worth today. Everything below is a way to act on it. */}
-      <section className="card mt-4 p-5">
+      <section className="card-lead mt-4 p-5">
         <p className="eyebrow">{t("priceToday")}</p>
         {headline ? (
           <>
-            <p className="tabular mt-1.5 text-[2.1rem] font-extrabold leading-none" style={{ color: "var(--money)" }}>
+            {/* The biggest number in the app. It is the one thing this screen
+                exists to say, and it is read at arm's length in the sun. */}
+            <p className="tabular t-hero mt-2" style={{ color: "var(--money)" }}>
               ₹{headline.modalPerQtl.toLocaleString("en-IN")}
-              <span className="ml-1 text-base font-semibold" style={{ color: "var(--ink-faint)" }}>
-                /{t("quintalShort")}
-              </span>
             </p>
-            <p className="mt-1.5 text-sm" style={{ color: "var(--ink-soft)" }}>
-              {cropName(crop, lang)} · {t("gradeSuffix", { grade: gradeLabel(crop, headline.grade) })} ·{" "}
-              {headline.market} · {headline.date}
+            <p className="mt-1 text-[15px] font-bold" style={{ color: "var(--ink-faint)" }}>
+              /{t("quintalShort")}
             </p>
             {trend !== 0 && (
-              <p className="mt-1 text-sm font-semibold" style={{ color: trend > 0 ? "var(--money)" : "var(--urgent)" }}>
+              <p
+                className="chip mt-3"
+                style={{
+                  color: trend > 0 ? "var(--money)" : "var(--urgent)",
+                  background: trend > 0 ? "var(--accent-soft)" : "var(--urgent-soft)",
+                }}
+              >
                 {trend > 0 ? "▲" : "▼"} {Math.abs(trend).toFixed(1)}% {t("thisWeek")}
               </p>
             )}
+            <p className="t-body mt-3">
+              {cropName(crop, lang)} · {t("gradeSuffix", { grade: gradeLabel(crop, headline.grade) })} ·{" "}
+              {headline.market} · {headline.date}
+            </p>
           </>
         ) : (
-          <p className="mt-1.5 text-sm" style={{ color: "var(--ink-soft)" }}>{t("noPriceToday")}</p>
+          <p className="t-body mt-2">{t("noPriceToday")}</p>
         )}
         {market && market.source !== "live" && (
           <p className="mt-2 text-xs" style={{ color: "var(--ink-faint)" }}>{t("samplePrices")}</p>
@@ -184,12 +196,12 @@ export default function SellPage() {
 
       {/* 2. Someone to sell to, or buy from, right here. */}
       <section className="mt-6">
-        <div className="mb-2.5 flex items-baseline justify-between gap-3">
+        <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="eyebrow">{buyer ? t("lotsForSale") : t("buyersReady")}</h2>
           <button
             onClick={() => setPosting((v) => !v)}
-            className="text-sm font-bold"
-            style={{ color: "var(--accent)" }}
+            className="press rounded-full px-3.5 py-1.5 text-[13px] font-extrabold"
+            style={{ background: "var(--accent-soft)", color: "var(--accent-ink)" }}
           >
             {posting ? t("reqClose") : buyer ? t("postRequirement") : t("directPostCta")}
           </button>
@@ -198,7 +210,7 @@ export default function SellPage() {
         {posting && !verified && (
           <p className="card mt-4 p-4 text-sm" style={{ color: "var(--ink-soft)" }}>
             {t("verifyToPost")}{" "}
-            <Link href="/login?change" className="font-bold" style={{ color: "var(--accent)" }}>
+            <Link href="/login?change" className="font-bold" style={{ color: "var(--accent-ink)" }}>
               {t("continue")}
             </Link>
           </p>
@@ -228,7 +240,7 @@ export default function SellPage() {
 
         {buyer ? (
           listings.length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{t("directNone")}</p>
+            <p className="well px-4 py-5 text-center text-[14px]" style={{ color: "var(--ink-soft)" }}>{t("directNone")}</p>
           ) : (
             <ul className="space-y-3">
               {listings.map((lot) => (
@@ -237,7 +249,7 @@ export default function SellPage() {
             </ul>
           )
         ) : sortedRequirements.length === 0 ? (
-          <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{t("buyersNone")}</p>
+          <p className="well px-4 py-5 text-center text-[14px]" style={{ color: "var(--ink-soft)" }}>{t("buyersNone")}</p>
         ) : (
           <ul className="space-y-3">
             {sortedRequirements.map((req) => (
@@ -267,7 +279,11 @@ export default function SellPage() {
         <section className="mt-6">
           <div className="mb-2 flex items-baseline justify-between">
             <h2 className="eyebrow">{t("yourStock")}</h2>
-            <button onClick={() => setEditingStock((v) => !v)} className="text-sm font-bold" style={{ color: "var(--accent)" }}>
+            <button
+              onClick={() => setEditingStock((v) => !v)}
+              className="press rounded-full px-3.5 py-1.5 text-[13px] font-extrabold"
+              style={{ background: "var(--accent-soft)", color: "var(--accent-ink)" }}
+            >
               {editingStock ? t("done") : t("edit")}
             </button>
           </div>
@@ -346,14 +362,14 @@ function LotCard({
   return (
     <li className="card p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="font-bold">
+        <h3 className="t-headline">
           {gradeLabel(crop, lot.grade)} · {lot.quintals} {t("quintalShort")}
         </h3>
-        <span className="tabular font-bold" style={{ color: "var(--money)" }}>
+        <span className="tabular text-[1.125rem] font-extrabold" style={{ color: "var(--money)" }}>
           ₹{lot.askPerQtl.toLocaleString("en-IN")}
         </span>
       </div>
-      <p className="mt-0.5 text-sm" style={{ color: "var(--ink-soft)" }}>
+      <p className="t-body mt-1">
         {lot.farmerName}
         {lot.village ? ` · ${lot.village}` : ""}
         {lot.district ? `, ${lot.district}` : ""}
@@ -363,7 +379,7 @@ function LotCard({
           {gap > 0 ? t("directAbove", { pct: gap }) : t("directBelow", { pct: Math.abs(gap) })}
         </p>
       )}
-      {lot.note && <p className="mt-2 text-sm" style={{ color: "var(--ink-soft)" }}>{lot.note}</p>}
+      {lot.note && <p className="t-body mt-2.5">{lot.note}</p>}
       <div className="mt-3">
         {mine ? (
           <button
@@ -371,7 +387,7 @@ function LotCard({
               await apiSend("/api/listings", "PATCH", { id: lot.id, status: "withdrawn" });
               onChanged();
             }}
-            className="press card px-3 py-2 text-sm font-semibold"
+            className="press well px-4 py-2.5 text-[14px] font-bold"
             style={{ color: "var(--ink-soft)" }}
           >
             {t("directWithdraw")}
@@ -379,8 +395,8 @@ function LotCard({
         ) : (
           <a
             href={`tel:+91${lot.phone}`}
-            className="press inline-block rounded-xl px-4 py-2.5 text-sm font-bold"
-            style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
+            className="press inline-block rounded-2xl px-4 py-3 text-[14px] font-extrabold"
+            style={{ background: "var(--accent)", color: "var(--ground)" }}
           >
             📞 {t("directCall")} +91 {lot.phone}
           </a>

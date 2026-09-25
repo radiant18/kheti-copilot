@@ -11,6 +11,8 @@ import {
   Noto_Sans_Oriya,
 } from "next/font/google";
 import { AppGate } from "@/components/AppGate";
+import { AppHeader } from "@/components/AppHeader";
+import { AskFab } from "@/components/AskFab";
 import { BottomNav } from "@/components/BottomNav";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import "./globals.css";
@@ -88,7 +90,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <ServiceWorker />
         <AppGate>
-          <div className="mx-auto min-h-[100svh] w-full max-w-[30rem] px-5">{children}</div>
+          <AppHeader />
+          <div className="mx-auto w-full max-w-[30rem] px-5">{children}</div>
+          <AskFab />
           <BottomNav />
         </AppGate>
       </body>

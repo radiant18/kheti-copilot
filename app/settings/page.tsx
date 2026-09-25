@@ -17,6 +17,7 @@ import { LANGUAGES } from "@/lib/i18n";
 import { useLang } from "@/lib/use-lang";
 import { loadTheme, saveTheme, type Theme } from "@/lib/theme";
 import { DailyPlanToggle } from "@/components/DailyPlanToggle";
+import { PageHeader } from "@/components/PageHeader";
 import type { Farm } from "@/lib/types";
 
 /**
@@ -73,33 +74,23 @@ export default function SettingsPage() {
   if (!session) return null;
 
   return (
-    <main className="py-5">
-      <h1 className="text-2xl font-bold tracking-tight">{t("settings")}</h1>
+    <main className="py-4">
+      <PageHeader title={t("settings")} />
 
       <Section title={t("account")}>
         <Row label="Name" value={session.name} />
         <Row label="Mobile" value={`+91 ${session.phone}`} />
       </Section>
 
-      <section className="mt-6">
-        <h2
-          className="mb-2 text-xs font-semibold uppercase tracking-wide"
-          style={{ color: "var(--ink-soft)" }}
-        >
-          {t("yourCrops")}
-        </h2>
+      <section className="mt-7">
+        <h2 className="eyebrow mb-3">{t("yourCrops")}</h2>
 
         {farms.length === 0 ? (
-          <div
-            className="rounded-2xl border p-4"
-            style={{ borderColor: "var(--line)", background: "var(--surface)" }}
-          >
-            <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
-              No crop set up on this phone yet.
-            </p>
+          <div className="card p-4">
+            <p className="t-body">No crop set up on this phone yet.</p>
             <Link
               href="/onboarding"
-              className="mt-3 block rounded-xl px-4 py-3 text-center font-semibold"
+              className="press mt-4 block rounded-2xl px-4 py-3.5 text-center font-extrabold"
               style={{ background: "var(--accent)", color: "var(--ground)" }}
             >
               Set up my first crop
@@ -119,7 +110,7 @@ export default function SettingsPage() {
               return (
                 <li
                   key={f.id}
-                  className="rounded-2xl border p-4"
+                  className="card p-4"
                   style={{
                     borderColor: active ? "var(--accent)" : "var(--line)",
                     background: active ? "var(--accent-soft)" : "var(--surface)",
@@ -127,7 +118,7 @@ export default function SettingsPage() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="font-semibold">
+                      <h3 className="t-headline">
                         {crop.name.en} · {crop.name.kn}
                       </h3>
                       <p className="mt-0.5 text-sm" style={{ color: "var(--ink-soft)" }}>
@@ -142,16 +133,16 @@ export default function SettingsPage() {
                     </div>
                     {active ? (
                       <span
-                        className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                        style={{ color: "var(--accent)", border: "1px solid var(--accent)" }}
+                        className="chip shrink-0"
+                        style={{ color: "var(--ground)", background: "var(--accent)" }}
                       >
                         Showing
                       </span>
                     ) : (
                       <button
                         onClick={() => choosePlot(f.id)}
-                        className="shrink-0 rounded-xl border px-3 py-1.5 text-sm font-semibold"
-                        style={{ borderColor: "var(--line)", color: "var(--accent)" }}
+                        className="press shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-extrabold"
+                        style={{ background: "var(--accent-soft)", color: "var(--accent-ink)" }}
                       >
                         Show this
                       </button>
@@ -191,7 +182,7 @@ export default function SettingsPage() {
                       <Link
                         href="/onboarding"
                         onClick={() => choosePlot(f.id)}
-                        style={{ color: "var(--accent)" }}
+                        style={{ color: "var(--accent-ink)" }}
                       >
                         Edit
                       </Link>
@@ -212,8 +203,8 @@ export default function SettingsPage() {
         {farms.length > 0 && (
           <Link
             href="/onboarding?mode=add"
-            className="mt-3 block rounded-xl border border-dashed px-4 py-3 text-center font-semibold"
-            style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
+            className="press mt-3 block rounded-2xl border-2 border-dashed px-4 py-3.5 text-center font-extrabold"
+            style={{ borderColor: "var(--line-strong)", color: "var(--accent-ink)" }}
           >
             + {t("addAnotherCrop")}
           </Link>
@@ -238,12 +229,12 @@ export default function SettingsPage() {
                   setTheme(value);
                 }}
                 aria-pressed={on}
-                className="press rounded-xl border px-2 py-3 text-center"
+                className="press rounded-2xl border px-2 py-3.5 text-center"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
-                  background: on ? "var(--accent-soft)" : "var(--surface)",
-                  color: on ? "var(--accent)" : "var(--ink-soft)",
-                  fontWeight: on ? 700 : 500,
+                  background: on ? "var(--accent)" : "var(--surface)",
+                  color: on ? "var(--ground)" : "var(--ink-soft)",
+                  fontWeight: on ? 800 : 600,
                 }}
               >
                 <span aria-hidden className="block text-[18px]">{icon}</span>
@@ -267,11 +258,12 @@ export default function SettingsPage() {
                   // on the page, including the ones already rendered above.
                   window.location.reload();
                 }}
-                className="press rounded-xl border px-4 py-3 text-left font-semibold"
+                className="press rounded-2xl border px-4 py-3.5 text-left"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
-                  background: on ? "var(--accent-soft)" : "var(--surface)",
-                  color: on ? "var(--accent)" : "var(--ink)",
+                  background: on ? "var(--accent)" : "var(--surface)",
+                  color: on ? "var(--ground)" : "var(--ink)",
+                  fontWeight: on ? 800 : 600,
                 }}
               >
                 {l.native}
@@ -297,12 +289,12 @@ export default function SettingsPage() {
       )}
 
       <Section title="About">
-        <p className="text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+        <p className="t-body">
           Weather from Open-Meteo. Mandi prices from Agmarknet via data.gov.in. Spray and
           irrigation advice comes from fixed agronomic rules, not a chatbot — every
           recommendation shows the numbers behind it.
         </p>
-        <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+        <p className="t-body mt-3">
           Your farm details are stored on this phone only. Signing out keeps them, so you
           get everything back next time you sign in.
         </p>
@@ -311,8 +303,8 @@ export default function SettingsPage() {
       <div className="mt-8 space-y-3">
         <button
           onClick={logOut}
-          className="w-full rounded-xl border px-4 py-3.5 text-base font-semibold"
-          style={{ borderColor: "var(--line)", color: "var(--ink)" }}
+          className="press w-full rounded-2xl border px-4 py-3.5 text-base font-extrabold"
+          style={{ borderColor: "var(--line-strong)", color: "var(--ink)" }}
         >
           {t("logOut")}
         </button>
@@ -360,19 +352,9 @@ export default function SettingsPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mt-6">
-      <h2
-        className="mb-2 text-xs font-semibold uppercase tracking-wide"
-        style={{ color: "var(--ink-soft)" }}
-      >
-        {title}
-      </h2>
-      <div
-        className="rounded-2xl border p-4"
-        style={{ borderColor: "var(--line)", background: "var(--surface)" }}
-      >
-        {children}
-      </div>
+    <section className="mt-7">
+      <h2 className="eyebrow mb-3">{title}</h2>
+      <div className="card p-4">{children}</div>
     </section>
   );
 }
@@ -380,11 +362,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({ label, value, caps }: { label: string; value: string; caps?: boolean }) {
   return (
     <div
-      className="flex items-baseline justify-between gap-4 border-b py-2 last:border-b-0"
+      className="flex items-baseline justify-between gap-4 border-b py-2.5 last:border-b-0"
       style={{ borderColor: "var(--line)" }}
     >
-      <span className="text-sm" style={{ color: "var(--ink-soft)" }}>{label}</span>
-      <span className={`text-right font-medium${caps ? " capitalize" : ""}`}>{value}</span>
+      <span className="text-[15px]" style={{ color: "var(--ink-soft)" }}>{label}</span>
+      <span className={`text-right text-[15px] font-bold${caps ? " capitalize" : ""}`}>{value}</span>
     </div>
   );
 }

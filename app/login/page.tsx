@@ -180,13 +180,13 @@ export default function LoginPage() {
       <main className="flex min-h-[100svh] flex-col justify-center py-10">
         <header className="mb-8">
           <div
-            className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-2xl"
+            className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-[26px]"
             style={{ background: "var(--accent-soft)" }}
             aria-hidden
           >
             💬
           </div>
-          <h1 className="text-[2rem] font-extrabold leading-tight">{t(lang, "codeTitle")}</h1>
+          <h1 className="t-title">{t(lang, "codeTitle")}</h1>
           <p className="mt-3 max-w-[22rem] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
             {channel === "dev"
               ? t(lang, "codeNotSent")
@@ -207,8 +207,8 @@ export default function LoginPage() {
               autoFocus
               maxLength={6}
               placeholder="000000"
-              className="card tabular w-full px-3.5 py-3 text-center text-[1.6rem] font-bold tracking-[0.4em]"
-              style={{ color: "var(--ink)" }}
+              className="tabular w-full rounded-2xl border px-4 py-4 text-center text-[1.75rem] font-extrabold tracking-[0.35em]"
+              style={{ color: "var(--ink)", background: "var(--surface)", borderColor: "var(--line)" }}
             />
           </label>
 
@@ -230,7 +230,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={!codeOk || busy}
-            className="press w-full rounded-xl py-3.5 text-base font-bold"
+            className="press w-full rounded-2xl py-4 text-[17px] font-extrabold"
             style={primary(codeOk && !busy)}
           >
             {t(lang, "verifyAndContinue")}
@@ -245,8 +245,8 @@ export default function LoginPage() {
               setError(null);
               setDevCode(null);
             }}
-            className="font-semibold"
-            style={{ color: "var(--accent)" }}
+            className="font-bold"
+            style={{ color: "var(--accent-ink)" }}
           >
             {t(lang, "changeNumber")}
           </button>
@@ -254,8 +254,8 @@ export default function LoginPage() {
             type="button"
             onClick={() => void requestCode()}
             disabled={cooldown > 0 || busy}
-            className="font-semibold"
-            style={{ color: cooldown > 0 ? "var(--ink-faint)" : "var(--accent)" }}
+            className="font-bold"
+            style={{ color: cooldown > 0 ? "var(--ink-faint)" : "var(--accent-ink)" }}
           >
             {cooldown > 0 ? t(lang, "resendIn", { sec: cooldown }) : t(lang, "resendCode")}
           </button>
@@ -268,13 +268,13 @@ export default function LoginPage() {
     <main className="flex min-h-[100svh] flex-col justify-center py-10">
       <header className="mb-8">
         <div
-          className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-2xl"
+          className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-[26px]"
           style={{ background: "var(--accent-soft)" }}
           aria-hidden
         >
           🌴
         </div>
-        <h1 className="text-[2.6rem] font-extrabold leading-[1.05]">Kheti</h1>
+        <h1 className="t-hero">Kheti</h1>
         <p className="mt-3 max-w-[22rem] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
           {t(lang, "tagline")}
         </p>
@@ -296,16 +296,16 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setRole(value)}
                 aria-pressed={on}
-                className="press rounded-xl border px-4 py-3 text-left"
+                className="press rounded-2xl border-2 px-4 py-3.5 text-left"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
                   background: on ? "var(--accent-soft)" : "var(--surface)",
                 }}
               >
-                <span className="block font-bold" style={{ color: on ? "var(--accent)" : "var(--ink)" }}>
+                <span className="t-headline block" style={{ color: on ? "var(--accent-ink)" : "var(--ink)" }}>
                   {t(lang, label)}
                 </span>
-                <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-soft)" }}>
+                <span className="mt-1 block text-[14px]" style={{ color: "var(--ink-soft)" }}>
                   {t(lang, note)}
                 </span>
               </button>
@@ -325,12 +325,12 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setLang(l.code)}
                 aria-pressed={on}
-                className="press flex items-center justify-between rounded-xl border px-3.5 py-2.5 text-left"
+                className="press flex items-center justify-between rounded-2xl border px-4 py-3 text-left"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
-                  background: on ? "var(--accent-soft)" : "var(--surface)",
-                  color: on ? "var(--accent)" : "var(--ink)",
-                  fontWeight: on ? 700 : 500,
+                  background: on ? "var(--accent)" : "var(--surface)",
+                  color: on ? "var(--ground)" : "var(--ink)",
+                  fontWeight: on ? 800 : 600,
                 }}
               >
                 <span className="text-[15px]">{l.native}</span>
@@ -348,14 +348,17 @@ export default function LoginPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoComplete="name"
-            className="card w-full px-3.5 py-3"
-            style={{ color: "var(--ink)" }}
+            className="w-full rounded-2xl border px-4 py-3.5 text-[16px] font-semibold"
+            style={{ color: "var(--ink)", background: "var(--surface)", borderColor: "var(--line)" }}
           />
         </label>
 
         <label className="block">
           <span className="eyebrow mb-1.5 block">{t(lang, "mobile")}</span>
-          <div className="card flex items-center gap-2 px-3.5">
+          <div
+            className="flex items-center gap-2 rounded-2xl border px-4"
+            style={{ background: "var(--surface)", borderColor: "var(--line)" }}
+          >
             <span className="tabular text-[15px]" style={{ color: "var(--ink-faint)" }}>+91</span>
             <span aria-hidden style={{ color: "var(--line-strong)" }}>|</span>
             <input
@@ -365,7 +368,7 @@ export default function LoginPage() {
               autoComplete="tel-national"
               maxLength={11}
               placeholder="98800 12345"
-              className="tabular min-w-0 flex-1 bg-transparent py-3 outline-none"
+              className="tabular min-w-0 flex-1 bg-transparent py-3.5 text-[16px] font-semibold outline-none"
               style={{ color: "var(--ink)" }}
             />
           </div>
@@ -385,7 +388,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="press w-full rounded-xl py-3.5 text-base font-bold"
+          className="press w-full rounded-2xl py-4 text-[17px] font-extrabold"
           style={primary(canSubmit)}
         >
           {proved && proved.phone === digits ? t(lang, "continue") : t(lang, "sendCode")}
@@ -414,8 +417,8 @@ export default function LoginPage() {
           startDemo(lang, role);
           router.push(role === "buyer" ? "/market" : "/");
         }}
-        className="press card mt-4 w-full py-3.5 text-base font-bold"
-        style={{ color: "var(--accent)" }}
+        className="press mt-4 w-full rounded-2xl border-2 py-4 text-[17px] font-extrabold"
+        style={{ color: "var(--accent-ink)", borderColor: "var(--line-strong)" }}
       >
         {t(lang, "tryDemo")}
       </button>

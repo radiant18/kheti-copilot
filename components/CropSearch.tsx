@@ -66,7 +66,7 @@ export function CropSearch({
             {current?.label ?? value}
           </span>
         </span>
-        <span className="shrink-0 text-[13px] font-bold" style={{ color: "var(--accent)" }}>
+        <span className="shrink-0 text-[13px] font-bold" style={{ color: "var(--accent-ink)" }}>
           {changeLabel}
         </span>
       </button>
@@ -96,7 +96,7 @@ export function CropSearch({
                 className="press flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left"
                 style={
                   c.id === value
-                    ? { background: "var(--accent-soft)", color: "var(--accent)" }
+                    ? { background: "var(--accent-soft)", color: "var(--accent-ink)" }
                     : undefined
                 }
               >
