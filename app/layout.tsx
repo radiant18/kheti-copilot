@@ -10,7 +10,6 @@ import {
   Noto_Sans_Gurmukhi,
   Noto_Sans_Oriya,
   Noto_Sans_Malayalam,
-  Noto_Sans_Arabic,
 } from "next/font/google";
 import { AppGate } from "@/components/AppGate";
 import { AppHeader } from "@/components/AppHeader";
@@ -20,21 +19,18 @@ import { ServiceWorker } from "@/components/ServiceWorker";
 import "./globals.css";
 
 /**
- * Eleven faces, because the interface now runs in fourteen languages across
- * eleven scripts. Jakarta carries Latin and the numerals; the Noto set carries
- * the ten others at matching weights, so a Telugu screen does not look like a
+ * Ten faces, because the interface now runs in thirteen languages across ten
+ * scripts. Jakarta carries Latin and the numerals; the Noto set carries the
+ * nine others at matching weights, so a Telugu screen does not look like a
  * different product from an English one. Devanagari serves Hindi, Marathi and
  * Maithili; the Bengali face serves Assamese too.
- *
- * Urdu gets Noto Sans Arabic rather than Nastaliq. Nastaliq is what Urdu
- * print looks like, but its diagonal stacking needs far more line height than
- * a tight phone UI has, and clipped descenders read worse than a plainer hand.
+
  *
  * Only Jakarta is preloaded. `subsets` injects a preload tag by default, so
- * leaving it on would block first paint behind ten scripts the farmer cannot
+ * leaving it on would block first paint behind nine scripts the farmer cannot
  * read. With preload off the browser fetches a face only when a glyph in its
  * range is drawn: the language picker costs one weight per script to render the
- * fourteen names, and the chosen language then pulls the rest of its weights. Every
+ * thirteen names, and the chosen language then pulls the rest of its weights. Every
  * other script stays at that one file.
  *
  * The options are spelled out per font rather than shared from one object
@@ -57,9 +53,8 @@ const gurmukhi = Noto_Sans_Gurmukhi({ subsets: ["gurmukhi"], weight: ["400", "50
 const oriya = Noto_Sans_Oriya({ subsets: ["oriya"], weight: ["400", "500", "600", "700"], variable: "--font-oriya", display: "swap", preload: false });
 
 const malayalam = Noto_Sans_Malayalam({ subsets: ["malayalam"], weight: ["400", "500", "600", "700"], variable: "--font-malayalam", display: "swap", preload: false });
-const arabic = Noto_Sans_Arabic({ subsets: ["arabic"], weight: ["400", "500", "600", "700"], variable: "--font-arabic", display: "swap", preload: false });
 
-const fontVars = [sans, devanagari, kannada, telugu, tamil, bengali, gujarati, gurmukhi, oriya, malayalam, arabic]
+const fontVars = [sans, devanagari, kannada, telugu, tamil, bengali, gujarati, gurmukhi, oriya, malayalam]
   .map((f) => f.variable)
   .join(" ");
 

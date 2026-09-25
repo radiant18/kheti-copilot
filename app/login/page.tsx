@@ -90,7 +90,7 @@ export default function LoginPage() {
   }, [router]);
 
   // The picker changes the language before a session exists, so the root has
-  // to hear about it from here — otherwise Urdu would render left to right.
+  // to hear about it from here.
   useEffect(() => applyLangToRoot(lang), [lang]);
 
   useEffect(() => {

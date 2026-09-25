@@ -3,17 +3,15 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { loadSession } from "./session";
-import { isRtl, localeFor, t as translate, type Lang } from "./i18n";
+import { localeFor, t as translate, type Lang } from "./i18n";
 
 /**
  * Tell the document root which language is on screen.
  *
  * The type scale tracks tightly, which suits Jakarta and closes up the Indic
  * faces — they have no capitals and hang taller, so the headline steps need
- * their spacing back; globals.css keys that off `data-script`. Urdu reads right
- * to left, so the whole shell mirrors: flex rows reverse, logical margins swap
- * sides, the mic moves to the other corner. `lang` goes with it so the browser
- * shapes and hyphenates with the right rules.
+ * their spacing back; globals.css keys that off `data-script`. `lang` goes with
+ * it so the browser shapes and hyphenates with the right rules.
  *
  * Exported because login picks a language before any session exists, so it
  * cannot go through useLang. The writes are idempotent, which is why several
@@ -22,7 +20,6 @@ import { isRtl, localeFor, t as translate, type Lang } from "./i18n";
 export function applyLangToRoot(lang: Lang): void {
   const root = document.documentElement;
   root.setAttribute("data-script", lang === "en" ? "latin" : "indic");
-  root.dir = isRtl(lang) ? "rtl" : "ltr";
   root.lang = localeFor(lang);
 }
 
