@@ -158,22 +158,25 @@ export default function OnboardingPage() {
 
   return (
     <main className="py-5">
-      <div className="mb-5 flex gap-1.5" aria-label={`Step ${stepIndex + 1} of 3`}>
+      <div className="mb-7 flex gap-2" aria-label={`Step ${stepIndex + 1} of 3`}>
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="h-1 flex-1 rounded-full"
-            style={{ background: i <= stepIndex ? "var(--accent)" : "var(--line)" }}
+            className="h-1.5 flex-1 rounded-full"
+            style={{
+              background: i <= stepIndex ? "var(--accent)" : "var(--line)",
+              transition: "background-color 200ms ease",
+            }}
           />
         ))}
       </div>
 
       {step === "crop" && (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="t-title">
             {isAdding ? t("addAnotherCrop") : t("whatDoYouGrow")}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
+          <p className="t-body mt-2">
             {isAdding
               ? t("separatePlot")
               : t("pickMainCrop")}
@@ -182,7 +185,7 @@ export default function OnboardingPage() {
           <button
             onClick={() => router.push("/login?change=1")}
             className="press mt-4 text-sm font-bold"
-            style={{ color: "var(--accent)" }}
+            style={{ color: "var(--accent-ink)" }}
           >
             ← {t("back")}
           </button>
@@ -191,7 +194,7 @@ export default function OnboardingPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("searchCrops")}
-            className="mt-4 w-full rounded-xl border px-3 text-base"
+            className="mt-4 w-full rounded-2xl border px-4 text-base font-semibold"
             style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
           />
 
@@ -200,7 +203,7 @@ export default function OnboardingPage() {
               <li key={c.id}>
                 <button
                   onClick={() => pickCrop(c.id)}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left"
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-start"
                   style={{
                     borderColor: c.id === farm.cropId ? "var(--accent)" : "var(--line)",
                     background: c.id === farm.cropId ? "var(--accent-soft)" : "var(--surface)",
@@ -229,16 +232,16 @@ export default function OnboardingPage() {
 
       {step === "location" && (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">{t("whereIsFarm")}</h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
+          <h1 className="t-title">{t("whereIsFarm")}</h1>
+          <p className="t-body mt-2">
             {t("locationHint")}
           </p>
 
           <button
             onClick={useGps}
             disabled={locating}
-            className="mt-4 w-full rounded-xl border px-4 py-3 font-semibold"
-            style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
+            className="press mt-4 w-full rounded-2xl border px-4 py-3.5 font-extrabold"
+            style={{ borderColor: "var(--accent)", color: "var(--accent-ink)" }}
           >
             {locating ? t("finding") : `📍 ${t("useMyLocation")}`}
           </button>
@@ -256,7 +259,7 @@ export default function OnboardingPage() {
             <select
               value={farm.state}
               onChange={(e) => update("state", e.target.value)}
-              className="w-full rounded-xl border px-3 text-base"
+              className="w-full rounded-2xl border px-4 text-base font-semibold"
               style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
             >
               {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -272,14 +275,14 @@ export default function OnboardingPage() {
                 <li key={`${p.district}-${p.name}`}>
                   <button
                     onClick={() => pickPlace(p)}
-                    className="w-full rounded-xl border px-4 py-2.5 text-left"
+                    className="w-full rounded-2xl border px-4 py-3 text-start"
                     style={{
                       borderColor: farm.village === p.name ? "var(--accent)" : "var(--line)",
                       background: farm.village === p.name ? "var(--accent-soft)" : "var(--surface)",
                     }}
                   >
                     <span className="font-medium">{p.name}</span>
-                    <span className="ml-2 text-sm" style={{ color: "var(--ink-soft)" }}>{p.district}</span>
+                    <span className="ms-2 text-sm" style={{ color: "var(--ink-soft)" }}>{p.district}</span>
                   </button>
                 </li>
               ))}
@@ -298,14 +301,14 @@ export default function OnboardingPage() {
           <div className="mt-5 flex gap-2">
             <button
               onClick={() => setStep("crop")}
-              className="rounded-xl border px-4 py-3 font-semibold"
+              className="press rounded-2xl border px-5 py-3.5 font-extrabold"
               style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}
             >
               {t("back")}
             </button>
             <button
               onClick={() => setStep("details")}
-              className="flex-1 rounded-xl px-4 py-3 font-semibold"
+              className="press flex-1 rounded-2xl px-4 py-3.5 font-extrabold"
               style={{ background: "var(--accent)", color: "var(--ground)" }}
             >
               {t("next")}
@@ -316,10 +319,10 @@ export default function OnboardingPage() {
 
       {step === "details" && (
         <>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="t-title">
             {t("aboutYour", { crop: cropName(crop, lang) })}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
+          <p className="t-body mt-2">
             {t("detailsHint")}
           </p>
 
@@ -344,11 +347,12 @@ export default function OnboardingPage() {
                       key={u}
                       type="button"
                       onClick={() => setSizeUnit(u)}
-                      className="rounded-full border px-3 py-1.5 text-sm font-medium"
+                      className="press rounded-full border px-4 py-2 text-[14px]"
                       style={{
                         borderColor: on ? "var(--accent)" : "var(--line)",
-                        background: on ? "var(--accent-soft)" : "var(--surface)",
-                        color: on ? "var(--accent)" : "var(--ink-soft)",
+                        background: on ? "var(--accent)" : "var(--surface)",
+                        color: on ? "var(--ground)" : "var(--ink-soft)",
+                        fontWeight: on ? 800 : 600,
                       }}
                     >
                       {label}
@@ -377,7 +381,7 @@ export default function OnboardingPage() {
                       : f,
                   );
                 }}
-                className="w-full rounded-xl border px-3 text-base tabular-nums"
+                className="w-full rounded-2xl border px-4 text-base font-semibold tabular-nums"
                 style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               />
 
@@ -406,7 +410,7 @@ export default function OnboardingPage() {
                   inputMode="numeric"
                   value={farm.plantedYear || ""}
                   onChange={(e) => update("plantedYear", Number(e.target.value) || 0)}
-                  className="w-full rounded-xl border px-3 text-base"
+                  className="w-full rounded-2xl border px-4 text-base font-semibold"
                   style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
                 />
               </label>
@@ -431,7 +435,7 @@ export default function OnboardingPage() {
                     );
                     setDetailsError(null);
                   }}
-                  className="w-full rounded-xl border px-3 text-base"
+                  className="w-full rounded-2xl border px-4 text-base font-semibold"
                   style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
                 />
                 <span className="mt-1.5 block text-xs" style={{ color: "var(--ink-soft)" }}>
@@ -450,7 +454,7 @@ export default function OnboardingPage() {
               <select
                 value={farm.irrigation}
                 onChange={(e) => update("irrigation", e.target.value as Farm["irrigation"])}
-                className="w-full rounded-xl border px-3 text-base"
+                className="w-full rounded-2xl border px-4 text-base font-semibold"
                 style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
               >
                 {(["drip", "sprinkler", "rainfed"] as const).map((i) => (
@@ -467,14 +471,14 @@ export default function OnboardingPage() {
           <div className="mt-6 flex gap-2">
             <button
               onClick={() => setStep("location")}
-              className="rounded-xl border px-4 py-3 font-semibold"
+              className="press rounded-2xl border px-5 py-3.5 font-extrabold"
               style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}
             >
               {t("back")}
             </button>
             <button
               onClick={finish}
-              className="flex-1 rounded-xl px-4 py-3 font-semibold"
+              className="press flex-1 rounded-2xl px-4 py-3.5 font-extrabold"
               style={{ background: "var(--accent)", color: "var(--ground)" }}
             >
               {t("seeMyPlan")}

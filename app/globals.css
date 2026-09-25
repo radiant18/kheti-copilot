@@ -3,107 +3,125 @@
 /*
  * Kheti's surface.
  *
- * The palette comes from the ground this app is used on: the red-brown
- * laterite soil of the arecanut belt, and the palm canopy standing in it.
- * Light mode is sunlit husk and paper; dark mode is damp soil after rain, not
- * black — a near-black ground reads as a generic tech app, and this is a tool
- * a farmer opens standing in a field before dawn.
+ * Bright and high-contrast on purpose. The ground is plain white and the ink is
+ * near-black, because this app is read at arm's length in hard coastal sun by
+ * someone who is not looking for long. Contrast survives glare; a tinted,
+ * low-contrast surface does not.
  *
- * Warm neutrals also behave better outdoors: less blue glare in hard coastal
- * sun than the cool greys they replace.
+ * One accent does all the emphasis: a saturated green, the colour of a growing
+ * crop rather than the dark canopy it used to be. Amber and red keep the jobs
+ * they already had — they mark things that cost money if ignored, nothing else.
+ * Severity is never carried by colour alone; every card carries a word and an
+ * icon too.
  *
- * One accent, spent carefully. Amber and red are reserved for things that cost
- * money if ignored, and severity is never carried by colour alone — every card
- * carries a word and an icon too.
+ * Dark mode is a true dark, near-black rather than the old warm soil. Paired
+ * with a brightened accent it holds the same contrast ratios the light theme
+ * does, which matters before dawn when the screen is the only light source.
  */
 :root {
-  /* Sunlit husk: warm paper, the colour of dried areca. */
-  --ground: #f7f3ea;
-  --surface: #fffcf6;
-  --surface-2: #efe8db;
-  --ink: #1b1610;
-  --ink-soft: #6a5c4a;
-  --ink-faint: #94836c;
-  --line: #e5dccb;
-  --line-strong: #cfc1a9;
+  --ground: #ffffff;
+  --surface: #ffffff;
+  /* Cards are white on white, so a second surface is needed for the quiet
+     fills — chips, tracks, inactive segments. */
+  --surface-2: #f4f6f4;
+  --ink: #0a0a0a;
+  --ink-soft: #5b625d;
+  --ink-faint: #8b938d;
+  --line: #e6e8e6;
+  --line-strong: #c9cfca;
 
-  /* Canopy green, dark enough to carry white type on a button. */
-  --accent: #2e6b3e;
-  --accent-bright: #3a8850;
-  --accent-soft: #e4eee1;
+  /* The one saturated colour. Dark enough to carry white type on a button. */
+  --accent: #00a344;
+  --accent-bright: #00c253;
+  --accent-soft: #e6f7ec;
+  /* Type colour for the accent on a white ground, where the button green is
+     just short of comfortable at small sizes. */
+  --accent-ink: #008035;
 
-  --rain: #37627f;
-  --rain-soft: #dbe6ed;
+  --rain: #0b6fd4;
+  --rain-soft: #e4f0fd;
 
-  --signal: #9a5008;
-  --signal-soft: #fbeedd;
-  --urgent: #9b2028;
-  --urgent-soft: #f9e7e5;
-  --money: #2e6b3e;
+  --signal: #b45309;
+  --signal-soft: #fdf0dd;
+  --urgent: #c4181f;
+  --urgent-soft: #fdeaea;
+  --money: #008035;
 
-  --shadow-sm: 0 1px 2px rgba(43, 32, 20, 0.06);
-  --shadow-md: 0 2px 8px -2px rgba(43, 32, 20, 0.10), 0 1px 2px rgba(43, 32, 20, 0.05);
-  --radius: 14px;
+  /* Neutral, not brown. On a white ground a card is separated by its border
+     first and its shadow second — the shadow only lifts it off the page. */
+  --shadow-sm: 0 1px 2px rgba(10, 12, 10, 0.05);
+  --shadow-md: 0 4px 16px -4px rgba(10, 12, 10, 0.10), 0 1px 3px rgba(10, 12, 10, 0.05);
+  --shadow-lg: 0 12px 32px -8px rgba(10, 12, 10, 0.16);
+  --radius: 18px;
+  --radius-sm: 12px;
 }
 
+/*
+ * The dark tokens are written out twice, and must stay in sync.
+ *
+ * The first block serves "follow the phone"; the second serves an explicit
+ * choice in Settings, which wins over the media query. There is no way to share
+ * one declaration between a media query and an attribute selector without a
+ * preprocessor step this project does not have.
+ */
 :root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
-    /* Damp soil after rain — warm and dark, deliberately not black. */
-    --ground: #1a1510;
-    --surface: #251e17;
-    --surface-2: #302620;
-    --ink: #f2ece1;
-    --ink-soft: #a89985;
-    --ink-faint: #7c6f5e;
-    --line: #3a2f26;
-    --line-strong: #4e4033;
+    --ground: #0a0b0a;
+    --surface: #141614;
+    --surface-2: #1e211e;
+    --ink: #f4f6f4;
+    --ink-soft: #a0a8a2;
+    --ink-faint: #737b76;
+    --line: #262926;
+    --line-strong: #3a3f3b;
 
-    /* Young leaf, light enough to carry dark type on a button. */
-    --accent: #7fc98c;
-    --accent-bright: #97dba3;
-    --accent-soft: #1d2a1c;
+    --accent: #34e07a;
+    --accent-bright: #5aed95;
+    --accent-soft: #10251a;
+    --accent-ink: #34e07a;
 
-    --rain: #7fb6d9;
-    --rain-soft: #1c2c37;
+    --rain: #5fb0f7;
+    --rain-soft: #10202e;
 
-    --signal: #e0a460;
-    --signal-soft: #2f2415;
-    --urgent: #f0949a;
-    --urgent-soft: #33191b;
-    --money: #8ed79b;
+    --signal: #f0a952;
+    --signal-soft: #2a1e0e;
+    --urgent: #ff7a80;
+    --urgent-soft: #2e1315;
+    --money: #34e07a;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
-    --shadow-md: 0 2px 10px -2px rgba(0, 0, 0, 0.55);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.8);
   }
 }
 
 :root[data-theme="dark"] {
-  /* Damp soil after rain — warm and dark, deliberately not black. */
-  --ground: #1a1510;
-  --surface: #251e17;
-  --surface-2: #302620;
-  --ink: #f2ece1;
-  --ink-soft: #a89985;
-  --ink-faint: #7c6f5e;
-  --line: #3a2f26;
-  --line-strong: #4e4033;
+  --ground: #0a0b0a;
+  --surface: #141614;
+  --surface-2: #1e211e;
+  --ink: #f4f6f4;
+  --ink-soft: #a0a8a2;
+  --ink-faint: #737b76;
+  --line: #262926;
+  --line-strong: #3a3f3b;
 
-  /* Young leaf, light enough to carry dark type on a button. */
-  --accent: #7fc98c;
-  --accent-bright: #97dba3;
-  --accent-soft: #1d2a1c;
+  --accent: #34e07a;
+  --accent-bright: #5aed95;
+  --accent-soft: #10251a;
+  --accent-ink: #34e07a;
 
-  --rain: #7fb6d9;
-  --rain-soft: #1c2c37;
+  --rain: #5fb0f7;
+  --rain-soft: #10202e;
 
-  --signal: #e0a460;
-  --signal-soft: #2f2415;
-  --urgent: #f0949a;
-  --urgent-soft: #33191b;
-  --money: #8ed79b;
+  --signal: #f0a952;
+  --signal-soft: #2a1e0e;
+  --urgent: #ff7a80;
+  --urgent-soft: #2e1315;
+  --money: #34e07a;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
-  --shadow-md: 0 2px 10px -2px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.8);
 }
 
 * { box-sizing: border-box; }
@@ -111,21 +129,26 @@
 body {
   background: var(--ground);
   color: var(--ink);
-  /* Latin first, then the Indic faces, so a mixed string keeps one voice. */
+  /* Latin first, then the Indic faces, so a mixed string keeps one voice.
+     The scripts do not overlap, so the browser picks by glyph, not by order. */
   font-family: var(--font-sans), var(--font-devanagari), var(--font-kannada),
+    var(--font-telugu), var(--font-tamil), var(--font-bengali),
+    var(--font-gujarati), var(--font-gurmukhi), var(--font-oriya),
+    var(--font-malayalam),
     ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "cv05" 1;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   margin: 0;
-  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
-  letter-spacing: -0.006em;
+  /* Clears the tab bar, and the mic that floats above it. */
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  letter-spacing: -0.011em;
 }
 
 /* Digits line up in columns wherever money or quantities are compared. */
 .tabular, .tabular-nums { font-variant-numeric: tabular-nums; }
 
-h1, h2, h3 { letter-spacing: -0.021em; text-wrap: balance; }
+h1, h2, h3 { letter-spacing: -0.03em; text-wrap: balance; }
 
 /* Every tap target clears 44pt without per-element classes. */
 button, a[role="button"], select, input { min-height: 44px; }
@@ -141,6 +164,56 @@ input, select, textarea {
   border-radius: 6px;
 }
 
+/*
+ * The type scale.
+ *
+ * Three steps and nothing between them. The hero is deliberately far larger
+ * than the old 2.1rem: on every screen there is exactly one number that answers
+ * the question the farmer opened the app to ask, and it should be readable
+ * without bringing the phone closer.
+ */
+.t-hero {
+  font-size: clamp(2.75rem, 13vw, 3.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.t-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.t-headline {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.t-body {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/*
+ * Indic scripts carry no capitals and hang taller than Latin, so the tight
+ * tracking that flatters Jakarta closes them up. Give the headline steps their
+ * spacing back when the interface is not Latin.
+ */
+:root[data-script="indic"] .t-hero,
+:root[data-script="indic"] .t-title,
+:root[data-script="indic"] .t-headline,
+:root[data-script="indic"] h1,
+:root[data-script="indic"] h2,
+:root[data-script="indic"] h3 {
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
 /* Shared surfaces, so cards across screens agree on edges and elevation. */
 .card {
   background: var(--surface);
@@ -149,16 +222,43 @@ input, select, textarea {
   box-shadow: var(--shadow-sm);
 }
 
+/* One card per screen may lead. It gets the weight, so the rest need not. */
+.card-lead {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* A quiet fill for rows and chips that should not read as cards. */
+.well {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+
 .eyebrow {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
 
-.press { transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease; }
-.press:active { transform: scale(0.985); }
+/* The tone label on a card: filled, so it reads before the headline does. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.press { transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease; }
+.press:active { transform: scale(0.975); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

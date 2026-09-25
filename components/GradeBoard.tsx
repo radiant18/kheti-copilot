@@ -47,33 +47,33 @@ export function GradeBoard({
 
   return (
     <section className="mt-7">
-      <h2 className="eyebrow mb-2.5">{heading}</h2>
+      <h2 className="eyebrow mb-3">{heading}</h2>
 
-      <ul className="space-y-2.5">
+      <ul className="space-y-3">
         {rows.map((q) => {
           const mine = held.includes(q.grade);
           return (
             <li key={q.grade}>
               <div className="mb-1 flex items-baseline justify-between gap-2">
                 <span
-                  className="text-sm"
+                  className="text-[15px]"
                   style={{
                     color: mine ? "var(--ink)" : "var(--ink-soft)",
                     fontWeight: mine ? 700 : 500,
                   }}
                 >
                   {gradeLabel(crop, q.grade)}
-                  {mine && <span style={{ color: "var(--accent)" }}> ●</span>}
+                  {mine && <span style={{ color: "var(--accent-ink)" }}> ●</span>}
                 </span>
                 <span
-                  className="tabular text-sm font-bold"
-                  style={{ color: mine ? "var(--accent)" : "var(--ink-soft)" }}
+                  className="tabular text-[15px] font-extrabold"
+                  style={{ color: mine ? "var(--money)" : "var(--ink-soft)" }}
                 >
                   ₹{q.modalPerQtl.toLocaleString("en-IN")}
                 </span>
               </div>
               <div
-                className="h-2 w-full overflow-hidden rounded-full"
+                className="h-2.5 w-full overflow-hidden rounded-full"
                 style={{ background: "var(--surface-2)" }}
               >
                 <div
@@ -81,6 +81,7 @@ export function GradeBoard({
                   style={{
                     width: `${Math.max(4, (q.modalPerQtl / top) * 100)}%`,
                     background: mine ? "var(--accent)" : "var(--line-strong)",
+                    transition: "width 240ms ease",
                   }}
                 />
               </div>

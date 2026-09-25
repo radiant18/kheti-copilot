@@ -85,3 +85,60 @@ export async function sendDailyPlan(phone: string, body: string): Promise<SendRe
     return { phone, ok: false, dryRun: false, detail: String(err) };
   }
 }
+
+/**
+ * Send a sign-in code.
+ *
+ * Register a second template for this — the daily-plan one is a different
+ * category and Meta will reject a code sent through it. A single {{1}} body
+ * variable is all this sends. If you register Meta's *authentication* category
+ * with a copy-code button, that template also expects a button component
+ * carrying the same code; add it here when you register one.
+ *
+ * With no credentials configured nothing is sent and `dryRun` comes back true.
+ * The route above it then shows the code on screen in development only — see
+ * app/api/otp/route.ts, which refuses to do that in production, because a code
+ * returned to the caller verifies nobody.
+ */
+export async function sendOtp(phone: string, code: string): Promise<SendResult> {
+  if (!isConfigured()) {
+    return {
+      phone,
+      ok: false,
+      dryRun: true,
+      detail: "WHATSAPP_TOKEN not set; nothing sent",
+      preview: code,
+    };
+  }
+
+  const template = process.env.WHATSAPP_OTP_TEMPLATE_NAME ?? "kheti_login_code";
+  const langCode = process.env.WHATSAPP_TEMPLATE_LANG ?? "en";
+  const url = `https://graph.facebook.com/${API_VERSION}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: `91${phone.replace(/\D/g, "").slice(-10)}`,
+        type: "template",
+        template: {
+          name: template,
+          language: { code: langCode },
+          components: [{ type: "body", parameters: [{ type: "text", text: code }] }],
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      return { phone, ok: false, dryRun: false, detail: `${res.status} ${await res.text()}` };
+    }
+    return { phone, ok: true, dryRun: false };
+  } catch (err) {
+    return { phone, ok: false, dryRun: false, detail: String(err) };
+  }
+}

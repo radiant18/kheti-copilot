@@ -72,25 +72,22 @@ export default function ProfitPage() {
   const valued = econ?.bearing && econ.yieldKnown && econ.priceKnown;
 
   return (
-    <main className="py-5">
+    <main className="py-4">
       <PageHeader title={t("navProfit")} />
 
       {econ && (
-        <section className="card p-5">
+        <section className="card-lead p-5">
           {valued ? (
             <>
               <p className="eyebrow">{t("expectedProfit")}</p>
-              <p
-                className="tabular mt-1.5 text-[2.1rem] font-extrabold leading-none"
-                style={{ color: "var(--money)" }}
-              >
+              <p className="tabular t-hero mt-2" style={{ color: "var(--money)" }}>
                 ₹{econ.expectedProfit.toLocaleString("en-IN")}
               </p>
 
               {/* Revenue against costs, to scale — the ratio is the story. */}
               <div
                 aria-hidden
-                className="mt-4 flex h-2.5 w-full overflow-hidden rounded-full"
+                className="mt-5 flex h-3 w-full overflow-hidden rounded-full"
                 style={{ background: "var(--surface-2)" }}
               >
                 <div
@@ -101,7 +98,7 @@ export default function ProfitPage() {
                 />
               </div>
 
-              <dl className="mt-4 space-y-2">
+              <dl className="mt-5 space-y-2.5">
                 <Row label="Expected revenue" value={`₹${econ.expectedRevenue.toLocaleString("en-IN")}`} />
                 <Row label="Spent so far" value={`−₹${econ.totalCosts.toLocaleString("en-IN")}`} />
                 <Row label="Expected yield" value={`${econ.expectedYieldQtl} qtl`} muted />
@@ -110,10 +107,10 @@ export default function ProfitPage() {
           ) : (
             <>
               <p className="eyebrow">{t("spentThisSeason")}</p>
-              <p className="tabular mt-1.5 text-[2.1rem] font-extrabold leading-none">
+              <p className="tabular t-hero mt-2">
                 ₹{total.toLocaleString("en-IN")}
               </p>
-              <p className="mt-2 text-[14px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+              <p className="t-body mt-3">
                 {!econ.bearing
                   ? `Your crop is still growing, so there is nothing to value yet. First harvest around ${econ.firstHarvestOn ?? "—"}.`
                   : !econ.priceKnown
@@ -127,17 +124,17 @@ export default function ProfitPage() {
 
       {byCategory.length > 0 && (
         <section className="mt-5">
-          <h2 className="eyebrow mb-2">Where it went</h2>
-          <ul className="space-y-2">
+          <h2 className="eyebrow mb-3">Where it went</h2>
+          <ul className="space-y-2.5">
             {byCategory.map((c) => (
-              <li key={c.id} className="card flex items-center gap-3 px-3.5 py-2.5">
-                <span aria-hidden className="text-[17px]">{c.icon}</span>
+              <li key={c.id} className="well flex items-center gap-3 px-4 py-3">
+                <span aria-hidden className="text-[18px]">{c.icon}</span>
                 <span className="flex-1">
-                  <span className="text-[14px] font-semibold">{c.label}</span>
+                  <span className="text-[15px] font-bold">{c.label}</span>
                   <span
                     aria-hidden
-                    className="mt-1 block h-1.5 overflow-hidden rounded-full"
-                    style={{ background: "var(--surface-2)" }}
+                    className="mt-1.5 block h-2 overflow-hidden rounded-full"
+                    style={{ background: "var(--line)" }}
                   >
                     <span
                       className="block h-full rounded-full"
@@ -148,7 +145,7 @@ export default function ProfitPage() {
                     />
                   </span>
                 </span>
-                <span className="tabular text-[14px] font-bold">
+                <span className="tabular text-[15px] font-extrabold">
                   ₹{c.amount.toLocaleString("en-IN")}
                 </span>
               </li>
@@ -158,7 +155,7 @@ export default function ProfitPage() {
       )}
 
       <section className="mt-6">
-        <h2 className="eyebrow mb-2">Add an expense</h2>
+        <h2 className="eyebrow mb-3">Add an expense</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {CATEGORIES.map((c) => {
             const on = c.id === category;
@@ -167,12 +164,12 @@ export default function ProfitPage() {
                 key={c.id}
                 onClick={() => setCategory(c.id)}
                 aria-pressed={on}
-                className="press rounded-full border px-3 py-2 text-[13px]"
+                className="press rounded-full border px-4 py-2 text-[14px]"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
-                  background: on ? "var(--accent-soft)" : "var(--surface)",
-                  color: on ? "var(--accent)" : "var(--ink-soft)",
-                  fontWeight: on ? 700 : 500,
+                  background: on ? "var(--accent)" : "var(--surface)",
+                  color: on ? "var(--ground)" : "var(--ink-soft)",
+                  fontWeight: on ? 800 : 600,
                 }}
               >
                 <span aria-hidden>{c.icon}</span> {c.label}
@@ -187,13 +184,13 @@ export default function ProfitPage() {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="₹ 0"
-            className="card tabular min-w-0 flex-1 px-3.5 py-3"
-            style={{ color: "var(--ink)" }}
+            className="tabular min-w-0 flex-1 rounded-2xl border px-4 py-3 text-[17px] font-bold"
+            style={{ color: "var(--ink)", background: "var(--surface)", borderColor: "var(--line)" }}
           />
           <button
             type="submit"
             disabled={!amount.trim()}
-            className="press rounded-xl px-5 font-bold"
+            className="press rounded-2xl px-6 font-extrabold"
             style={{
               background: amount.trim() ? "var(--accent)" : "var(--surface-2)",
               color: amount.trim() ? "var(--ground)" : "var(--ink-faint)",
@@ -233,10 +230,10 @@ export default function ProfitPage() {
 
 function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
   return (
-    <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-[14px]" style={{ color: "var(--ink-soft)" }}>{label}</dt>
+    <div className="flex items-baseline justify-between gap-4 border-b pb-2" style={{ borderColor: "var(--line)" }}>
+      <dt className="text-[15px]" style={{ color: "var(--ink-soft)" }}>{label}</dt>
       <dd
-        className="tabular text-[14px] font-semibold"
+        className="tabular text-[15px] font-bold"
         style={muted ? { color: "var(--ink-soft)" } : undefined}
       >
         {value}

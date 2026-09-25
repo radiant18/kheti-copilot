@@ -1,27 +1,33 @@
 import { NextResponse } from "next/server";
 import { createListing, listByPhone, listOpen, setStatus, type Listing } from "@/lib/listings";
-import { isValidPhone } from "@/lib/session-shared";
+import { verifiedPhone } from "@/lib/otp";
 
 /**
  * The direct-sale board.
  *
- * GET  — open lots, optionally filtered by crop and state; `mine=<phone>`
- *        returns that farmer's own lots including withdrawn ones.
+ * GET  — open lots, optionally filtered by crop and state; `mine=1` returns the
+ *        caller's own lots, including withdrawn ones.
  * POST — publish a lot. Requires `publishPhone: true`, the farmer's explicit
- *        agreement that buyers will see their number, because that is the
- *        whole mechanism and it should never be implied.
- * PATCH — mark a lot sold or withdrawn. Only the poster's number can.
+ *        agreement that buyers will see their number, because that is the whole
+ *        mechanism and it should never be implied.
+ * PATCH — mark a lot sold or withdrawn. Only the poster can.
+ *
+ * WHOSE NUMBER: every one of those reads the phone off the bearer token minted
+ * by /api/otp/verify, never out of the body or the query string. The body used
+ * to carry both the number and the consent tick, which meant a request could
+ * publish a stranger's number to every buyer in the state on that stranger's
+ * behalf. A caller can claim any number; only its owner holds a token for it.
  */
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const mine = searchParams.get("mine");
 
-  if (mine) {
-    if (!isValidPhone(mine)) return NextResponse.json({ error: "bad_phone" }, { status: 400 });
-    return NextResponse.json({ listings: await listByPhone(mine.replace(/\D/g, "")) });
+  if (searchParams.has("mine")) {
+    const phone = verifiedPhone(req);
+    if (!phone) return NextResponse.json({ error: "verify_phone" }, { status: 401 });
+    return NextResponse.json({ listings: await listByPhone(phone) });
   }
 
   return NextResponse.json({
@@ -33,6 +39,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const phone = verifiedPhone(req);
+  if (!phone) return NextResponse.json({ error: "verify_phone" }, { status: 401 });
+
   let body: Partial<Listing> & { publishPhone?: boolean };
   try {
     body = await req.json();
@@ -40,10 +49,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
 
-  const phone = (body.phone ?? "").replace(/\D/g, "");
-  if (!isValidPhone(phone)) return NextResponse.json({ error: "bad_phone" }, { status: 400 });
-
-  // Publishing a number is the one irreversible thing here, so it is explicit.
+  // Proving the number is not the same as agreeing to show it, so the tick
+  // still has to be there on its own.
   if (body.publishPhone !== true) {
     return NextResponse.json({ error: "consent_required" }, { status: 400 });
   }
@@ -78,15 +85,17 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  let body: { id?: string; phone?: string; status?: Listing["status"] };
+  const phone = verifiedPhone(req);
+  if (!phone) return NextResponse.json({ error: "verify_phone" }, { status: 401 });
+
+  let body: { id?: string; status?: Listing["status"] };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
 
-  const phone = (body.phone ?? "").replace(/\D/g, "");
-  if (!body.id || !isValidPhone(phone) || !body.status) {
+  if (!body.id || !body.status) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 

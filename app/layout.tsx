@@ -1,15 +1,40 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Noto_Sans_Devanagari, Noto_Sans_Kannada } from "next/font/google";
+import {
+  Plus_Jakarta_Sans,
+  Noto_Sans_Devanagari,
+  Noto_Sans_Kannada,
+  Noto_Sans_Telugu,
+  Noto_Sans_Tamil,
+  Noto_Sans_Bengali,
+  Noto_Sans_Gujarati,
+  Noto_Sans_Gurmukhi,
+  Noto_Sans_Oriya,
+  Noto_Sans_Malayalam,
+} from "next/font/google";
 import { AppGate } from "@/components/AppGate";
+import { AppHeader } from "@/components/AppHeader";
+import { AskFab } from "@/components/AskFab";
 import { BottomNav } from "@/components/BottomNav";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import "./globals.css";
 
 /**
- * Three faces, because the interface now runs in four languages across three
- * scripts. Jakarta carries Latin and the numerals; the Noto pair carries
- * Devanagari and Kannada at matching weights so a Hindi screen does not look
- * like a different product from an English one.
+ * Ten faces, because the interface now runs in thirteen languages across ten
+ * scripts. Jakarta carries Latin and the numerals; the Noto set carries the
+ * nine others at matching weights, so a Telugu screen does not look like a
+ * different product from an English one. Devanagari serves Hindi, Marathi and
+ * Maithili; the Bengali face serves Assamese too.
+
+ *
+ * Only Jakarta is preloaded. `subsets` injects a preload tag by default, so
+ * leaving it on would block first paint behind nine scripts the farmer cannot
+ * read. With preload off the browser fetches a face only when a glyph in its
+ * range is drawn: the language picker costs one weight per script to render the
+ * thirteen names, and the chosen language then pulls the rest of its weights. Every
+ * other script stays at that one file.
+ *
+ * The options are spelled out per font rather than shared from one object
+ * because next/font reads them at build time: a spread fails to compile.
  */
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -18,19 +43,20 @@ const sans = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const devanagari = Noto_Sans_Devanagari({
-  subsets: ["devanagari"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-devanagari",
-  display: "swap",
-});
+const devanagari = Noto_Sans_Devanagari({ subsets: ["devanagari"], weight: ["400", "500", "600", "700"], variable: "--font-devanagari", display: "swap", preload: false });
+const kannada = Noto_Sans_Kannada({ subsets: ["kannada"], weight: ["400", "500", "600", "700"], variable: "--font-kannada", display: "swap", preload: false });
+const telugu = Noto_Sans_Telugu({ subsets: ["telugu"], weight: ["400", "500", "600", "700"], variable: "--font-telugu", display: "swap", preload: false });
+const tamil = Noto_Sans_Tamil({ subsets: ["tamil"], weight: ["400", "500", "600", "700"], variable: "--font-tamil", display: "swap", preload: false });
+const bengali = Noto_Sans_Bengali({ subsets: ["bengali"], weight: ["400", "500", "600", "700"], variable: "--font-bengali", display: "swap", preload: false });
+const gujarati = Noto_Sans_Gujarati({ subsets: ["gujarati"], weight: ["400", "500", "600", "700"], variable: "--font-gujarati", display: "swap", preload: false });
+const gurmukhi = Noto_Sans_Gurmukhi({ subsets: ["gurmukhi"], weight: ["400", "500", "600", "700"], variable: "--font-gurmukhi", display: "swap", preload: false });
+const oriya = Noto_Sans_Oriya({ subsets: ["oriya"], weight: ["400", "500", "600", "700"], variable: "--font-oriya", display: "swap", preload: false });
 
-const kannada = Noto_Sans_Kannada({
-  subsets: ["kannada"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-kannada",
-  display: "swap",
-});
+const malayalam = Noto_Sans_Malayalam({ subsets: ["malayalam"], weight: ["400", "500", "600", "700"], variable: "--font-malayalam", display: "swap", preload: false });
+
+const fontVars = [sans, devanagari, kannada, telugu, tamil, bengali, gujarati, gurmukhi, oriya, malayalam]
+  .map((f) => f.variable)
+  .join(" ");
 
 export const metadata: Metadata = {
   title: "Kheti — Farm Copilot",
@@ -53,7 +79,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${devanagari.variable} ${kannada.variable}`}>
+    <html lang="en" className={fontVars}>
       <body>
         {/*
           Runs before anything paints. Without it the page renders light for a
@@ -68,7 +94,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <ServiceWorker />
         <AppGate>
-          <div className="mx-auto min-h-[100svh] w-full max-w-[30rem] px-5">{children}</div>
+          <AppHeader />
+          <div className="mx-auto w-full max-w-[30rem] px-5">{children}</div>
+          <AskFab />
           <BottomNav />
         </AppGate>
       </body>

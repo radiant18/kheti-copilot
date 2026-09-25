@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { apiSend } from "@/lib/api";
 import { gradeLabel, type CropConfig } from "@/lib/crops";
 import { loadSession } from "@/lib/session";
 
@@ -10,6 +11,9 @@ import { loadSession } from "@/lib/session";
  * Grade is optional — a mill buying in bulk often does not care, and forcing a
  * choice would either produce noise or stop them posting. Empty means any grade
  * of the crop, and the board reads it that way.
+ *
+ * Like a farmer's lot, the number comes off the proof token on the server — a
+ * buyer's number is published to growers and is proved the same way.
  */
 export function RequirementForm({
   crop,
@@ -42,13 +46,9 @@ export function RequirementForm({
     if (!ready) return;
     setBusy(true);
     try {
-      const res = await fetch("/api/requirements", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
+      const res = await apiSend("/api/requirements", "POST", {
           business,
           contactName: loadSession()?.name ?? "",
-          phone,
           publishPhone: consent,
           cropId: crop.id,
           grade,
@@ -57,7 +57,6 @@ export function RequirementForm({
           district,
           state,
           note: note.trim() || undefined,
-        }),
       });
       if (res.ok) onDone();
     } finally {

@@ -57,7 +57,7 @@ export function CropSearch({
     return (
       <button
         onClick={() => { setOpen(true); setQuery(""); }}
-        className="press card mt-3 flex w-full items-center gap-3 p-3.5 text-left"
+        className="press card mt-3 flex w-full items-center gap-3 p-3.5 text-start"
       >
         <CropIcon cropId={value} size={26} />
         <span className="min-w-0 flex-1">
@@ -66,7 +66,7 @@ export function CropSearch({
             {current?.label ?? value}
           </span>
         </span>
-        <span className="shrink-0 text-[13px] font-bold" style={{ color: "var(--accent)" }}>
+        <span className="shrink-0 text-[13px] font-bold" style={{ color: "var(--accent-ink)" }}>
           {changeLabel}
         </span>
       </button>
@@ -93,10 +93,10 @@ export function CropSearch({
             <li key={c.id}>
               <button
                 onClick={() => { onChange(c.id); setOpen(false); }}
-                className="press flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left"
+                className="press flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-start"
                 style={
                   c.id === value
-                    ? { background: "var(--accent-soft)", color: "var(--accent)" }
+                    ? { background: "var(--accent-soft)", color: "var(--accent-ink)" }
                     : undefined
                 }
               >

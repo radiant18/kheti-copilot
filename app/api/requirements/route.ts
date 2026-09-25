@@ -6,27 +6,31 @@ import {
   requirementsByPhone,
   type Requirement,
 } from "@/lib/requirements";
-import { isValidPhone } from "@/lib/session-shared";
+import { verifiedPhone } from "@/lib/otp";
 
 /**
  * Buy requirements — the demand side of the direct board.
  *
- * GET   — open requirements, filtered by crop and state; `mine=<phone>` returns
- *         the caller's own, including closed ones.
+ * GET   — open requirements, filtered by crop and state; `mine=1` returns the
+ *         caller's own, including closed ones.
  * POST  — publish a requirement. Needs `publishPhone: true`, same as listings:
  *         a number that has been seen cannot be unseen.
  * PATCH — close one. Only the posting number can.
+ *
+ * The number comes off the bearer token, not the body — see app/api/listings.
+ * A buyer's number is published to growers exactly as a grower's is to buyers,
+ * so it is proved the same way.
  */
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const mine = searchParams.get("mine");
 
-  if (mine) {
-    if (!isValidPhone(mine)) return NextResponse.json({ error: "bad_phone" }, { status: 400 });
-    return NextResponse.json({ requirements: await requirementsByPhone(mine.replace(/\D/g, "")) });
+  if (searchParams.has("mine")) {
+    const phone = verifiedPhone(req);
+    if (!phone) return NextResponse.json({ error: "verify_phone" }, { status: 401 });
+    return NextResponse.json({ requirements: await requirementsByPhone(phone) });
   }
 
   return NextResponse.json({
@@ -38,6 +42,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const phone = verifiedPhone(req);
+  if (!phone) return NextResponse.json({ error: "verify_phone" }, { status: 401 });
+
   let body: Partial<Requirement> & { publishPhone?: boolean };
   try {
     body = await req.json();
@@ -45,8 +52,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
 
-  const phone = (body.phone ?? "").replace(/\D/g, "");
-  if (!isValidPhone(phone)) return NextResponse.json({ error: "bad_phone" }, { status: 400 });
   if (body.publishPhone !== true) {
     return NextResponse.json({ error: "consent_required" }, { status: 400 });
   }
@@ -78,17 +83,17 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  let body: { id?: string; phone?: string };
+  const phone = verifiedPhone(req);
+  if (!phone) return NextResponse.json({ error: "verify_phone" }, { status: 401 });
+
+  let body: { id?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
 
-  const phone = (body.phone ?? "").replace(/\D/g, "");
-  if (!body.id || !isValidPhone(phone)) {
-    return NextResponse.json({ error: "bad_request" }, { status: 400 });
-  }
+  if (!body.id) return NextResponse.json({ error: "bad_request" }, { status: 400 });
 
   const ok = await closeRequirement(body.id, phone);
   return NextResponse.json({ ok }, { status: ok ? 200 : 403 });
