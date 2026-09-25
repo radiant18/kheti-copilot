@@ -29,6 +29,10 @@ export interface CropName {
   gu?: string;
   pa?: string;
   or?: string;
+  ml?: string;
+  ur?: string;
+  as?: string;
+  mai?: string;
 }
 
 export interface GradeDef {

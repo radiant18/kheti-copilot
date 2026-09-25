@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { apiSend } from "@/lib/api";
 import { LANGUAGES, t, type Lang } from "@/lib/i18n";
 import { isValidPhone, loadSession, signIn, startDemo, type Role } from "@/lib/session";
+import { applyLangToRoot } from "@/lib/use-lang";
 
 /**
  * Sign-in.
@@ -87,6 +88,10 @@ export default function LoginPage() {
 
     router.replace(session.onboarded ? "/" : "/onboarding");
   }, [router]);
+
+  // The picker changes the language before a session exists, so the root has
+  // to hear about it from here — otherwise Urdu would render left to right.
+  useEffect(() => applyLangToRoot(lang), [lang]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -296,7 +301,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setRole(value)}
                 aria-pressed={on}
-                className="press rounded-2xl border-2 px-4 py-3.5 text-left"
+                className="press rounded-2xl border-2 px-4 py-3.5 text-start"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
                   background: on ? "var(--accent-soft)" : "var(--surface)",
@@ -325,7 +330,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setLang(l.code)}
                 aria-pressed={on}
-                className="press flex items-center justify-between rounded-2xl border px-4 py-3 text-left"
+                className="press flex items-center justify-between rounded-2xl border px-4 py-3 text-start"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
                   background: on ? "var(--accent)" : "var(--surface)",

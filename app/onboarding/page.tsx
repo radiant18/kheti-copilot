@@ -203,7 +203,7 @@ export default function OnboardingPage() {
               <li key={c.id}>
                 <button
                   onClick={() => pickCrop(c.id)}
-                  className="flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-left"
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-start"
                   style={{
                     borderColor: c.id === farm.cropId ? "var(--accent)" : "var(--line)",
                     background: c.id === farm.cropId ? "var(--accent-soft)" : "var(--surface)",
@@ -275,14 +275,14 @@ export default function OnboardingPage() {
                 <li key={`${p.district}-${p.name}`}>
                   <button
                     onClick={() => pickPlace(p)}
-                    className="w-full rounded-2xl border px-4 py-3 text-left"
+                    className="w-full rounded-2xl border px-4 py-3 text-start"
                     style={{
                       borderColor: farm.village === p.name ? "var(--accent)" : "var(--line)",
                       background: farm.village === p.name ? "var(--accent-soft)" : "var(--surface)",
                     }}
                   >
                     <span className="font-medium">{p.name}</span>
-                    <span className="ml-2 text-sm" style={{ color: "var(--ink-soft)" }}>{p.district}</span>
+                    <span className="ms-2 text-sm" style={{ color: "var(--ink-soft)" }}>{p.district}</span>
                   </button>
                 </li>
               ))}

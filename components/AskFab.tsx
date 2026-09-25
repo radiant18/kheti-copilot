@@ -38,8 +38,9 @@ export function AskFab() {
         bottom: "calc(5.5rem + env(safe-area-inset-bottom))",
         /* Hugs the content column, not the window. The shell is capped at
            30rem and centred, so on anything wider than a phone a plain
-           `right: 1.25rem` would strand the mic out in the margin. */
-        right: "max(1.25rem, calc(50vw - 15rem + 1.25rem))",
+           `right: 1.25rem` would strand the mic out in the margin. Logical
+           inset, so under Urdu's right-to-left the mic moves to the left. */
+        insetInlineEnd: "max(1.25rem, calc(50vw - 15rem + 1.25rem))",
         background: "var(--accent)",
         color: "var(--ground)",
         boxShadow: "var(--shadow-lg)",

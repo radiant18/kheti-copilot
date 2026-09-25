@@ -258,7 +258,7 @@ export default function SettingsPage() {
                   // on the page, including the ones already rendered above.
                   window.location.reload();
                 }}
-                className="press rounded-2xl border px-4 py-3.5 text-left"
+                className="press rounded-2xl border px-4 py-3.5 text-start"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
                   background: on ? "var(--accent)" : "var(--surface)",
@@ -366,7 +366,7 @@ function Row({ label, value, caps }: { label: string; value: string; caps?: bool
       style={{ borderColor: "var(--line)" }}
     >
       <span className="text-[15px]" style={{ color: "var(--ink-soft)" }}>{label}</span>
-      <span className={`text-right text-[15px] font-bold${caps ? " capitalize" : ""}`}>{value}</span>
+      <span className={`text-end text-[15px] font-bold${caps ? " capitalize" : ""}`}>{value}</span>
     </div>
   );
 }
