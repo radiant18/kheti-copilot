@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isConfigured as signingConfigured, issueCode } from "@/lib/otp";
+import { isConfigured as signingConfigured, issueCode, testMode } from "@/lib/otp";
 import { isValidPhone } from "@/lib/session-shared";
 import { isConfigured as smsConfigured, sendLoginCode } from "@/lib/sms";
 import { isConfigured as whatsappConfigured, sendOtp } from "@/lib/whatsapp";
@@ -40,7 +40,8 @@ export async function POST(req: Request) {
 
   const bySms = smsConfigured();
   const byWhatsapp = !bySms && whatsappConfigured();
-  const dev = process.env.NODE_ENV !== "production";
+  // OTP_TEST_MODE=1 behaves like development, code on screen — see lib/otp.ts.
+  const dev = process.env.NODE_ENV !== "production" || testMode();
 
   if (!bySms && !byWhatsapp && !dev) {
     // Nothing can carry the code to the farmer, and we will not hand it back

@@ -55,14 +55,25 @@ const hashCode = (phone: string, code: string): string =>
  */
 const DEV_SECRET = "kheti-development-only-signing-key";
 
+/**
+ * OTP_TEST_MODE=1 runs a deployed site the way development runs: no message
+ * provider, the code comes back in the response and is shown on screen, and
+ * tokens fall back to the known dev key when OTP_SECRET is unset. That makes
+ * verification decorative — anyone can "prove" any number — so it is for demos
+ * and judging only, and must be switched off before real farmers use the board.
+ */
+export function testMode(): boolean {
+  return process.env.OTP_TEST_MODE === "1";
+}
+
 export function isConfigured(): boolean {
-  return Boolean(process.env.OTP_SECRET) || process.env.NODE_ENV !== "production";
+  return Boolean(process.env.OTP_SECRET) || process.env.NODE_ENV !== "production" || testMode();
 }
 
 function secret(): string {
   const configured = process.env.OTP_SECRET;
   if (configured) return configured;
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && !testMode()) {
     throw new Error("OTP_SECRET is not set — refusing to sign a forgeable token");
   }
   return DEV_SECRET;
