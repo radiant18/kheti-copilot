@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import {
-  Plus_Jakarta_Sans,
+  Inter,
+  JetBrains_Mono,
   Noto_Sans_Devanagari,
   Noto_Sans_Kannada,
   Noto_Sans_Telugu,
@@ -20,13 +21,13 @@ import "./globals.css";
 
 /**
  * Ten faces, because the interface now runs in thirteen languages across ten
- * scripts. Jakarta carries Latin and the numerals; the Noto set carries the
+ * scripts. Inter carries Latin and the numerals; the Noto set carries the
  * nine others at matching weights, so a Telugu screen does not look like a
  * different product from an English one. Devanagari serves Hindi, Marathi and
  * Maithili; the Bengali face serves Assamese too.
 
  *
- * Only Jakarta is preloaded. `subsets` injects a preload tag by default, so
+ * Only Inter is preloaded. `subsets` injects a preload tag by default, so
  * leaving it on would block first paint behind nine scripts the farmer cannot
  * read. With preload off the browser fetches a face only when a glyph in its
  * range is drawn: the language picker costs one weight per script to render the
@@ -36,11 +37,19 @@ import "./globals.css";
  * The options are spelled out per font rather than shared from one object
  * because next/font reads them at build time: a spread fails to compile.
  */
-const sans = Plus_Jakarta_Sans({
+const sans = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-sans",
   display: "swap",
+});
+
+/* Small labels only — eyebrows and chips. */
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-mono",
+  display: "swap",
+  preload: false,
 });
 
 const devanagari = Noto_Sans_Devanagari({ subsets: ["devanagari"], weight: ["400", "500", "600", "700"], variable: "--font-devanagari", display: "swap", preload: false });
@@ -54,7 +63,7 @@ const oriya = Noto_Sans_Oriya({ subsets: ["oriya"], weight: ["400", "500", "600"
 
 const malayalam = Noto_Sans_Malayalam({ subsets: ["malayalam"], weight: ["400", "500", "600", "700"], variable: "--font-malayalam", display: "swap", preload: false });
 
-const fontVars = [sans, devanagari, kannada, telugu, tamil, bengali, gujarati, gurmukhi, oriya, malayalam]
+const fontVars = [sans, mono, devanagari, kannada, telugu, tamil, bengali, gujarati, gurmukhi, oriya, malayalam]
   .map((f) => f.variable)
   .join(" ");
 
@@ -68,8 +77,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f3ea" },
-    { media: "(prefers-color-scheme: dark)", color: "#17120d" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
   width: "device-width",
   initialScale: 1,

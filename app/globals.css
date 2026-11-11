@@ -1,127 +1,113 @@
 @import "tailwindcss";
 
 /*
- * Kheti's surface.
+ * Kheti's surface — minimal.
  *
- * Bright and high-contrast on purpose. The ground is plain white and the ink is
- * near-black, because this app is read at arm's length in hard coastal sun by
- * someone who is not looking for long. Contrast survives glare; a tinted,
- * low-contrast surface does not.
+ * Paper-white ground, black ink, hairline rules and nothing else. No shadows,
+ * no tinted panels, corners barely rounded. Black does the emphasis a brand
+ * colour used to do, so the one solid pill on a screen is unmistakably the
+ * thing to press. Colour is kept only where it carries meaning: green for
+ * money earned, amber and red for things that cost money if ignored. Severity
+ * is still never carried by colour alone.
  *
- * One accent does all the emphasis: a saturated green, the colour of a growing
- * crop rather than the dark canopy it used to be. Amber and red keep the jobs
- * they already had — they mark things that cost money if ignored, nothing else.
- * Severity is never carried by colour alone; every card carries a word and an
- * icon too.
- *
- * Dark mode is a true dark, near-black rather than the old warm soil. Paired
- * with a brightened accent it holds the same contrast ratios the light theme
- * does, which matters before dawn when the screen is the only light source.
+ * Contrast is as high as it gets — black on white survives coastal glare, and
+ * the dark theme is its exact inverse for use before dawn.
  */
+@theme {
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 10px;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+}
+
 :root {
   --ground: #ffffff;
   --surface: #ffffff;
-  /* Cards are white on white, so a second surface is needed for the quiet
-     fills — chips, tracks, inactive segments. */
-  --surface-2: #f4f6f4;
-  --ink: #0a0a0a;
-  --ink-soft: #5b625d;
-  --ink-faint: #8b938d;
-  --line: #e6e8e6;
-  --line-strong: #c9cfca;
+  --surface-2: #f4f4f4;
+  --ink: #000000;
+  --ink-soft: #555555;
+  --ink-faint: #8c8c8c;
+  --line: #e6e6e6;
+  --line-strong: #cccccc;
 
-  /* The one saturated colour. Dark enough to carry white type on a button. */
-  --accent: #00a344;
-  --accent-bright: #00c253;
-  --accent-soft: #e6f7ec;
-  /* Type colour for the accent on a white ground, where the button green is
-     just short of comfortable at small sizes. */
-  --accent-ink: #008035;
+  /* Black is the accent. Text on it uses --ground, so both themes invert. */
+  --accent: #000000;
+  --accent-bright: #000000;
+  --accent-soft: #f4f4f4;
+  --accent-ink: #000000;
 
   --rain: #0b6fd4;
-  --rain-soft: #e4f0fd;
+  --rain-soft: #f1f6fc;
 
   --signal: #b45309;
-  --signal-soft: #fdf0dd;
+  --signal-soft: #fbf5ec;
   --urgent: #c4181f;
-  --urgent-soft: #fdeaea;
+  --urgent-soft: #fcf0f0;
   --money: #008035;
 
-  /* Neutral, not brown. On a white ground a card is separated by its border
-     first and its shadow second — the shadow only lifts it off the page. */
-  --shadow-sm: 0 1px 2px rgba(10, 12, 10, 0.05);
-  --shadow-md: 0 4px 16px -4px rgba(10, 12, 10, 0.10), 0 1px 3px rgba(10, 12, 10, 0.05);
-  --shadow-lg: 0 12px 32px -8px rgba(10, 12, 10, 0.16);
-  --radius: 18px;
-  --radius-sm: 12px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --radius: 10px;
+  --radius-sm: 6px;
 }
 
 /*
- * The dark tokens are written out twice, and must stay in sync.
- *
- * The first block serves "follow the phone"; the second serves an explicit
- * choice in Settings, which wins over the media query. There is no way to share
- * one declaration between a media query and an attribute selector without a
- * preprocessor step this project does not have.
+ * The dark tokens are written out twice, and must stay in sync: the first
+ * block serves "follow the phone", the second an explicit choice in Settings.
  */
 :root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
-    --ground: #0a0b0a;
-    --surface: #141614;
-    --surface-2: #1e211e;
-    --ink: #f4f6f4;
-    --ink-soft: #a0a8a2;
-    --ink-faint: #737b76;
-    --line: #262926;
-    --line-strong: #3a3f3b;
+    --ground: #000000;
+    --surface: #000000;
+    --surface-2: #121212;
+    --ink: #f5f5f5;
+    --ink-soft: #a3a3a3;
+    --ink-faint: #737373;
+    --line: #222222;
+    --line-strong: #3a3a3a;
 
-    --accent: #34e07a;
-    --accent-bright: #5aed95;
-    --accent-soft: #10251a;
-    --accent-ink: #34e07a;
+    --accent: #f5f5f5;
+    --accent-bright: #ffffff;
+    --accent-soft: #121212;
+    --accent-ink: #f5f5f5;
 
     --rain: #5fb0f7;
-    --rain-soft: #10202e;
+    --rain-soft: #0d1620;
 
     --signal: #f0a952;
-    --signal-soft: #2a1e0e;
+    --signal-soft: #1c140a;
     --urgent: #ff7a80;
-    --urgent-soft: #2e1315;
+    --urgent-soft: #1f0d0e;
     --money: #34e07a;
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
-    --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.7);
-    --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.8);
   }
 }
 
 :root[data-theme="dark"] {
-  --ground: #0a0b0a;
-  --surface: #141614;
-  --surface-2: #1e211e;
-  --ink: #f4f6f4;
-  --ink-soft: #a0a8a2;
-  --ink-faint: #737b76;
-  --line: #262926;
-  --line-strong: #3a3f3b;
+  --ground: #000000;
+  --surface: #000000;
+  --surface-2: #121212;
+  --ink: #f5f5f5;
+  --ink-soft: #a3a3a3;
+  --ink-faint: #737373;
+  --line: #222222;
+  --line-strong: #3a3a3a;
 
-  --accent: #34e07a;
-  --accent-bright: #5aed95;
-  --accent-soft: #10251a;
-  --accent-ink: #34e07a;
+  --accent: #f5f5f5;
+  --accent-bright: #ffffff;
+  --accent-soft: #121212;
+  --accent-ink: #f5f5f5;
 
   --rain: #5fb0f7;
-  --rain-soft: #10202e;
+  --rain-soft: #0d1620;
 
   --signal: #f0a952;
-  --signal-soft: #2a1e0e;
+  --signal-soft: #1c140a;
   --urgent: #ff7a80;
-  --urgent-soft: #2e1315;
+  --urgent-soft: #1f0d0e;
   --money: #34e07a;
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.8);
 }
 
 * { box-sizing: border-box; }
@@ -136,7 +122,7 @@ body {
     var(--font-gujarati), var(--font-gurmukhi), var(--font-oriya),
     var(--font-malayalam),
     ui-sans-serif, system-ui, sans-serif;
-  font-feature-settings: "cv05" 1;
+  font-feature-settings: "cv11" 1, "ss01" 1;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   margin: 0;
@@ -159,9 +145,9 @@ input, select, textarea {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 6px;
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /*
@@ -174,21 +160,21 @@ input, select, textarea {
  */
 .t-hero {
   font-size: clamp(2.75rem, 13vw, 3.5rem);
-  font-weight: 800;
+  font-weight: 500;
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.05em;
 }
 
 .t-title {
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 500;
   line-height: 1.08;
   letter-spacing: -0.035em;
 }
 
 .t-headline {
   font-size: 1.1875rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.3;
   letter-spacing: -0.02em;
 }
@@ -201,7 +187,7 @@ input, select, textarea {
 
 /*
  * Indic scripts carry no capitals and hang taller than Latin, so the tight
- * tracking that flatters Jakarta closes them up. Give the headline steps their
+ * tracking that flatters Inter closes them up. Give the headline steps their
  * spacing back when the interface is not Latin.
  */
 :root[data-script="indic"] .t-hero,
@@ -225,9 +211,9 @@ input, select, textarea {
 /* One card per screen may lead. It gets the weight, so the rest need not. */
 .card-lead {
   background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 4px);
-  box-shadow: var(--shadow-md);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 
 /* A quiet fill for rows and chips that should not read as cards. */
@@ -237,9 +223,10 @@ input, select, textarea {
 }
 
 .eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
@@ -251,9 +238,10 @@ input, select, textarea {
   gap: 0.35rem;
   border-radius: 999px;
   padding: 0.25rem 0.625rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
