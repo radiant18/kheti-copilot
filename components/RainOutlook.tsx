@@ -105,7 +105,7 @@ export function RainOutlook({
               <span className="block text-[13px]" style={{ color: "var(--ink-soft)" }}>
                 {d.sentence}
                 {d.spray && (
-                  <span className="ml-1 font-semibold" style={{ color: "var(--accent)" }}>
+                  <span className="ms-1 font-semibold" style={{ color: "var(--accent-ink)" }}>
                     · {t(lang, "raySprayOk")}
                   </span>
                 )}

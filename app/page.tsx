@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { PageHeader } from "@/components/PageHeader";
 import { TodayCard } from "@/components/TodayCard";
 import { todayCards } from "@/lib/engine/today";
 import { CropIcon } from "@/components/CropIcon";
@@ -75,10 +76,10 @@ export default function TodayPage() {
   });
 
   return (
-    <main className="py-5">
+    <main className="py-4">
       {demo && (
         <div
-          className="mb-4 flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-xs font-semibold"
+          className="mb-5 flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-[13px] font-bold"
           style={{ background: "var(--signal-soft)", color: "var(--signal)" }}
         >
           <span>{t("demoBadge")}</span>
@@ -94,25 +95,26 @@ export default function TodayPage() {
         </div>
       )}
 
-      <header className="mb-5">
-        <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{today}</p>
-        <h1 className="mt-0.5 text-[1.75rem] font-extrabold leading-tight">{t("yourFarmToday")}</h1>
-        {farm && crop && (
-          <p className="mt-1.5 flex items-center gap-2 text-sm" style={{ color: "var(--ink-soft)" }}>
-            <CropIcon cropId={farm.cropId} size={22} />
-            {cropName(crop, lang)} · {farmSizeLabel(farm, lang)} · {farm.village}
-            {plotCount > 1 && (
-              <>
-                {" · "}
-                <Link href="/settings" style={{ color: "var(--accent)" }}>{t("switchCrop")}</Link>
-              </>
-            )}
-          </p>
-        )}
-      </header>
+      <PageHeader
+        eyebrow={today}
+        title={t("yourFarmToday")}
+        subtitle={
+          farm && crop ? (
+            <>
+              <CropIcon cropId={farm.cropId} size={20} />
+              {cropName(crop, lang)} · {farmSizeLabel(farm, lang)} · {farm.village}
+              {plotCount > 1 && (
+                <Link href="/settings" className="font-bold" style={{ color: "var(--accent-ink)" }}>
+                  {t("switchCrop")}
+                </Link>
+              )}
+            </>
+          ) : undefined
+        }
+      />
 
       {stale && (
-        <p className="card mb-4 px-3.5 py-2.5 text-sm" style={{ color: "var(--ink-soft)" }}>
+        <p className="well mb-4 px-4 py-3 text-[14px]" style={{ color: "var(--ink-soft)" }}>
           {t("offlineNote")}
         </p>
       )}
@@ -123,10 +125,13 @@ export default function TodayPage() {
 
       {cards.length > 0 && (
         <section className="space-y-3">
-          {cards.map((card) => (
+          {cards.map((card, i) => (
             <TodayCard
               key={card.id}
               card={card}
+              /* The engine already ranks these; the first is the morning's
+                 answer, so it gets the room instead of a bigger number. */
+              lead={i === 0}
               onAction={card.action ? recordFertiliser : undefined}
             />
           ))}
@@ -141,13 +146,17 @@ export default function TodayPage() {
 
       {/* Money belongs on the money screen; here it is a line, not a headline. */}
       {plan && (
-        <Link href="/profit" className="press card mt-7 flex items-baseline justify-between gap-3 p-4">
-          <span className="text-sm font-semibold" style={{ color: "var(--ink-soft)" }}>
+        <Link
+          href="/profit"
+          className="press mt-7 flex items-center justify-between gap-3 rounded-[calc(var(--radius)+4px)] p-5"
+          style={{ background: "var(--accent-soft)" }}
+        >
+          <span className="eyebrow" style={{ color: "var(--accent-ink)" }}>
             {plan.economics.bearing && plan.economics.yieldKnown && plan.economics.priceKnown
               ? t("expectedProfit")
               : t("spentThisSeason")}
           </span>
-          <span className="tabular text-lg font-extrabold" style={{ color: "var(--money)" }}>
+          <span className="tabular text-[1.5rem] font-extrabold leading-none" style={{ color: "var(--money)" }}>
             ₹
             {(plan.economics.bearing && plan.economics.yieldKnown && plan.economics.priceKnown
               ? plan.economics.expectedProfit
@@ -165,7 +174,7 @@ export default function TodayPage() {
 
       <button
         onClick={() => void refresh()}
-        className="press card mt-4 w-full py-3 text-sm font-bold"
+        className="press well mt-4 w-full py-3.5 text-[15px] font-bold"
         style={{ color: "var(--ink-soft)" }}
       >
         {t("refresh")}

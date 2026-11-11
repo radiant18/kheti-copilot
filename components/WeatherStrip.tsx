@@ -19,8 +19,12 @@ export function WeatherStrip({ wx }: { wx: WeatherWindow }) {
           return (
             <div
               key={d.date}
-              className="card w-[68px] shrink-0 px-2 py-2.5 text-center"
-              style={i === 0 ? { borderColor: "var(--accent)" } : undefined}
+              className="well w-[70px] shrink-0 px-2 py-3 text-center"
+              style={
+                i === 0
+                  ? { background: "var(--accent-soft)", boxShadow: "inset 0 0 0 1px var(--accent)" }
+                  : undefined
+              }
             >
               <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>
                 {day.toLocaleDateString("en-IN", { weekday: "short" })}
@@ -28,11 +32,11 @@ export function WeatherStrip({ wx }: { wx: WeatherWindow }) {
               <div aria-hidden className="my-1 text-[17px]">
                 {wet ? "🌧️" : d.rainMm > 1 ? "🌦️" : "☀️"}
               </div>
-              <div className="tabular text-[13px] font-bold">{d.rainMm.toFixed(0)}mm</div>
+              <div className="tabular text-[13px] font-extrabold">{d.rainMm.toFixed(0)}mm</div>
               <div
                 aria-hidden
                 className="mx-auto mt-1.5 h-1 w-full overflow-hidden rounded-full"
-                style={{ background: "var(--surface-2)" }}
+                style={{ background: "var(--line)" }}
               >
                 <div
                   className="h-full rounded-full"

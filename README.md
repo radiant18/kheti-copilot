@@ -31,7 +31,17 @@ No payments, no escrow, no delivery, no grading arbitration. Standing between
 two people's money needs a licence, a dispute process and insurance, none of
 which an app can improvise. Kheti introduces a farmer to a buyer and gets out of
 the way. A phone number appears on a listing only because the farmer ticked the
-consent box, listings are unverified, and the UI says so.
+consent box, the lot itself is unverified, and the UI says so.
+
+The number, though, is checked. Signing in sends a six-digit code to it by SMS
+— the one channel that needs no app installed, reaches a feature phone, and
+that Android reads into the code box by itself — and answering that code earns a signed token naming the number; every
+route that publishes or messages a number reads it off that token and ignores
+whatever the request body claims. Without it, anybody could post a lot carrying
+a stranger's number and put it in front of every buyer in the state — the one
+thing on this board that cannot be undone once somebody has written it down.
+`lib/otp.ts` has the detail. It is still not user authentication: the token says
+the number was reachable, not who is holding the phone.
 
 ## Architecture
 
@@ -101,6 +111,19 @@ cp .env.example .env.local   # add DATA_GOV_API_KEY
 npm run dev
 ```
 
+Sign-in codes work out of the box in development: with no message provider
+configured nothing is sent and the code is shown on the screen instead. In
+production that is refused — a code returned to the caller verifies nobody — so
+a deployment needs `OTP_SECRET` and a way to send.
+
+Sending to an Indian number needs a **DLT registration**: a six-letter sender
+header and a template whose wording TRAI has approved, with the code as a
+variable. That is paperwork against a business entity and cannot be arranged in
+code, so budget for it before launch. `lib/sms.ts` speaks to MSG91 or Twilio —
+set one provider's keys and leave `SMS_PROVIDER` blank to have it inferred. A
+deployment with a Meta account but no DLT registration yet can fall back to
+WhatsApp for the code by configuring only the WhatsApp side.
+
 Get a free key at https://data.gov.in — sign in, then My Account → API key. The
 shared sample key in the public docs is rate-limited and will 429 mid-demo.
 
@@ -115,8 +138,9 @@ npx vercel            # first run links the project
 npx vercel --prod
 ```
 
-Set `DATA_GOV_API_KEY` and `ANTHROPIC_API_KEY` in the Vercel dashboard, not in
-the repo.
+Set `DATA_GOV_API_KEY`, `ANTHROPIC_API_KEY` and `OTP_SECRET` in the Vercel
+dashboard, not in the repo. A missing `OTP_SECRET` in production stops sign-in
+rather than falling back, because an unsigned token is a forgeable one.
 
 ## Offline
 
@@ -152,4 +176,9 @@ an APK needs a JDK and the Android SDK, which Android Studio installs.
 - Transport costs are a flat per-km tempo estimate, not real quotes.
 - Listings are file-backed (`lib/listings.ts`, `lib/subscribers.ts`), which works
   locally and on a normal server but needs a real database on serverless.
-- Listings are unverified. Anyone can post; a buyer must do their own diligence.
+- Pending sign-in codes live in process memory (`lib/otp.ts`) and need the same
+  swap — Redis or Vercel KV, keyed by phone with a TTL — before serverless, or
+  the invocation that checks a code will not be the one that issued it. Issued
+  tokens are signed rather than stored and survive a restart.
+- Lots are unverified. Anyone with a proved number can post one, and a buyer
+  must still do their own diligence on grade, quantity and price.

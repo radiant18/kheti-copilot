@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiSend } from "@/lib/api";
 import { loadCosts, loadFarm } from "@/lib/farm";
-import { loadSession } from "@/lib/session";
+import { loadSession, phoneVerified } from "@/lib/session";
 
 const KEY = "kheti.dailyPlan.v1";
 
@@ -17,6 +18,10 @@ const KEY = "kheti.dailyPlan.v1";
  * the phone is asleep and the server has no other copy (see lib/subscribers.ts).
  * That is worth being plain about, so the note under the switch says the plan
  * is sent, not merely prepared.
+ *
+ * The switch stays inert until the number has been proved. The server will not
+ * point a morning message at an unproved number, and a switch that flips and
+ * then quietly fails is worse than one that says what it is waiting for.
  */
 export function DailyPlanToggle({
   title,
@@ -37,7 +42,7 @@ export function DailyPlanToggle({
 
   useEffect(() => {
     const session = loadSession();
-    setPhone(session?.phone ?? "");
+    setPhone(phoneVerified() ? session?.phone ?? "" : "");
     try {
       setOn(window.localStorage.getItem(KEY) === "1");
     } catch {
@@ -52,18 +57,13 @@ export function DailyPlanToggle({
 
     try {
       const session = loadSession();
-      const res = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          phone,
-          name: session?.name ?? "",
-          lang: session?.lang ?? "en",
-          role: session?.role ?? "farmer",
-          enabled: next,
-          farm: next ? loadFarm() : undefined,
-          costs: next ? loadCosts() : undefined,
-        }),
+      const res = await apiSend("/api/subscribe", "POST", {
+        name: session?.name ?? "",
+        lang: session?.lang ?? "en",
+        role: session?.role ?? "farmer",
+        enabled: next,
+        farm: next ? loadFarm() : undefined,
+        costs: next ? loadCosts() : undefined,
       });
       if (!res.ok) return;
 

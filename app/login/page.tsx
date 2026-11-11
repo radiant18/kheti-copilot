@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { apiSend } from "@/lib/api";
 import { LANGUAGES, t, type Lang } from "@/lib/i18n";
 import { isValidPhone, loadSession, signIn, startDemo, type Role } from "@/lib/session";
+import { applyLangToRoot } from "@/lib/use-lang";
 
 /**
  * Sign-in.
@@ -13,8 +15,38 @@ import { isValidPhone, loadSession, signIn, startDemo, type Role } from "@/lib/s
  * reach the Kannada option defeats the point. The chips show each language in
  * its own script, which is the only label a non-reader of English can use.
  *
- * See lib/session.ts: this records identity on the device and verifies nothing.
+ * Two steps, because the number has to be proved and not merely typed. A lot on
+ * the direct board publishes a phone number to every buyer in the state, and
+ * that should take the owner of the number, not anybody who knows it — so the
+ * code goes out here, once, and the token it earns is what the publishing
+ * routes trust from then on. See lib/otp.ts.
+ *
+ * Somebody returning to change their language is not asked again: the number
+ * they already proved is the same number.
  */
+
+type Channel = "sms" | "whatsapp" | "dev";
+
+interface OtpReply {
+  ok?: boolean;
+  sent?: Channel;
+  code?: string;
+  token?: string;
+  error?: string;
+  retryInSec?: number;
+}
+
+/** Server reasons, mapped to something a farmer can act on. */
+const REASON: Record<string, string> = {
+  wrong: "codeWrong",
+  expired: "codeExpired",
+  too_many: "codeTooMany",
+  bad_request: "codeWrong",
+  send_failed: "codeSendFailed",
+  delivery_not_configured: "codeNotConfigured",
+  no_signing_key: "codeNotConfigured",
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [lang, setLang] = useState<Lang>("en");
@@ -22,6 +54,18 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [touched, setTouched] = useState(false);
+
+  const [step, setStep] = useState<"details" | "code">("details");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  /** Shown only when the server had no way to send it — development. */
+  const [devCode, setDevCode] = useState<string | null>(null);
+  /** Which way it actually went, so the screen names the right inbox. */
+  const [channel, setChannel] = useState<Channel>("sms");
+  const [cooldown, setCooldown] = useState(0);
+  /** The number this device has already proved, if any. */
+  const [proved, setProved] = useState<{ phone: string; proof: string } | null>(null);
 
   useEffect(() => {
     const session = loadSession();
@@ -38,37 +82,204 @@ export default function LoginPage() {
       setRole(session.role ?? "farmer");
       setName(session.name);
       setPhone(session.phone);
+      if (session.proof) setProved({ phone: session.phone, proof: session.proof });
       return;
     }
 
     router.replace(session.onboarded ? "/" : "/onboarding");
   }, [router]);
 
+  // The picker changes the language before a session exists, so the root has
+  // to hear about it from here.
+  useEffect(() => applyLangToRoot(lang), [lang]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
   const digits = phone.replace(/\D/g, "");
   const phoneOk = isValidPhone(digits);
   const nameOk = name.trim().length >= 2;
-  const canSubmit = phoneOk && nameOk;
+  const canSubmit = phoneOk && nameOk && !busy;
 
-  function submit(e: React.FormEvent) {
+  function finish(proof?: string) {
+    const session = signIn(digits, name.trim(), lang, role, proof);
+    // A buyer has no farm to set up; send them straight to the board.
+    router.push(role === "buyer" ? "/market" : session.onboarded ? "/" : "/onboarding");
+  }
+
+  async function requestCode() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await apiSend<OtpReply>("/api/otp", "POST", { phone: digits });
+
+      // 429 means a code went out moments ago and is still good — the farmer
+      // should be typing it, not asking for another.
+      if (res.status === 429) {
+        setStep("code");
+        setCooldown(res.data?.retryInSec ?? 60);
+        return;
+      }
+      if (!res.ok || !res.data?.ok) {
+        setError(REASON[res.data?.error ?? ""] ?? "codeSendFailed");
+        return;
+      }
+
+      setStep("code");
+      setCode("");
+      setChannel(res.data.sent ?? "sms");
+      setDevCode(res.data.sent === "dev" ? res.data.code ?? null : null);
+      setCooldown(60);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function submitDetails(e: React.FormEvent) {
     e.preventDefault();
     setTouched(true);
     if (!canSubmit) return;
-    const session = signIn(digits, name.trim(), lang, role);
-    // A buyer has no farm to set up; send them straight to the board.
-    router.push(role === "buyer" ? "/market" : session.onboarded ? "/" : "/onboarding");
+
+    // Nothing to prove twice: this device already answered a code for this
+    // number, and they are only here to change a language or a name.
+    if (proved && proved.phone === digits) {
+      finish(proved.proof);
+      return;
+    }
+    void requestCode();
+  }
+
+  async function submitCode(e: React.FormEvent) {
+    e.preventDefault();
+    if (code.replace(/\D/g, "").length !== 6 || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await apiSend<OtpReply>("/api/otp/verify", "POST", {
+        phone: digits,
+        code: code.replace(/\D/g, ""),
+      });
+      if (res.ok && res.data?.token) {
+        finish(res.data.token);
+        return;
+      }
+      setError(REASON[res.data?.error ?? ""] ?? "codeWrong");
+      setCode("");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const primary = (enabled: boolean) => ({
+    background: enabled ? "var(--accent)" : "var(--surface-2)",
+    color: enabled ? "var(--ground)" : "var(--ink-faint)",
+    boxShadow: enabled ? "var(--shadow-md)" : "none",
+  });
+
+  if (step === "code") {
+    const codeOk = code.replace(/\D/g, "").length === 6;
+    return (
+      <main className="flex min-h-[100svh] flex-col justify-center py-10">
+        <header className="mb-8">
+          <div
+            className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-[26px]"
+            style={{ background: "var(--accent-soft)" }}
+            aria-hidden
+          >
+            💬
+          </div>
+          <h1 className="t-title">{t(lang, "codeTitle")}</h1>
+          <p className="mt-3 max-w-[22rem] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+            {channel === "dev"
+              ? t(lang, "codeNotSent")
+              : t(lang, channel === "whatsapp" ? "codeSentTo" : "codeSentToSms", {
+                  phone: digits,
+                })}
+          </p>
+        </header>
+
+        <form onSubmit={submitCode} className="space-y-4">
+          <label className="block">
+            <span className="eyebrow mb-1.5 block">{t(lang, "codeLabel")}</span>
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              autoFocus
+              maxLength={6}
+              placeholder="000000"
+              className="tabular w-full rounded-2xl border px-4 py-4 text-center text-[1.75rem] font-extrabold tracking-[0.35em]"
+              style={{ color: "var(--ink)", background: "var(--surface)", borderColor: "var(--line)" }}
+            />
+          </label>
+
+          {error && (
+            <p className="text-sm" style={{ color: "var(--urgent)" }}>{t(lang, error)}</p>
+          )}
+
+          {/* No SMS provider and no WhatsApp on this server, so nothing was
+              actually sent. The route only ever does this outside production. */}
+          {devCode && (
+            <p
+              className="rounded-lg px-3 py-2 text-sm font-semibold"
+              style={{ background: "var(--signal-soft)", color: "var(--signal)" }}
+            >
+              {t(lang, "codeDevNotice", { code: devCode })}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={!codeOk || busy}
+            className="press w-full rounded-2xl py-4 text-[17px] font-extrabold"
+            style={primary(codeOk && !busy)}
+          >
+            {t(lang, "verifyAndContinue")}
+          </button>
+        </form>
+
+        <div className="mt-5 flex items-center justify-between text-sm">
+          <button
+            type="button"
+            onClick={() => {
+              setStep("details");
+              setError(null);
+              setDevCode(null);
+            }}
+            className="font-bold"
+            style={{ color: "var(--accent-ink)" }}
+          >
+            {t(lang, "changeNumber")}
+          </button>
+          <button
+            type="button"
+            onClick={() => void requestCode()}
+            disabled={cooldown > 0 || busy}
+            className="font-bold"
+            style={{ color: cooldown > 0 ? "var(--ink-faint)" : "var(--accent-ink)" }}
+          >
+            {cooldown > 0 ? t(lang, "resendIn", { sec: cooldown }) : t(lang, "resendCode")}
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (
     <main className="flex min-h-[100svh] flex-col justify-center py-10">
       <header className="mb-8">
         <div
-          className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-2xl"
+          className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-[26px]"
           style={{ background: "var(--accent-soft)" }}
           aria-hidden
         >
           🌴
         </div>
-        <h1 className="text-[2.6rem] font-extrabold leading-[1.05]">Kheti</h1>
+        <h1 className="t-hero">Kheti</h1>
         <p className="mt-3 max-w-[22rem] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
           {t(lang, "tagline")}
         </p>
@@ -90,16 +301,16 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setRole(value)}
                 aria-pressed={on}
-                className="press rounded-xl border px-4 py-3 text-left"
+                className="press rounded-2xl border-2 px-4 py-3.5 text-start"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
                   background: on ? "var(--accent-soft)" : "var(--surface)",
                 }}
               >
-                <span className="block font-bold" style={{ color: on ? "var(--accent)" : "var(--ink)" }}>
+                <span className="t-headline block" style={{ color: on ? "var(--accent-ink)" : "var(--ink)" }}>
                   {t(lang, label)}
                 </span>
-                <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-soft)" }}>
+                <span className="mt-1 block text-[14px]" style={{ color: "var(--ink-soft)" }}>
                   {t(lang, note)}
                 </span>
               </button>
@@ -119,12 +330,12 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setLang(l.code)}
                 aria-pressed={on}
-                className="press flex items-center justify-between rounded-xl border px-3.5 py-2.5 text-left"
+                className="press flex items-center justify-between rounded-2xl border px-4 py-3 text-start"
                 style={{
                   borderColor: on ? "var(--accent)" : "var(--line)",
-                  background: on ? "var(--accent-soft)" : "var(--surface)",
-                  color: on ? "var(--accent)" : "var(--ink)",
-                  fontWeight: on ? 700 : 500,
+                  background: on ? "var(--accent)" : "var(--surface)",
+                  color: on ? "var(--ground)" : "var(--ink)",
+                  fontWeight: on ? 800 : 600,
                 }}
               >
                 <span className="text-[15px]">{l.native}</span>
@@ -135,21 +346,24 @@ export default function LoginPage() {
         </div>
       </fieldset>
 
-      <form onSubmit={submit} className="space-y-4">
+      <form onSubmit={submitDetails} className="space-y-4">
         <label className="block">
           <span className="eyebrow mb-1.5 block">{t(lang, "yourName")}</span>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoComplete="name"
-            className="card w-full px-3.5 py-3"
-            style={{ color: "var(--ink)" }}
+            className="w-full rounded-2xl border px-4 py-3.5 text-[16px] font-semibold"
+            style={{ color: "var(--ink)", background: "var(--surface)", borderColor: "var(--line)" }}
           />
         </label>
 
         <label className="block">
           <span className="eyebrow mb-1.5 block">{t(lang, "mobile")}</span>
-          <div className="card flex items-center gap-2 px-3.5">
+          <div
+            className="flex items-center gap-2 rounded-2xl border px-4"
+            style={{ background: "var(--surface)", borderColor: "var(--line)" }}
+          >
             <span className="tabular text-[15px]" style={{ color: "var(--ink-faint)" }}>+91</span>
             <span aria-hidden style={{ color: "var(--line-strong)" }}>|</span>
             <input
@@ -159,7 +373,7 @@ export default function LoginPage() {
               autoComplete="tel-national"
               maxLength={11}
               placeholder="98800 12345"
-              className="tabular min-w-0 flex-1 bg-transparent py-3 outline-none"
+              className="tabular min-w-0 flex-1 bg-transparent py-3.5 text-[16px] font-semibold outline-none"
               style={{ color: "var(--ink)" }}
             />
           </div>
@@ -174,20 +388,22 @@ export default function LoginPage() {
           <p className="text-sm" style={{ color: "var(--urgent)" }}>Enter your name.</p>
         )}
 
+        {error && <p className="text-sm" style={{ color: "var(--urgent)" }}>{t(lang, error)}</p>}
+
         <button
           type="submit"
-          className="press w-full rounded-xl py-3.5 text-base font-bold"
-          style={{
-            background: canSubmit ? "var(--accent)" : "var(--surface-2)",
-            color: canSubmit ? "var(--ground)" : "var(--ink-faint)",
-            boxShadow: canSubmit ? "var(--shadow-md)" : "none",
-          }}
+          disabled={!canSubmit}
+          className="press w-full rounded-2xl py-4 text-[17px] font-extrabold"
+          style={primary(canSubmit)}
         >
-          {t(lang, "continue")}
+          {proved && proved.phone === digits ? t(lang, "continue") : t(lang, "sendCode")}
         </button>
       </form>
 
-      <p className="mt-5 text-xs leading-relaxed" style={{ color: "var(--ink-faint)" }}>
+      <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+        {t(lang, "whyVerify")}
+      </p>
+      <p className="mt-2 text-xs leading-relaxed" style={{ color: "var(--ink-faint)" }}>
         {t(lang, "privacy")}
       </p>
 
@@ -206,8 +422,8 @@ export default function LoginPage() {
           startDemo(lang, role);
           router.push(role === "buyer" ? "/market" : "/");
         }}
-        className="press card mt-4 w-full py-3.5 text-base font-bold"
-        style={{ color: "var(--accent)" }}
+        className="press mt-4 w-full rounded-2xl border-2 py-4 text-[17px] font-extrabold"
+        style={{ color: "var(--accent-ink)", borderColor: "var(--line-strong)" }}
       >
         {t(lang, "tryDemo")}
       </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { apiSend } from "@/lib/api";
 import { getCrop, gradeLabel } from "@/lib/crops";
 import { loadSession } from "@/lib/session";
 import type { Farm } from "@/lib/types";
@@ -11,6 +12,9 @@ import type { Farm } from "@/lib/types";
  * Grades offered are the ones the farmer holds stock in, falling back to the
  * crop's full grade list so somebody who has not filled in their stock can
  * still post.
+ *
+ * The number is not in the body: the server takes it from the proof token the
+ * device earned at sign-in, so a lot can only ever publish the poster's own.
  */
 export function LotForm({
   farm,
@@ -42,12 +46,8 @@ export function LotForm({
     if (!ready) return;
     setBusy(true);
     try {
-      const res = await fetch("/api/listings", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
+      const res = await apiSend("/api/listings", "POST", {
           farmerName: loadSession()?.name ?? "",
-          phone,
           publishPhone: consent,
           cropId: farm.cropId,
           grade,
@@ -57,7 +57,6 @@ export function LotForm({
           district: farm.district,
           state: farm.state,
           note: note.trim() || undefined,
-        }),
       });
       if (res.ok) onDone();
     } finally {

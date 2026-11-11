@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { apiPost } from "@/lib/api";
 import { buildAskContext } from "@/lib/ask-context";
 import { getCrop } from "@/lib/crops";
@@ -36,7 +37,11 @@ export default function AskPage() {
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setFarm(loadFarm()), []);
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [turns, thinking]);
+  // Braced deliberately: scrollIntoView resolves a Promise in newer Chrome, and
+  // a concise body would hand that Promise back to React as the cleanup.
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [turns, thinking]);
   useEffect(() => () => stopSpeaking(), []);
 
   const crop = farm ? getCrop(farm.cropId) : null;
@@ -95,30 +100,29 @@ export default function AskPage() {
     : [];
 
   return (
-    <main className="flex min-h-[calc(100svh-5rem)] flex-col py-5">
-      <header className="mb-4">
-        <h1 className="text-2xl font-bold tracking-tight">{t("askYourFarm")}</h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-soft)" }}>
-          {crop ? `About your ${crop.name.en.toLowerCase()} at ${farm?.village || "your farm"}.` : "Loading your farm…"}
-        </p>
-      </header>
+    <main className="flex min-h-[calc(100svh-12rem)] flex-col py-4">
+      <PageHeader
+        title={t("askYourFarm")}
+        subtitle={
+          crop
+            ? `About your ${crop.name.en.toLowerCase()} at ${farm?.village || "your farm"}.`
+            : "Loading your farm…"
+        }
+      />
 
       {turns.length === 0 && (
-        <div
-          className="mb-4 rounded-2xl border p-4"
-          style={{ borderColor: "var(--line)", background: "var(--surface)" }}
-        >
-          <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
+        <div className="card mb-4 p-5">
+          <p className="t-body">
             Ask about today&apos;s weather, spraying, watering, or prices. I only answer from
             your own farm&apos;s plan — if I do not know, I will say so.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {suggestions.map((q) => (
               <button
                 key={q}
                 onClick={() => void ask(q)}
-                className="rounded-full border px-3 py-1.5 text-sm"
-                style={{ borderColor: "var(--line)", color: "var(--accent)" }}
+                className="press rounded-full px-4 py-2 text-[14px] font-bold"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-ink)" }}
               >
                 {q}
               </button>
@@ -131,19 +135,19 @@ export default function AskPage() {
         {turns.map((t, i) => (
           <div
             key={i}
-            className="rounded-2xl px-4 py-3"
+            className="rounded-[20px] px-4 py-3.5"
             style={
               t.role === "user"
-                ? { background: "var(--accent-soft)", marginLeft: "2rem" }
-                : { background: "var(--surface)", border: "1px solid var(--line)", marginRight: "1rem" }
+                ? { background: "var(--accent)", color: "var(--ground)", marginLeft: "2rem" }
+                : { background: "var(--surface-2)", marginRight: "1rem" }
             }
           >
-            <p className="text-[15px] leading-relaxed">{t.text}</p>
+            <p className="text-[16px] leading-relaxed">{t.text}</p>
             {t.role === "assistant" && (
               <button
                 onClick={() => speak(t.text, lang)}
-                className="mt-2 text-xs font-semibold"
-                style={{ color: "var(--accent)" }}
+                className="mt-2.5 text-[13px] font-bold"
+                style={{ color: "var(--accent-ink)" }}
               >
                 🔊 Say it again
               </button>
@@ -163,17 +167,23 @@ export default function AskPage() {
 
       <form
         onSubmit={(e) => { e.preventDefault(); if (typed.trim()) void ask(typed.trim()); }}
-        className="sticky bottom-0 mt-4 flex gap-2 pb-1"
-        style={{ background: "var(--ground)" }}
+        className="sticky mt-4 flex gap-2 pb-2 pt-2"
+        style={{
+          background: "var(--ground)",
+          /* Clears the tab bar; the mic here replaces the floating one, which
+             AskFab hides on this screen. */
+          bottom: "calc(4.5rem + env(safe-area-inset-bottom))",
+        }}
       >
         <button
           type="button"
           onClick={toggleMic}
           aria-label={listening ? "Stop listening" : "Ask by voice"}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl"
+          className="press flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-[22px]"
           style={{
             background: listening ? "var(--urgent)" : "var(--accent)",
             color: "var(--ground)",
+            boxShadow: "var(--shadow-md)",
           }}
         >
           {listening ? "■" : "🎤"}
@@ -182,13 +192,13 @@ export default function AskPage() {
           value={typed}
           onChange={(e) => setTyped(e.target.value)}
           placeholder={listening ? "…" : t("askPlaceholder")}
-          className="min-w-0 flex-1 rounded-xl border px-3 text-base"
-          style={{ borderColor: "var(--line)", background: "var(--surface)", color: "var(--ink)" }}
+          className="min-w-0 flex-1 rounded-2xl border px-4 text-base"
+          style={{ borderColor: "var(--line)", background: "var(--surface-2)", color: "var(--ink)" }}
         />
         <button
           type="submit"
           disabled={!typed.trim() || thinking}
-          className="rounded-xl px-4 font-semibold"
+          className="press rounded-2xl px-5 font-extrabold"
           style={{
             background: typed.trim() ? "var(--accent)" : "var(--line)",
             color: typed.trim() ? "var(--ground)" : "var(--ink-soft)",

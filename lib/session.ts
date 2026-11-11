@@ -3,15 +3,21 @@
 /**
  * Local sign-in state.
  *
- * IMPORTANT: this is NOT authentication. It records a phone number on the
+ * IMPORTANT: this is still NOT authentication. It records a phone number on the
  * device so the app knows whose farm to load and can skip onboarding on the
- * next open. There is no server, no OTP, and no verification — anyone with the
- * phone can open the app.
+ * next open. Anyone holding the unlocked phone gets the session.
  *
- * The real thing, when there is a backend: send an OTP over SMS, verify it
- * server-side, and exchange it for a session token stored in an httpOnly
- * cookie on web and in secure storage on mobile. Until then, do not put
- * anything sensitive behind this.
+ * What it now also carries is `proof`: a token from the server saying that this
+ * number answered a code sent to it — see lib/otp.ts. That is a narrower claim
+ * than "this is Suresh Bhat", and it is the one the direct board needs, because
+ * publishing a number should require the number's owner. Every route that
+ * publishes or messages a number reads the phone off this token rather than out
+ * of the request body.
+ *
+ * Still missing for real auth: the token sits in localStorage, so it can be
+ * copied off a device someone else has. The upgrade is an httpOnly cookie on
+ * web and secure storage in the Capacitor shell. Do not put anything more
+ * sensitive than this behind it.
  */
 
 const SESSION_KEY = "kheti.session.v1";
@@ -38,6 +44,11 @@ export interface Session {
   /** False until the farm profile wizard has been completed. */
   onboarded: boolean;
   /**
+   * Server's signed statement that a code sent to `phone` was answered here.
+   * Absent on demo sessions, which have no number to prove.
+   */
+  proof?: string;
+  /**
    * True for the look-around session started from the login screen. The app
    * badges it and offers a way out, so nobody mistakes the seeded arecanut
    * garden for a farm they entered themselves.
@@ -63,13 +74,29 @@ export function saveSession(session: Session): void {
   }
 }
 
-export function signIn(phone: string, name: string, lang: Lang, role: Role): Session {
+/**
+ * Record a verified sign-in.
+ *
+ * `proof` is omitted when nothing about the number changed — somebody coming
+ * back through the login screen to switch language should not have to answer a
+ * code again, so the token they already hold carries over.
+ */
+export function signIn(
+  phone: string,
+  name: string,
+  lang: Lang,
+  role: Role,
+  proof?: string,
+): Session {
   const existing = loadSession();
+  const carried = existing?.phone === phone ? existing.proof : undefined;
+  const token = proof ?? carried;
   const session: Session = {
     phone,
     name,
     lang,
     role,
+    ...(token ? { proof: token } : {}),
     signedInAt: new Date().toISOString(),
     // A buyer has no farm to set up, so there is nothing to onboard them into.
     onboarded: role === "buyer" ? true : existing?.phone === phone ? existing.onboarded : false,
@@ -107,6 +134,17 @@ export function currentRole(): Role {
 
 export function isDemo(): boolean {
   return loadSession()?.demo === true;
+}
+
+/** The bearer token for routes that publish or message this farmer's number. */
+export function proofToken(): string | null {
+  return loadSession()?.proof ?? null;
+}
+
+/** True once this device has proved the number it is signed in with. */
+export function phoneVerified(): boolean {
+  const session = loadSession();
+  return Boolean(session?.phone && session.proof);
 }
 
 /** Change the interface language for an existing session. */
